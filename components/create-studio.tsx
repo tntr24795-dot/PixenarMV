@@ -93,6 +93,7 @@ export default function CreateStudio({
       : filmScenes,
   );
   const [generating, setGenerating] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const model = videoModels.find((m) => m.id === modelId)!;
   const currentScene = scenes[selected - 1] ?? scenes[0];
   const total = useMemo(
@@ -302,6 +303,26 @@ export default function CreateStudio({
       setGenerating(false);
     }
   }
+  async function exportProject() {
+    setExporting(true);
+    setNotice("");
+    try {
+      const id = await ensureProject();
+      const response = await fetch("/api/exports", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ projectId: id }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to start final export.");
+      window.location.assign("/renders");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to start final export.";
+      setNotice(message);
+      window.alert(message);
+      setExporting(false);
+    }
+  }
   return (
     <div className="studio">
       <div className="studioBar">
@@ -325,7 +346,9 @@ export default function CreateStudio({
         </div>
         <div className="barActions">
           <button className="ghost">Preview</button>
-          <button className="primary">Export</button>
+          <button className="primary" disabled={exporting} onClick={exportProject}>
+            {exporting ? "Preparing…" : "Export"}
+          </button>
         </div>
       </div>
       <div className="studioBody">
@@ -437,32 +460,35 @@ export default function CreateStudio({
                   {String(currentScene.duration).padStart(2, "0")}
                 </span>
               </div>
-              <div className="timeline">
-                <div className="timelineTop">
-                  <b>Timeline</b>
-                  <span>−　100%　＋</span>
-                </div>
-                <div className="tracks">
-                  <div className="trackLabel">VIDEO</div>
-                  {scenes.map((s) => (
-                    <div
-                      key={s.n}
-                      className={`clip c${s.n}`}
-                      style={{ flex: s.duration }}
-                    >
-                      <b>
-                        {s.n}. {s.title}
-                      </b>
-                      <small>{s.duration}s</small>
-                    </div>
-                  ))}
-                </div>
-                <div className="tracks audio">
-                  <div className="trackLabel">AUDIO</div>
-                  <div className="wave">▂▃▅▇▆▄▂▃▆▇▅▃▂▃▅▆▇▅▃▂▂▄▆▇▆▄▃▂▃▅▇▆▃</div>
+            </>
+          )}
+          {(mode === "film" || analysisSections.length > 0) && (
+            <div className="timeline">
+              <div className="timelineTop">
+                <b>Timeline</b>
+                <span>{scenes.length} scenes · {Math.round(scenes.reduce((sum, scene) => sum + scene.duration, 0))}s</span>
+              </div>
+              <div className="tracks">
+                <div className="trackLabel">VIDEO</div>
+                {scenes.map((s) => (
+                  <div
+                    key={s.n}
+                    className={`clip c${s.n}`}
+                    style={{ flex: s.duration }}
+                  >
+                    <b>{s.n}. {s.title}</b>
+                    <small>{s.duration}s</small>
+                  </div>
+                ))}
+              </div>
+              <div className="tracks audio">
+                <div className="trackLabel">AUDIO</div>
+                <div className="wave">
+                  {mode === "music-video" ? "MASTER TRACK · " : "SCENE AUDIO · "}
+                  ▂▃▅▇▆▄▂▃▆▇▅▃▂▃▅▆▇▅▃▂▂▄▆▇▆▄▃▂▃▅▇▆▃
                 </div>
               </div>
-            </>
+            </div>
           )}
         </section>
         <aside className="inspector">
