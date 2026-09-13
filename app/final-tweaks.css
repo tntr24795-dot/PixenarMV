@@ -1,0 +1,2 @@
+.poster a.play{display:grid;place-items:center;text-decoration:none;color:#fff}
+@media(max-width:760px){.studioBody .inspector{display:block;border-left:0;border-top:1px solid var(--line);padding-bottom:70px}.authCopyright{position:static;margin-top:20px}.authPage{align-content:center}}
