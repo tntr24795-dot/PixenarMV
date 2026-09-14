@@ -2,6 +2,7 @@ import Link from "next/link";
 import CharacterManager, { Character } from "@/components/character-manager";
 import SignOutButton from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
+import { mainSiteUrl } from "@/lib/brand-links";
 export default async function CharactersPage() {
   const supabase = await createClient();
   const { data } = await supabase
@@ -18,6 +19,7 @@ export default async function CharactersPage() {
           </span>
         </Link>
         <nav>
+          <a href={mainSiteUrl}>Main website</a>
           <Link href="/studio">Projects</Link>
           <Link className="active" href="/characters">
             Characters

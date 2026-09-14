@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mainSiteUrl } from "@/lib/brand-links";
 type SavedProject = {
   id: string;
   title: string;
@@ -36,9 +37,11 @@ const progressByStatus: Record<string, number> = {
 export default function Dashboard({
   savedProjects = [],
   credits = 0,
+  role = "user",
 }: {
   savedProjects?: SavedProject[];
   credits?: number;
+  role?: "user" | "admin";
 }) {
   const empty = savedProjects.length === 0;
   const projects = empty ? samples : savedProjects;
@@ -69,6 +72,9 @@ export default function Dashboard({
           </Link>
         </nav>
         <div className="sideBottom">
+          <a className="nav mainSiteLink" href={mainSiteUrl}>
+            <span>⌂</span>Main website
+          </a>
           <div className="creditCard">
             <small>AVAILABLE CREDITS</small>
             <strong>{credits.toLocaleString()}</strong>
@@ -84,7 +90,9 @@ export default function Dashboard({
         <header>
           <div>
             <p className="eyebrow">PIXENAR CREATIVE CLOUD</p>
-            <h1>Your studio</h1>
+            <h1>
+              Your studio {role === "admin" ? <span className="adminBadge">Admin</span> : null}
+            </h1>
             <p>
               Build stories scene by scene. Keep every character, shot and sound
               in one place.

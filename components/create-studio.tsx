@@ -2,6 +2,7 @@
 import { ChangeEvent, useMemo, useState } from "react";
 import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
+import { mainSiteUrl } from "@/lib/brand-links";
 
 type Mode = "film" | "music-video";
 type Scene = {
@@ -345,6 +346,9 @@ export default function CreateStudio({
           <span>{projectId ? "Saved privately" : "Draft"} · Autosaved</span>
         </div>
         <div className="barActions">
+          <a className="homeLink" href={mainSiteUrl}>
+            Main website
+          </a>
           <button className="ghost">Preview</button>
           <button className="primary" disabled={exporting} onClick={exportProject}>
             {exporting ? "Preparing…" : "Export"}

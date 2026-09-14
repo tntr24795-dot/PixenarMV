@@ -2,6 +2,7 @@
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { mainSiteUrl } from "@/lib/brand-links";
 
 export default function AuthForm() {
   const params = useSearchParams();
@@ -100,6 +101,9 @@ export default function AuthForm() {
         By continuing, you confirm that uploaded media is yours or licensed for
         use.
       </small>
+      <a className="authHomeLink" href={mainSiteUrl}>
+        ← Back to PixenarMV main website
+      </a>
     </div>
   );
 }

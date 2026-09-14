@@ -1,2 +1,6 @@
 .poster a.play{display:grid;place-items:center;text-decoration:none;color:#fff}
+.mainSiteLink{margin-bottom:10px;border:1px solid #24527c;background:#0d2033}
+.adminBadge{display:inline-flex;vertical-align:middle;margin-left:8px;padding:5px 9px;border:1px solid #2e87ba;border-radius:999px;background:#0d2d43;color:#82d5ff;font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.homeLink{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid #2b5273;border-radius:8px;color:#a9dcff;text-decoration:none;font-size:12px;font-weight:700}
+.homeLink:hover{border-color:#42b8f5;color:#fff;background:#10253a}
 @media(max-width:760px){.studioBody .inspector{display:block;border-left:0;border-top:1px solid var(--line);padding-bottom:70px}.authCopyright{position:static;margin-top:20px}.authPage{align-content:center}}

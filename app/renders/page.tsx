@@ -3,6 +3,7 @@ import RenderQueue, { type RenderJob } from "@/components/render-queue";
 import ExportQueue, { type FinalExportJob } from "@/components/export-queue";
 import SignOutButton from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
+import { mainSiteUrl } from "@/lib/brand-links";
 export default async function RendersPage() {
   const supabase = await createClient();
   const [{ data }, { data: exportData }] = await Promise.all([
@@ -73,6 +74,7 @@ export default async function RendersPage() {
           </span>
         </Link>
         <nav>
+          <a href={mainSiteUrl}>Main website</a>
           <Link href="/studio">Projects</Link>
           <Link href="/characters">Characters</Link>
           <Link className="active" href="/renders">
