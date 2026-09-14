@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mainSiteUrl } from "@/lib/brand-links";
 
 const workflow = [
   {
@@ -50,6 +51,7 @@ export default function Home() {
           </span>
         </Link>
         <div className="landingLinks">
+          <a href={mainSiteUrl}>Main website</a>
           <a href="#workflow">How it works</a>
           <a href="#continuity">Characters</a>
           <a href="#models">Models</a>
@@ -273,12 +275,12 @@ export default function Home() {
         </div>
       </section>
       <footer>
-        <Link href="/" className="brand">
+        <a href={mainSiteUrl} className="brand">
           <span className="brandMark">P</span>
           <span>
             Pixenar <b>MV</b>
           </span>
-        </Link>
+        </a>
         <p>AI filmmaking for creators, musicians and storytellers.</p>
         <span>© 2026 PixenarMV. All rights reserved.</span>
       </footer>
