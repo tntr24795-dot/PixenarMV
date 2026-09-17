@@ -19,12 +19,7 @@ export type ProviderState = {
 };
 
 const providerModels: Record<string, string> = {
-  "veo-3-1-fast": "veo3.1_fast",
-  "wan-3-1": "wan3",
-  "gemini-omni-flash": "gemini_omni_flash",
   "runway-4-5": "gen4.5",
-  "seedance-2-0": "seedance2",
-  "seedance-2-5": "seedance2_5",
 };
 
 function client() {
@@ -54,9 +49,6 @@ export async function submitVideo(input: RenderInput) {
     duration: input.duration,
     ratio: ratioFor(input.aspectRatio, input.resolution, supports1080),
   };
-  if (["veo-3-1-fast", "wan-3-1", "seedance-2-0", "seedance-2-5"].includes(input.model)) {
-    params.audio = true;
-  }
   const task = await client().textToVideo.create(params as never, {
     idempotencyKey: `pixenar-${input.generationId}`,
   });

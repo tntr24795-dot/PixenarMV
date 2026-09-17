@@ -195,7 +195,12 @@ async function composeExport(bundle: ExportBundle) {
     const concatFile = join(workDir, "timeline.ffconcat");
     await writeFile(
       concatFile,
-      `ffconcat version 1.0\n${sceneUrls.map((url) => `file ${ffconcatPath(url)}`).join("\n")}\n`,
+      `ffconcat version 1.0\n${sceneUrls
+        .map(
+          (url, index) =>
+            `file ${ffconcatPath(url)}\nduration ${Math.max(bundle.scenes[index].durationSeconds, 0.1)}`,
+        )
+        .join("\n")}\n`,
       "utf8",
     );
     const outputFile = join(workDir, "final.mp4");
