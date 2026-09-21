@@ -81,6 +81,13 @@ export default function CreateStudio({
   const [analysisSections, setAnalysisSections] = useState<
     { name: string; start: number; end: number }[]
   >(initialProject?.song_analysis?.sections ?? []);
+  const [story, setStory] = useState("");
+  const [storyStyle, setStoryStyle] = useState("cinematic-realism");
+  const [aspectRatio, setAspectRatio] = useState("9:16");
+  const [buildingStory, setBuildingStory] = useState(false);
+  const [dramaReady, setDramaReady] = useState(
+    Boolean(initialProject?.kind === "short_film" && initialProject.scenes.length),
+  );
   const [scenes, setScenes] = useState<Scene[]>(
     initialProject?.scenes.length
       ? initialProject.scenes.map((scene) => ({
@@ -230,6 +237,60 @@ export default function CreateStudio({
     } finally {
       setUploading(false);
       event.target.value = "";
+    }
+  }
+  async function buildDramaStoryboard() {
+    if (story.trim().length < 40) {
+      setNotice("Tell us a little more — use at least 40 characters.");
+      return;
+    }
+    setBuildingStory(true);
+    setNotice("Turning your story into editable scenes…");
+    try {
+      const id = await ensureProject();
+      const response = await fetch("/api/storyboard", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          projectId: id,
+          story,
+          style: storyStyle,
+          aspectRatio,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error || "Unable to build the storyboard.");
+      setScenes(
+        data.scenes.map(
+          (scene: {
+            id: string;
+            position: number;
+            title: string;
+            duration_seconds: number;
+            prompt: string;
+            status: string;
+          }) => ({
+            id: scene.id,
+            n: scene.position + 1,
+            title: scene.title,
+            duration: scene.duration_seconds,
+            prompt: scene.prompt,
+            status: scene.status,
+          }),
+        ),
+      );
+      setSelected(1);
+      setDramaReady(true);
+      setNotice(
+        `${data.storyboard.scene_count} editable drama scenes are ready. Add your cast, review prompts, then render.`,
+      );
+    } catch (error) {
+      setNotice(
+        error instanceof Error ? error.message : "Unable to build the storyboard.",
+      );
+    } finally {
+      setBuildingStory(false);
     }
   }
   function updatePrompt(prompt: string) {
@@ -450,6 +511,75 @@ export default function CreateStudio({
                 Only upload audio you own or have permission to use.
               </small>
             </div>
+          ) : !dramaReady ? (
+            <div className="storyBuilder">
+              <div className="storyBuilderHead">
+                <span className="storyIcon">✦</span>
+                <div>
+                  <p className="eyebrow">AI SHORT DRAMA CREATOR</p>
+                  <h2>Turn any story into a mini drama.</h2>
+                  <p>
+                    Paste a story or script. PixenarMV will break it into
+                    editable scenes with continuity-ready visual prompts.
+                  </p>
+                </div>
+              </div>
+              <label>
+                Story or script
+                <textarea
+                  value={story}
+                  maxLength={6000}
+                  onChange={(event) => setStory(event.target.value)}
+                  placeholder="Example: A shy office worker discovers that the anonymous notes on his desk are from the colleague he has secretly admired…"
+                />
+                <small>{story.length.toLocaleString()} / 6,000</small>
+              </label>
+              <div className="storyOptions">
+                <label>
+                  Visual style
+                  <select
+                    value={storyStyle}
+                    onChange={(event) => setStoryStyle(event.target.value)}
+                  >
+                    <option value="cinematic-realism">Cinematic realism</option>
+                    <option value="anime">Anime</option>
+                    <option value="3d-animation">3D animation</option>
+                    <option value="manga">Manga drama</option>
+                    <option value="noir">Cinematic noir</option>
+                  </select>
+                </label>
+                <label>
+                  Format
+                  <select
+                    value={aspectRatio}
+                    onChange={(event) => setAspectRatio(event.target.value)}
+                  >
+                    <option value="9:16">9:16 · Reels / Shorts</option>
+                    <option value="16:9">16:9 · YouTube / Film</option>
+                  </select>
+                </label>
+              </div>
+              <div className="storyFeatures">
+                <span>✓ Automatic scene breakdown</span>
+                <span>✓ Character continuity prompts</span>
+                <span>✓ Editable 8-second shots</span>
+              </div>
+              <button
+                className="primary storyBuildButton"
+                disabled={buildingStory}
+                onClick={buildDramaStoryboard}
+              >
+                {buildingStory
+                  ? "Building storyboard…"
+                  : "Create mini drama storyboard →"}
+              </button>
+              {notice && <p className="uploadNotice">{notice}</p>}
+              <small className="voiceNote">
+                Voiceover and dialogue generation will be enabled after the
+                voice provider is connected. Visual scenes and final export use
+                the existing private PixenarMV workflow.
+              </small>
+            </div>
           ) : (
             <>
               <div className="viewer">
@@ -464,9 +594,12 @@ export default function CreateStudio({
                   {String(currentScene.duration).padStart(2, "0")}
                 </span>
               </div>
+              <button className="editStory" onClick={() => setDramaReady(false)}>
+                Edit story and rebuild storyboard
+              </button>
             </>
           )}
-          {(mode === "film" || analysisSections.length > 0) && (
+          {((mode === "film" && dramaReady) || analysisSections.length > 0) && (
             <div className="timeline">
               <div className="timelineTop">
                 <b>Timeline</b>
@@ -495,7 +628,11 @@ export default function CreateStudio({
             </div>
           )}
         </section>
-        <aside className="inspector">
+        <aside
+          className={`inspector ${
+            mode === "film" && !dramaReady ? "storyInspectorHidden" : ""
+          }`}
+        >
           <div className="inspectorTitle">
             <div>
               <b>Scene {selected}</b>
