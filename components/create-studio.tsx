@@ -56,7 +56,9 @@ const filmScenes: Scene[] = [
 export default function CreateStudio({
   initialMode = "film",
   initialProject,
+  configuredModelIds = [],
 }: {
+  configuredModelIds?: string[];
   initialMode?: Mode;
   initialProject?: InitialProject;
 }) {
@@ -69,6 +71,7 @@ export default function CreateStudio({
   );
   const [modelId, setModelId] = useState("runway-4-5");
   const [duration, setDuration] = useState(8);
+  const [resolution, setResolution] = useState("720p");
   const [selected, setSelected] = useState(1);
   const [title, setTitle] = useState(
     initialProject?.title ?? "Untitled project",
@@ -114,14 +117,16 @@ export default function CreateStudio({
             model.durations.includes(scene.duration)
               ? scene.duration
               : model.durations[0],
+            resolution,
           ),
         0,
       ),
-    [modelId, model, scenes],
+    [modelId, model, scenes, resolution],
   );
   function chooseModel(id: string) {
     const next = videoModels.find((m) => m.id === id)!;
     setModelId(id);
+    if (!next.resolutions?.includes(resolution)) setResolution("720p");
     setDuration(
       next.durations.includes(duration) ? duration : next.durations[0],
     );
@@ -348,6 +353,7 @@ export default function CreateStudio({
           projectId: id,
           sceneId,
           modelId,
+          resolution,
           duration,
           prompt: currentScene.prompt,
         }),
@@ -655,9 +661,9 @@ export default function CreateStudio({
                 onChange={(e) => chooseModel(e.target.value)}
               >
                 {videoModels.map((m) => (
-                  <option disabled={!m.available} value={m.id} key={m.id}>
+                  <option disabled={!m.available || !configuredModelIds.includes(m.id)} value={m.id} key={m.id}>
                     {m.name}
-                    {!m.available ? " — Paused" : ""}
+                    {!m.available || !configuredModelIds.includes(m.id) ? " — Setup required" : ""}
                   </option>
                 ))}
               </select>
@@ -676,6 +682,12 @@ export default function CreateStudio({
               </select>
             </label>
           </div>
+          <label>
+            Resolution
+            <select value={resolution} onChange={event => setResolution(event.target.value)}>
+              {(model.resolutions ?? ["720p"]).map(value => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </label>
           <div className="modelHint">
             <b>{model.badge}</b>
             <span>{model.bestFor}</span>
@@ -704,16 +716,24 @@ export default function CreateStudio({
           </label>
           <div className="cost">
             <span>Estimated scene cost</span>
-            <b>{creditsFor(modelId, duration)} credits</b>
+            <b>{creditsFor(modelId, duration, resolution)} credits</b>
           </div>
           <button
             className="generate"
-            disabled={generating}
+            disabled={generating || !configuredModelIds.includes(modelId)}
             onClick={generateScene}
           >
             {generating ? "Queuing…" : "✦ Generate scene"}
           </button>
           <p className="total">Estimated storyboard: {total} credits</p>
+          <details>
+            <summary>Wan 3.0 pricing · 2–30 seconds</summary>
+            <table><thead><tr><th>Model</th><th>480p</th><th>720p</th><th>1080p</th></tr></thead>
+              <tbody><tr><td>Standard</td><td>5 cr/s</td><td>10 cr/s</td><td>19 cr/s</td></tr>
+              <tr><td>Prime</td><td>8 cr/s</td><td>16 cr/s</td><td>32 cr/s</td></tr></tbody>
+            </table>
+            <p>720p is the default. Generation becomes available after provider setup. Multi-scene projects are quoted separately.</p>
+          </details>
         </aside>
       </div>
       <footer className="studioCopyright">

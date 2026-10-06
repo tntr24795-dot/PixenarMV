@@ -1,3 +1,5 @@
+import { videoModels } from "@/lib/models";
+import { hasVideoProviderConfiguration } from "@/lib/providers/video";
 import CreateStudio from "@/components/create-studio";
 import { createClient } from "@/lib/supabase/server";
 export default async function CreatePage({
@@ -27,6 +29,7 @@ export default async function CreatePage({
     <CreateStudio
       initialMode={mode === "music-video" ? "music-video" : "film"}
       initialProject={initialProject}
+      configuredModelIds={videoModels.filter(m => m.available && hasVideoProviderConfiguration(m.id)).map(m => m.id)}
     />
   );
 }

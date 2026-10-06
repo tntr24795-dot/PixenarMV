@@ -1,4 +1,5 @@
 import "server-only";
+import { hasWanConfiguration, inspectWan, submitWan } from "./wan";
 import RunwayML from "@runwayml/sdk";
 
 export type RenderInput = {
@@ -34,11 +35,12 @@ function ratioFor(aspectRatio: string, resolution: string, supports1080 = true) 
   return portrait ? "720:1280" : "1280:720";
 }
 
-export function hasVideoProviderConfiguration() {
-  return Boolean(process.env.RUNWAYML_API_SECRET);
+export function hasVideoProviderConfiguration(model = "runway-4-5") {
+  return model.startsWith("wan-3-0") ? hasWanConfiguration() : model === "runway-4-5" && Boolean(process.env.RUNWAYML_API_SECRET);
 }
 
 export async function submitVideo(input: RenderInput) {
+  if (input.model.startsWith("wan-3-0")) return submitWan(input);
   const providerModel = providerModels[input.model];
   if (!providerModel) throw new Error(`Unsupported provider model: ${input.model}`);
   const promptText = input.prompt.slice(0, input.model === "runway-4-5" ? 1000 : 3500);
@@ -55,7 +57,8 @@ export async function submitVideo(input: RenderInput) {
   return { taskId: task.id, providerStatus: "PENDING" };
 }
 
-export async function inspectVideo(taskId: string): Promise<ProviderState> {
+export async function inspectVideo(taskId: string, model = "runway-4-5"): Promise<ProviderState> {
+  if (model.startsWith("wan-3-0")) return inspectWan(taskId);
   const task = await client().tasks.retrieve(taskId);
   if (task.status === "SUCCEEDED") {
     return {

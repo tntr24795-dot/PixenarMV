@@ -1,6 +1,7 @@
+import { quoteVideo } from "@/lib/pricing";
 import { NextRequest, NextResponse } from "next/server";
 import { start } from "workflow/api";
-import { creditsFor, videoModels } from "@/lib/models";
+import { videoModels } from "@/lib/models";
 import { authenticatedClient, readJson } from "@/lib/api/auth";
 import { hasAdminConfiguration } from "@/lib/supabase/admin";
 import { hasVideoProviderConfiguration } from "@/lib/providers/video";
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       { error: "A saved project and scene are required." },
       { status: 400 },
     );
-  if (!hasAdminConfiguration() || !hasVideoProviderConfiguration())
+  if (!hasAdminConfiguration() || !hasVideoProviderConfiguration(model.id))
     return NextResponse.json(
       {
         error:
@@ -42,6 +43,11 @@ export async function POST(request: NextRequest) {
   const { supabase, userId } = await authenticatedClient();
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { data: project } = await supabase.from("projects").select("resolution").eq("id", projectId).single();
+  const resolution = String(body?.resolution ?? project?.resolution ?? "720p");
+  let quote;
+  try { quote = quoteVideo(model.id, Number(body?.duration), resolution); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid pricing." }, { status: 400 }); }
   const requestId = crypto.randomUUID();
   const { data, error } = await supabase.rpc("enqueue_generation", {
     p_project_id: projectId,
@@ -50,6 +56,7 @@ export async function POST(request: NextRequest) {
     p_duration: Number(body?.duration),
     p_prompt: String(body?.prompt),
     p_request_id: requestId,
+    p_resolution: resolution,
   });
   if (error)
     return NextResponse.json(
@@ -72,7 +79,7 @@ export async function POST(request: NextRequest) {
         jobId: data,
         workflowRunId: run.runId,
         status: "queued",
-        credits: creditsFor(model.id, Number(body?.duration)),
+        credits: quote.credits,
         requestId,
       },
       { status: 202 },

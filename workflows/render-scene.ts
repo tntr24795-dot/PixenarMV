@@ -7,7 +7,8 @@ type GenerationRecord = {
   id: string;
   user_id: string;
   model: string;
-  request_payload: { prompt?: string; duration?: number };
+  request_payload: { prompt?: string; duration?: number; resolution?: string; aspectRatio?: string };
+  provider_task_id: string | null;
   projects: { aspect_ratio: string; resolution: string } | null;
 };
 
@@ -15,7 +16,7 @@ async function loadGeneration(generationId: string) {
   "use step";
   const { data, error } = await createAdminClient()
     .from("generations")
-    .select("id,user_id,model,request_payload,projects(aspect_ratio,resolution)")
+    .select("id,user_id,model,provider_task_id,request_payload,projects(aspect_ratio,resolution)")
     .eq("id", generationId)
     .single();
   if (error) throw new Error(error.message);
@@ -24,14 +25,15 @@ async function loadGeneration(generationId: string) {
 
 async function submitGeneration(generation: GenerationRecord) {
   "use step";
+  if (generation.provider_task_id) return generation.provider_task_id;
   const payload = generation.request_payload ?? {};
   const submitted = await submitVideo({
     generationId: generation.id,
     model: generation.model,
     prompt: String(payload.prompt ?? ""),
     duration: Number(payload.duration ?? 8),
-    aspectRatio: generation.projects?.aspect_ratio ?? "16:9",
-    resolution: generation.projects?.resolution ?? "720p",
+    aspectRatio: payload.aspectRatio ?? generation.projects?.aspect_ratio ?? "16:9",
+    resolution: payload.resolution ?? generation.projects?.resolution ?? "720p",
   });
   const { error } = await createAdminClient().rpc("mark_generation_processing", {
     p_generation_id: generation.id,
@@ -41,11 +43,11 @@ async function submitGeneration(generation: GenerationRecord) {
   if (error) throw new Error(error.message);
   return submitted.taskId;
 }
-submitGeneration.maxRetries = 2;
+submitGeneration.maxRetries = 0;
 
-async function pollGeneration(generationId: string, taskId: string) {
+async function pollGeneration(generationId: string, taskId: string, model: string) {
   "use step";
-  const state = await inspectVideo(taskId);
+  const state = await inspectVideo(taskId, model);
   if (state.status === "queued" || state.status === "processing") {
     const { error } = await createAdminClient().rpc("update_generation_progress", {
       p_generation_id: generationId,
@@ -112,7 +114,7 @@ export async function renderSceneWorkflow(generationId: string) {
     const taskId = await submitGeneration(generation);
     for (let attempt = 0; attempt < 180; attempt += 1) {
       await sleep("10s");
-      const state = await pollGeneration(generationId, taskId);
+      const state = await pollGeneration(generationId, taskId, generation.model);
       if (state.status === "failed") {
         await failGeneration(generationId, state.error ?? "Video provider failed.", state.providerStatus);
         return { status: "failed" as const };
