@@ -19,7 +19,7 @@ async function requireAdmin() {
 export async function GET() {
   const auth = await requireAdmin();
   if ("error" in auth) return auth.error;
-  const { data, error } = await createAdminClient()
+  const { data, error } = await admin
     .from("showcase_videos")
     .select("*")
     .order("featured_order", { ascending: true })
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     video_path: String(body?.videoPath ?? "").trim() || null,
     thumbnail_path: String(body?.thumbnailPath ?? "").trim() || null,
     is_featured: body?.isFeatured !== false,
-    published: body?.published === true,
+    published: body?.published === true && Boolean(String(body?.videoPath ?? "").trim()),
     featured_order: Math.max(0, Number(body?.featuredOrder ?? 0)),
     updated_at: new Date().toISOString(),
   };
@@ -75,6 +75,24 @@ export async function PATCH(request: Request) {
   const body = await readJson(request);
   const id = String(body?.id ?? "");
   if (!id) return NextResponse.json({ error: "Item id is required." }, { status: 400 });
+  const admin = createAdminClient();
+  const { data: current, error: currentError } = await admin
+    .from("showcase_videos")
+    .select("video_path")
+    .eq("id", id)
+    .maybeSingle();
+  if (currentError || !current) {
+    return NextResponse.json({ error: currentError?.message ?? "Showcase item not found." }, { status: 404 });
+  }
+  const nextVideoPath =
+    body?.videoPath !== undefined ? String(body.videoPath).trim() || null : current.video_path;
+  if (body?.published === true && !nextVideoPath) {
+    return NextResponse.json(
+      { error: "Upload a showcase video before publishing this item." },
+      { status: 400 },
+    );
+  }
+
   const values: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body?.title !== undefined) values.title = String(body.title).slice(0, 120);
   if (body?.category !== undefined) values.category = String(body.category).slice(0, 80);
