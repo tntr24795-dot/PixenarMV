@@ -59,7 +59,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
                   <b>{item.category}</b>
                 </span>
               )}
-              <span className="showcaseWatermark">PixenarMV</span>
+              <span className="showcaseWatermark">Pixenar Studio</span>
               <span className="showcasePlay">▶</span>
             </button>
             <div className="showcaseMeta">
@@ -85,7 +85,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
               ) : (
                 <span className="showcasePlaceholder large"><i /><b>Preview slot ready</b></span>
               )}
-              <span className="showcaseWatermark large">PixenarMV</span>
+              <span className="showcaseWatermark large">Pixenar Studio</span>
             </div>
             <div className="showcaseDialogBody">
               <small>{active.category} · {active.aspectRatio} · {active.durationSeconds}s</small>
