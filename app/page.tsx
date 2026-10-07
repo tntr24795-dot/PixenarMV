@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
+import { showcaseTemplates } from "@/lib/showcase";
+import ShowcaseCarousel from "@/components/showcase-carousel";
 
 const workflow = [
   {
@@ -132,6 +134,22 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+      <section className="showcaseSection" id="examples">
+        <div className="showcaseHead">
+          <div>
+            <p className="landingKicker">CREATE FROM AN EXAMPLE</p>
+            <h2>See the idea. Open the prompt. Make it yours.</h2>
+            <p className="sectionCopy">
+              Explore ready-to-create film concepts. Open any example to inspect the prompt,
+              then send it directly into PixenarMV Studio as your starting point.
+            </p>
+          </div>
+          <Link className="landingSecondary inline" href="/create?mode=film">
+            Start from scratch
+          </Link>
+        </div>
+        <ShowcaseCarousel items={showcaseTemplates} />
       </section>
       <section className="choice">
         <p className="landingKicker">TWO WAYS TO CREATE</p>
