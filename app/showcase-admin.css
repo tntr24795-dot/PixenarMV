@@ -11,3 +11,9 @@
 .showcaseAdminList{display:grid;gap:10px;margin-top:24px}.showcaseAdminList article{display:flex;justify-content:space-between;gap:20px;align-items:center;border:1px solid #252d40;background:#0d121f;border-radius:14px;padding:16px 18px}.showcaseAdminList small{color:#75ccff}.showcaseAdminList h3{margin:3px 0}.showcaseAdminList p{margin:0;color:#80899c;font-size:12px}
 .showcaseAdminActions{display:flex;gap:8px;flex-wrap:wrap}.showcaseAdminActions button{border:1px solid #315476;background:#102238;color:#d9efff;border-radius:9px;padding:8px 11px;cursor:pointer}.showcaseAdminActions .danger{border-color:#6b3340;background:#2b1118;color:#ffc3cc}
 @media(max-width:900px){.showcaseAdminGrid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.showcaseAdmin{padding:26px 16px}.showcaseAdmin header,.showcaseAdminList article{align-items:stretch;flex-direction:column}.showcaseAdminGrid{grid-template-columns:1fr}.showcaseAdminActions{width:100%}.showcaseAdminActions button{flex:1}}
+
+.showcaseAdminHeaderActions,.showcaseAdminFormActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.showcaseAdminPreview{width:180px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#070b12;border:1px solid #222b3e}
+.showcaseAdminPreview.empty{display:grid;place-items:center;color:#6f7889;font-size:12px}
+.showcaseAdminItemInfo{min-width:0;flex:1}
+@media(max-width:760px){.showcaseAdminPreview{width:100%}.showcaseAdminHeaderActions,.showcaseAdminFormActions{align-items:stretch;flex-direction:column}.showcaseAdminHeaderActions>*{width:100%}}
