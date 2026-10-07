@@ -1,4 +1,4 @@
-import { quoteVideo } from "@/lib/pricing";
+import { quoteVideo, PRICING_VERSION } from "@/lib/pricing";
 import { NextRequest, NextResponse } from "next/server";
 import { start } from "workflow/api";
 import { videoModels } from "@/lib/models";
@@ -8,6 +8,7 @@ import { hasVideoProviderConfiguration } from "@/lib/providers/video";
 import { renderSceneWorkflow } from "@/workflows/render-scene";
 export async function POST(request: NextRequest) {
   const body = await readJson(request);
+  if (body?.pricingVersion !== PRICING_VERSION) return NextResponse.json({error:"Pricing changed. Refresh before generating."},{status:409});
   const model = videoModels.find((item) => item.id === body?.modelId);
   if (!model?.available)
     return NextResponse.json(
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       { status: 202 },
     );
   } catch (workflowError) {
-    await supabase.rpc("cancel_generation", { p_generation_id: data });
+    // The worker may already have started; do not release provider-billed reservations.
     return NextResponse.json(
       {
         error:

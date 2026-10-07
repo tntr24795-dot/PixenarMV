@@ -7,24 +7,18 @@ insert into private.video_provider_readiness(provider,enabled) values ('runway',
 on conflict(provider) do nothing;
 create or replace function private.video_price_quote(p_model text,p_duration integer,p_resolution text)
 returns jsonb language plpgsql immutable set search_path='' as $$
-declare v_rate integer; v_cost numeric; v_provider text; v_revenue numeric;
+declare v_cost numeric; v_api numeric; v_budget numeric; v_credits integer; v_net numeric := (79.99*.92-.30)/3500; v_revenue numeric;
 begin
  if p_duration is null or p_duration<2 or p_duration>30 then raise exception 'unsupported duration'; end if;
- if p_model='wan-3-0' then
-   v_provider:='alibaba';
-   v_rate:=case p_resolution when '480p' then 5 when '720p' then 10 when '1080p' then 19 end;
-   v_cost:=case p_resolution when '480p' then .041256 when '720p' then .082513 when '1080p' then .165025 end;
- elsif p_model='wan-3-0-prime' then
-   v_provider:='alibaba';
-   v_rate:=case p_resolution when '480p' then 8 when '720p' then 16 when '1080p' then 32 end;
-   v_cost:=case p_resolution when '480p' then .0636 when '720p' then .127199 when '1080p' then .254399 end;
- elsif p_model='runway-4-5' and p_duration in (6,8,10) and p_resolution='720p' then
-   v_provider:='runway'; v_rate:=14; v_cost:=.12;
+ if p_model='wan-3-0' then v_cost:=case p_resolution when '480p' then .05 when '720p' then .10 when '1080p' then .20 end;
+ elsif p_model='wan-3-0-prime' then v_cost:=case p_resolution when '480p' then .068 when '720p' then .14 when '1080p' then .28 end;
+ elsif p_model='runway-4-5' and p_duration in (6,8,10) and p_resolution='720p' then v_cost:=.12;
  end if;
- if v_rate is null then raise exception 'unsupported model, duration or resolution'; end if;
- v_revenue:=v_rate*p_duration*(79.99/3500);
- if 1-(v_cost*p_duration)/v_revenue<.60 then raise exception 'minimum margin not met'; end if;
- return jsonb_build_object('credits',v_rate*p_duration,'creditsPerSecond',v_rate,'provider',v_provider,'apiCost',v_cost*p_duration,'grossMargin',1-(v_cost*p_duration)/v_revenue,'pricingVersion','2026-10-06');
+ if v_cost is null then raise exception 'unsupported model, duration or resolution'; end if;
+ v_api:=v_cost*p_duration; v_budget:=v_api*1.20+.02;
+ v_credits:=ceil(v_budget/(v_net*.375)-.000000001); v_revenue:=v_credits*v_net;
+ if 1-v_budget/v_revenue<.60 then raise exception 'minimum margin not met'; end if;
+ return jsonb_build_object('credits',v_credits,'creditsPerSecond',v_credits::numeric/p_duration,'provider','runway','apiCost',v_api,'costBudget',v_budget,'netRevenue',v_revenue,'contributionMargin',1-v_budget/v_revenue,'grossMargin',1-v_budget/v_revenue,'pricingVersion','2026-10-07');
 end; $$;
 revoke all on function private.video_price_quote(text,integer,text) from public;
 grant execute on function private.video_price_quote(text,integer,text) to authenticated;

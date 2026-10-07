@@ -1,5 +1,5 @@
 import "server-only";
-import { hasWanConfiguration, inspectWan, submitWan } from "./wan";
+import { inspectWan } from "./wan";
 import RunwayML from "@runwayml/sdk";
 
 export type RenderInput = {
@@ -17,30 +17,33 @@ export type ProviderState = {
   outputUrl?: string;
   error?: string;
   providerStatus: string;
+  refundable?: boolean;
 };
 
 const providerModels: Record<string, string> = {
   "runway-4-5": "gen4.5",
+  "wan-3-0": "wan3",
+  "wan-3-0-prime": "wan3_prime",
 };
 
 function client() {
   const apiKey = process.env.RUNWAYML_API_SECRET;
   if (!apiKey) throw new Error("RUNWAYML_API_SECRET is not configured.");
-  return new RunwayML({ apiKey, maxRetries: 2 });
+  return new RunwayML({ apiKey, maxRetries: 0 });
 }
 
 function ratioFor(aspectRatio: string, resolution: string, supports1080 = true) {
   const portrait = aspectRatio === "9:16";
+  if (resolution === "480p") return portrait ? "480:832" : "832:480";
   if (resolution === "1080p" && supports1080) return portrait ? "1080:1920" : "1920:1080";
   return portrait ? "720:1280" : "1280:720";
 }
 
 export function hasVideoProviderConfiguration(model = "runway-4-5") {
-  return model.startsWith("wan-3-0") ? hasWanConfiguration() : model === "runway-4-5" && Boolean(process.env.RUNWAYML_API_SECRET);
+  return Boolean(providerModels[model] && process.env.RUNWAYML_API_SECRET);
 }
 
 export async function submitVideo(input: RenderInput) {
-  if (input.model.startsWith("wan-3-0")) return submitWan(input);
   const providerModel = providerModels[input.model];
   if (!providerModel) throw new Error(`Unsupported provider model: ${input.model}`);
   const promptText = input.prompt.slice(0, input.model === "runway-4-5" ? 1000 : 3500);
@@ -57,8 +60,8 @@ export async function submitVideo(input: RenderInput) {
   return { taskId: task.id, providerStatus: "PENDING" };
 }
 
-export async function inspectVideo(taskId: string, model = "runway-4-5"): Promise<ProviderState> {
-  if (model.startsWith("wan-3-0")) return inspectWan(taskId);
+export async function inspectVideo(taskId: string, provider = "runway"): Promise<ProviderState> {
+  if (provider === "alibaba") return { ...await inspectWan(taskId), refundable: false };
   const task = await client().tasks.retrieve(taskId);
   if (task.status === "SUCCEEDED") {
     return {
@@ -74,6 +77,7 @@ export async function inspectVideo(taskId: string, model = "runway-4-5"): Promis
       progress: 0,
       error: task.status === "FAILED" ? task.failure : "Provider task was cancelled.",
       providerStatus: task.status,
+      refundable: task.status === "CANCELLED" || (typeof task.failureCode === "string" && !task.failureCode.startsWith("SAFETY.INPUT.")),
     };
   }
   return {

@@ -1,29 +1,34 @@
-// List prices checked against Alibaba Model Studio and Runway Dev, 2026-10-06.
-// Gross margin excludes payment fees, tax, storage and failed paid attempts.
-export const creditPacks = [
-  { dollars: 12.99, credits: 500 }, { dollars: 24.99, credits: 1000 },
-  { dollars: 59.99, credits: 2500 }, { dollars: 79.99, credits: 3500 },
-];
-export const minimumCreditValue = Math.min(...creditPacks.map(p => p.dollars / p.credits));
-export type Resolution = "480p" | "720p" | "1080p";
-export const pricing = {
-  "wan-3-0": { provider: "alibaba", rates: { "480p": 5, "720p": 10, "1080p": 19 }, costs: { "480p": .041256, "720p": .082513, "1080p": .165025 } },
-  "wan-3-0-prime": { provider: "alibaba", rates: { "480p": 8, "720p": 16, "1080p": 32 }, costs: { "480p": .0636, "720p": .127199, "1080p": .254399 } },
-  "runway-4-5": { provider: "runway", rates: { "720p": 14 }, costs: { "720p": .12 } },
-} as const;
+// Budget assumptions, not a claim about actual invoices. See pricing documentation.
+export const PRICING_VERSION = '2026-10-07';
+export const PAYMENT_FEE_RATE = .08;
+export const PAYMENT_FIXED_USD = .30;
+export const minimumCreditValue = 79.99 / 3500;
+export const NET_USD_PER_CREDIT = (79.99 * (1 - PAYMENT_FEE_RATE) - PAYMENT_FIXED_USD) / 3500;
+export const TARGET_MARGIN = .625;
+export function quoteCost(apiCost: number) {
+  if (!Number.isFinite(apiCost) || apiCost <= 0) throw new Error('Verified positive cost required');
+  const costBudget = apiCost * 1.20 + .02;
+  const credits = Math.ceil(costBudget / (NET_USD_PER_CREDIT * (1 - TARGET_MARGIN)) - 1e-9);
+  const netRevenue = credits * NET_USD_PER_CREDIT;
+  const contributionMargin = 1 - costBudget / netRevenue;
+  if (contributionMargin < .60) throw new Error('Minimum margin not met');
+  return { version: PRICING_VERSION, credits, apiCost, costBudget, netRevenue, contributionMargin, grossMargin: contributionMargin };
+}
 
-export function quoteVideo(modelId: string, duration: number, resolution = "720p") {
-  if (!Number.isInteger(duration) || duration < 2 || duration > 30) throw new Error("Unsupported duration.");
-  const model = pricing[modelId as keyof typeof pricing];
-  if (!model) throw new Error("Verified provider pricing is unavailable.");
-  if (modelId === "runway-4-5" && ![6, 8, 10].includes(duration)) throw new Error("Unsupported duration.");
-  const rate = (model.rates as Record<string, number>)[resolution];
-  const cost = (model.costs as Record<string, number>)[resolution];
-  if (!rate || !cost) throw new Error("Unsupported resolution.");
-  const credits = rate * duration;
-  const apiCost = cost * duration;
-  const revenue = credits * minimumCreditValue;
-  const grossMargin = 1 - apiCost / revenue;
-  if (grossMargin < .60) throw new Error("Pricing does not meet the minimum margin.");
-  return { credits, creditsPerSecond: rate, provider: model.provider, apiCost, grossMargin, resolution, duration, pricingVersion: "2026-10-06" };
+export const creditPacks = [{dollars:12.99,credits:500},{dollars:24.99,credits:1000},{dollars:59.99,credits:2500},{dollars:79.99,credits:3500}];
+export type Resolution = '480p' | '720p' | '1080p';
+export const pricing = {
+ 'wan-3-0':{provider:'runway',costs:{'480p':.05,'720p':.10,'1080p':.20}},
+ 'wan-3-0-prime':{provider:'runway',costs:{'480p':.068,'720p':.14,'1080p':.28}},
+ 'runway-4-5':{provider:'runway',costs:{'720p':.12}},
+} as const;
+export function quoteVideo(modelId:string,duration:number,resolution='720p') {
+ if(!Number.isInteger(duration)||duration<2||duration>30) throw new Error('Unsupported duration.');
+ const model=pricing[modelId as keyof typeof pricing];
+ if(!model) throw new Error('Verified provider pricing unavailable.');
+ if(modelId==='runway-4-5'&&![6,8,10].includes(duration)) throw new Error('Unsupported duration.');
+ const cost=(model.costs as Record<string,number>)[resolution];
+ if(!cost) throw new Error('Unsupported resolution.');
+ const quote=quoteCost(cost*duration);
+ return {...quote,creditsPerSecond:quote.credits/duration,provider:model.provider,resolution,duration,pricingVersion:PRICING_VERSION};
 }

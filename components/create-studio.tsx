@@ -1,4 +1,5 @@
 "use client";
+import { PRICING_VERSION } from "@/lib/pricing";
 import { ChangeEvent, useMemo, useState } from "react";
 import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
@@ -257,6 +258,7 @@ export default function CreateStudio({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          pricingVersion: PRICING_VERSION,
           projectId: id,
           story,
           style: storyStyle,
@@ -350,6 +352,7 @@ export default function CreateStudio({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          pricingVersion: PRICING_VERSION,
           projectId: id,
           sceneId,
           modelId,
@@ -726,6 +729,7 @@ export default function CreateStudio({
             {generating ? "Queuing…" : "✦ Generate scene"}
           </button>
           <p className="total">Estimated storyboard: {total} credits</p>
+          <p className="total">Provider-billed input policy violations are charged. Confirmed refundable failures return credits; uncertain jobs await review.</p>
           <details>
             <summary>Wan 3.0 pricing · 2–30 seconds</summary>
             <table><thead><tr><th>Model</th><th>480p</th><th>720p</th><th>1080p</th></tr></thead>

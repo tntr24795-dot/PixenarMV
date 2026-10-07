@@ -7,6 +7,7 @@ type GenerationRecord = {
   id: string;
   user_id: string;
   model: string;
+  provider: string;
   request_payload: { prompt?: string; duration?: number; resolution?: string; aspectRatio?: string };
   provider_task_id: string | null;
   projects: { aspect_ratio: string; resolution: string } | null;
@@ -16,7 +17,7 @@ async function loadGeneration(generationId: string) {
   "use step";
   const { data, error } = await createAdminClient()
     .from("generations")
-    .select("id,user_id,model,provider_task_id,request_payload,projects(aspect_ratio,resolution)")
+    .select("id,user_id,model,provider,provider_task_id,request_payload,projects(aspect_ratio,resolution)")
     .eq("id", generationId)
     .single();
   if (error) throw new Error(error.message);
@@ -26,6 +27,8 @@ async function loadGeneration(generationId: string) {
 async function submitGeneration(generation: GenerationRecord) {
   "use step";
   if (generation.provider_task_id) return generation.provider_task_id;
+  const {data: claimed,error: claimError}=await createAdminClient().rpc("claim_generation_submission",{p_generation_id:generation.id});
+  if(claimError || !claimed) throw new Error("Generation cannot be submitted twice.");
   const payload = generation.request_payload ?? {};
   const submitted = await submitVideo({
     generationId: generation.id,
@@ -45,9 +48,9 @@ async function submitGeneration(generation: GenerationRecord) {
 }
 submitGeneration.maxRetries = 0;
 
-async function pollGeneration(generationId: string, taskId: string, model: string) {
+async function pollGeneration(generationId: string, taskId: string, provider: string) {
   "use step";
-  const state = await inspectVideo(taskId, model);
+  const state = await inspectVideo(taskId, provider);
   if (state.status === "queued" || state.status === "processing") {
     const { error } = await createAdminClient().rpc("update_generation_progress", {
       p_generation_id: generationId,
@@ -114,9 +117,9 @@ export async function renderSceneWorkflow(generationId: string) {
     const taskId = await submitGeneration(generation);
     for (let attempt = 0; attempt < 180; attempt += 1) {
       await sleep("10s");
-      const state = await pollGeneration(generationId, taskId, generation.model);
+      const state = await pollGeneration(generationId, taskId, generation.provider);
       if (state.status === "failed") {
-        await failGeneration(generationId, state.error ?? "Video provider failed.", state.providerStatus);
+        await failGeneration(generationId, state.error ?? "Video provider failed.", state.refundable ? "confirmed_refundable" : "billed_failure");
         return { status: "failed" as const };
       }
       if (state.status === "succeeded" && state.outputUrl) {
