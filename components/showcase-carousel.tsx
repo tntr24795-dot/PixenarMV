@@ -7,6 +7,26 @@ import type { ShowcaseTemplate } from "@/lib/showcase";
 export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
   const [active,setActive]=useState<ShowcaseTemplate|null>(null);
   const railRef=useRef<HTMLDivElement>(null);
+  const videoRefs=useRef(new Map<string,HTMLVideoElement>());
+
+  useEffect(()=>{
+    const rail=railRef.current;
+    if(!rail) return;
+    const observer=new IntersectionObserver((entries)=>{
+      for(const entry of entries){
+        const video=entry.target.querySelector<HTMLVideoElement>("video");
+        if(!video) continue;
+        if(entry.isIntersecting && entry.intersectionRatio>=0.65){
+          video.play().catch(()=>undefined);
+        }else{
+          video.pause();
+        }
+      }
+    },{root:rail,threshold:[0,.65,1]});
+    const cards=Array.from(rail.querySelectorAll<HTMLElement>(".showcaseCard"));
+    cards.forEach((card)=>observer.observe(card));
+    return ()=>observer.disconnect();
+  },[items]);
 
   useEffect(()=>{
     const id=window.setInterval(()=>{
@@ -32,7 +52,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
           <article className="showcaseCard" key={item.slug}>
             <button className="showcaseMedia" onClick={()=>setActive(item)} aria-label={`Open ${item.title}`}>
               {item.videoSrc ? (
-                <video src={item.videoSrc} muted playsInline preload="metadata" />
+                <video ref={(node)=>{if(node) videoRefs.current.set(item.slug,node); else videoRefs.current.delete(item.slug)}} src={item.videoSrc} poster={item.thumbnailSrc} muted loop playsInline preload="metadata" />
               ) : (
                 <span className="showcasePlaceholder" aria-hidden="true">
                   <i />
@@ -61,7 +81,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
             <button className="showcaseClose" onClick={()=>setActive(null)}>×</button>
             <div className="showcaseDialogMedia">
               {active.videoSrc ? (
-                <video src={active.videoSrc} controls autoPlay muted playsInline />
+                <video src={active.videoSrc} poster={active.thumbnailSrc} controls autoPlay muted loop playsInline />
               ) : (
                 <span className="showcasePlaceholder large"><i /><b>Preview slot ready</b></span>
               )}
