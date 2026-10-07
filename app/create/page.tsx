@@ -6,7 +6,7 @@ import { getShowcaseTemplate } from "@/lib/showcase";
 export default async function CreatePage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; project?: string }>;
+  searchParams: Promise<{ mode?: string; project?: string; template?: string }>;
 }) {
   const { mode, project, template } = await searchParams;
   const initialTemplate = getShowcaseTemplate(template);
