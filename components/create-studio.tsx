@@ -564,7 +564,7 @@ export default function CreateStudio({
                   <p className="eyebrow">AI SHORT DRAMA CREATOR</p>
                   <h2>Turn any story into a mini drama.</h2>
                   <p>
-                    Paste a story or script. PixenarMV will break it into
+                    Paste a story or script. Pixenar Studio will break it into
                     editable scenes with continuity-ready visual prompts.
                   </p>
                 </div>
@@ -620,7 +620,7 @@ export default function CreateStudio({
               </button>
               {notice && <p className="uploadNotice">{notice}</p>}
               <small className="voiceNote">
-                PixenarMV plans recurring characters and dialogue before rendering.
+                Pixenar Studio plans recurring characters and dialogue before rendering.
                 After the storyboard is created, generate character voices and they
                 will be mixed automatically into the final export.
               </small>
@@ -791,7 +791,7 @@ export default function CreateStudio({
         </aside>
       </div>
       <footer className="studioCopyright">
-        © 2026 PixenarMV. All rights reserved.
+        © 2026 Pixenar Studio. All rights reserved.
       </footer>
     </div>
   );
