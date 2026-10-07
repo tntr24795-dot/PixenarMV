@@ -12,9 +12,15 @@ type ExportBundle = {
   userId: string;
   audioPath: string | null;
   durationSeconds: number;
+  dialogueAudio: {
+    storagePath: string;
+    offsetSeconds: number;
+    durationSeconds: number;
+  }[];
   scenes: {
     id: string;
     position: number;
+    startSeconds: number;
     durationSeconds: number;
     outputPath: string;
   }[];
@@ -59,7 +65,7 @@ async function loadExport(exportId: string): Promise<ExportBundle> {
         .single(),
       admin
         .from("scenes")
-        .select("id,position,duration_seconds,status,active_generation_id")
+        .select("id,position,start_seconds,duration_seconds,status,active_generation_id,continuity")
         .eq("project_id", exportJob.project_id)
         .eq("user_id", exportJob.user_id)
         .order("position", { ascending: true }),
@@ -93,9 +99,24 @@ async function loadExport(exportId: string): Promise<ExportBundle> {
     return {
       id: scene.id,
       position: scene.position,
+      startSeconds: Number(scene.start_seconds ?? scene.position * scene.duration_seconds),
       durationSeconds: scene.duration_seconds,
       outputPath: generation.output_path,
     };
+  });
+
+  const dialogueAudio = scenes.flatMap((scene) => {
+    const continuity = (scene.continuity ?? {}) as Record<string, unknown>;
+    const items = Array.isArray(continuity.audio) ? continuity.audio : [];
+    return items.flatMap((item: any) => {
+      const storagePath = typeof item?.storagePath === "string" ? item.storagePath : "";
+      if (!storagePath) return [];
+      return [{
+        storagePath,
+        offsetSeconds: Number(scene.start_seconds ?? 0) + Math.max(0, Number(item.offsetSeconds ?? 0)),
+        durationSeconds: Math.max(0.1, Number(item.durationSeconds ?? 0.1)),
+      }];
+    });
   });
 
   return {
@@ -103,6 +124,7 @@ async function loadExport(exportId: string): Promise<ExportBundle> {
     projectId: exportJob.project_id,
     userId: exportJob.user_id,
     audioPath: project.audio_path,
+    dialogueAudio,
     durationSeconds:
       Number(project.duration_seconds) ||
       timeline.reduce((sum, scene) => sum + scene.durationSeconds, 0),
@@ -191,6 +213,12 @@ async function composeExport(bundle: ExportBundle) {
     const audioUrl = bundle.audioPath
       ? await createPrivateMediaUrl("source-media", bundle.audioPath)
       : null;
+    const dialogueInputs = await Promise.all(
+      bundle.dialogueAudio.map(async (item) => ({
+        ...item,
+        url: await createPrivateMediaUrl("source-media", item.storagePath),
+      })),
+    );
 
     const concatFile = join(workDir, "timeline.ffconcat");
     await writeFile(
@@ -215,17 +243,48 @@ async function composeExport(bundle: ExportBundle) {
       concatFile,
     ];
     if (audioUrl) inputArgs.push("-i", audioUrl);
-    const outputArgs = audioUrl
-      ? [
-          "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "veryfast",
-          "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
-          "-shortest", "-movflags", "+faststart",
-        ]
-      : [
-          "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "veryfast",
-          "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
-          "-movflags", "+faststart",
-        ];
+    for (const item of dialogueInputs) inputArgs.push("-i", item.url);
+
+    const commonVideoArgs = [
+      "-map", "0:v:0", "-c:v", "libx264", "-preset", "veryfast",
+      "-crf", "20", "-pix_fmt", "yuv420p",
+    ];
+    let outputArgs: string[];
+    if (dialogueInputs.length) {
+      const firstDialogueInput = audioUrl ? 2 : 1;
+      const filters: string[] = dialogueInputs.map((item, index) => {
+        const inputIndex = firstDialogueInput + index;
+        const delayMs = Math.max(0, Math.round(item.offsetSeconds * 1000));
+        return `[${inputIndex}:a]adelay=${delayMs}|${delayMs},volume=1[dialogue${index}]`;
+      });
+      const mixLabels = dialogueInputs.map((_, index) => `[dialogue${index}]`);
+      if (audioUrl) {
+        filters.push("[1:a]volume=1[master]");
+        mixLabels.unshift("[master]");
+      }
+      if (mixLabels.length === 1) {
+        filters.push(`${mixLabels[0]}anull[aout]`);
+      } else {
+        filters.push(`${mixLabels.join("")}amix=inputs=${mixLabels.length}:duration=longest:normalize=0[aout]`);
+      }
+      outputArgs = [
+        "-filter_complex", filters.join(";"),
+        ...commonVideoArgs,
+        "-map", "[aout]", "-c:a", "aac", "-b:a", "192k",
+        "-t", String(Math.max(bundle.durationSeconds, 0.1)),
+        "-movflags", "+faststart",
+      ];
+    } else if (audioUrl) {
+      outputArgs = [
+        ...commonVideoArgs, "-map", "1:a:0", "-c:a", "aac", "-b:a", "192k",
+        "-shortest", "-movflags", "+faststart",
+      ];
+    } else {
+      outputArgs = [
+        ...commonVideoArgs, "-map", "0:a:0?", "-c:a", "aac", "-b:a", "192k",
+        "-movflags", "+faststart",
+      ];
+    }
     let lastProgress = 14;
     await updateExport(bundle.exportId, {
       progress: 15,
