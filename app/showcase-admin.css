@@ -1,0 +1,13 @@
+.showcaseAdmin{min-height:100vh;max-width:1280px;margin:auto;padding:48px clamp(20px,5vw,70px);background:#080b14;color:#f5f7ff}
+.showcaseAdmin header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:28px}
+.showcaseAdmin h1{font-size:42px;line-height:1;margin:8px 0 10px}
+.showcaseAdmin header p{color:#9199ac;margin:0}
+.showcaseAdminForm{border:1px solid #252d40;background:#0d121f;border-radius:18px;padding:22px;display:grid;gap:16px}
+.showcaseAdminGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.showcaseAdminForm label{display:grid;gap:7px;color:#aeb6c8;font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+.showcaseAdminForm input,.showcaseAdminForm textarea,.showcaseAdminForm select{width:100%;border:1px solid #2a3245;background:#080d17;color:#eef5ff;border-radius:10px;padding:10px;text-transform:none;letter-spacing:0}
+.showcaseAdminForm textarea{min-height:84px;resize:vertical}.showcaseAdminForm textarea.promptField{min-height:150px}
+.showcaseAdminChecks{display:flex;gap:18px}.showcaseAdminChecks label{display:flex;align-items:center;gap:8px;text-transform:none}.showcaseAdminChecks input{width:auto}
+.showcaseAdminList{display:grid;gap:10px;margin-top:24px}.showcaseAdminList article{display:flex;justify-content:space-between;gap:20px;align-items:center;border:1px solid #252d40;background:#0d121f;border-radius:14px;padding:16px 18px}.showcaseAdminList small{color:#75ccff}.showcaseAdminList h3{margin:3px 0}.showcaseAdminList p{margin:0;color:#80899c;font-size:12px}
+.showcaseAdminActions{display:flex;gap:8px;flex-wrap:wrap}.showcaseAdminActions button{border:1px solid #315476;background:#102238;color:#d9efff;border-radius:9px;padding:8px 11px;cursor:pointer}.showcaseAdminActions .danger{border-color:#6b3340;background:#2b1118;color:#ffc3cc}
+@media(max-width:900px){.showcaseAdminGrid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.showcaseAdmin{padding:26px 16px}.showcaseAdmin header,.showcaseAdminList article{align-items:stretch;flex-direction:column}.showcaseAdminGrid{grid-template-columns:1fr}.showcaseAdminActions{width:100%}.showcaseAdminActions button{flex:1}}
