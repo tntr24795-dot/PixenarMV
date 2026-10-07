@@ -42,6 +42,7 @@ export default function ShowcaseAdminManager() {
   const [form, setForm] = useState(emptyForm);
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   async function load() {
     const response = await fetch("/api/admin/showcase", { cache: "no-store" });
@@ -53,6 +54,39 @@ export default function ShowcaseAdminManager() {
   useEffect(() => {
     load().catch((error) => setNotice(error instanceof Error ? error.message : "Unable to load showcase."));
   }, []);
+
+  async function uploadMedia(file: File, kind: "video" | "thumbnail") {
+    const slug = form.slug.trim();
+    if (!slug) {
+      setNotice("Enter the showcase slug before uploading media.");
+      return;
+    }
+    setUploading(true);
+    setNotice("");
+    try {
+      const payload = new FormData();
+      payload.append("file", file);
+      payload.append("slug", slug);
+      payload.append("kind", kind);
+      const response = await fetch("/api/admin/showcase/upload", {
+        method: "POST",
+        body: payload,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to upload showcase media.");
+      setForm((current) => ({
+        ...current,
+        ...(kind === "video"
+          ? { videoPath: data.path }
+          : { thumbnailPath: data.path }),
+      }));
+      setNotice(`${kind === "video" ? "Video" : "Thumbnail"} uploaded successfully.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to upload showcase media.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function createItem(event: FormEvent) {
     event.preventDefault();
@@ -119,7 +153,32 @@ export default function ShowcaseAdminManager() {
           <label>Format<select value={form.aspectRatio} onChange={(e)=>setForm({...form,aspectRatio:e.target.value})}><option>16:9</option><option>9:16</option></select></label>
           <label>Duration (sec)<input type="number" min={2} max={600} value={form.durationSeconds} onChange={(e)=>setForm({...form,durationSeconds:Number(e.target.value)})} /></label>
           <label>Order<input type="number" min={0} value={form.featuredOrder} onChange={(e)=>setForm({...form,featuredOrder:Number(e.target.value)})} /></label>
-          <label>Video path<input placeholder="folder/example.mp4" value={form.videoPath} onChange={(e)=>setForm({...form,videoPath:e.target.value})} /></label>
+          <label>
+            Video file
+            <input
+              type="file"
+              accept="video/mp4,video/webm"
+              disabled={uploading}
+              onChange={(e)=>{
+                const file=e.target.files?.[0];
+                if(file) uploadMedia(file,"video");
+              }}
+            />
+            <small>{form.videoPath || "No video uploaded yet"}</small>
+          </label>
+          <label>
+            Thumbnail
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={uploading}
+              onChange={(e)=>{
+                const file=e.target.files?.[0];
+                if(file) uploadMedia(file,"thumbnail");
+              }}
+            />
+            <small>{form.thumbnailPath || "Optional"}</small>
+          </label>
         </div>
         <label>Description<textarea value={form.description} onChange={(e)=>setForm({...form,description:e.target.value})} /></label>
         <label>Prompt<textarea className="promptField" value={form.prompt} onChange={(e)=>setForm({...form,prompt:e.target.value})} required /></label>
@@ -127,7 +186,7 @@ export default function ShowcaseAdminManager() {
           <label><input type="checkbox" checked={form.published} onChange={(e)=>setForm({...form,published:e.target.checked})} /> Published</label>
           <label><input type="checkbox" checked={form.isFeatured} onChange={(e)=>setForm({...form,isFeatured:e.target.checked})} /> Featured</label>
         </div>
-        <button className="primary" disabled={saving}>{saving ? "Saving…" : "Add showcase item"}</button>
+        <button className="primary" disabled={saving || uploading}>{saving ? "Saving…" : uploading ? "Uploading media…" : "Add showcase item"}</button>
         {notice ? <p className="uploadNotice">{notice}</p> : null}
       </form>
 
