@@ -47,7 +47,7 @@ export default function AuthForm() {
       <a className="brand" href="/">
         <span className="brandMark">P</span>
         <span>
-          PIXENAR<span>MV</span>
+          PIXENAR <span>STUDIO</span>
         </span>
       </a>
       <p className="eyebrow">PIXENAR CREATIVE CLOUD</p>
@@ -95,7 +95,7 @@ export default function AuthForm() {
         }}
       >
         {mode === "login"
-          ? "New to PixenarMV? Create an account"
+          ? "New to Pixenar Studio? Create an account"
           : "Already have an account? Sign in"}
       </button>
       <small>
@@ -103,7 +103,7 @@ export default function AuthForm() {
         use.
       </small>
       <a className="authHomeLink" href={mainSiteUrl}>
-        ← Back to PixenarMV main website
+        ← Back to Pixenar Studio main website
       </a>
     </div>
   );
