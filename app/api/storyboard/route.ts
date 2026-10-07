@@ -129,7 +129,7 @@ export async function POST(request: Request) {
       concept: story,
       aspect_ratio: aspectRatio,
       duration_seconds: scenes.length * 8,
-      storyboard: created,
+      storyboard,
       status: "storyboarding",
     })
     .eq("id", projectId);
