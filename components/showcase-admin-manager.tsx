@@ -102,6 +102,22 @@ export default function ShowcaseAdminManager() {
     }
   }
 
+  async function importStarterTemplates() {
+    setSaving(true);
+    setNotice("");
+    try {
+      const response = await fetch("/api/admin/showcase/seed", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to import starter templates.");
+      await load();
+      setNotice(`${data.imported} starter showcase templates are ready to edit.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to import starter templates.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function createItem(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
@@ -155,7 +171,7 @@ export default function ShowcaseAdminManager() {
           <h1>Showcase manager</h1>
           <p>Publish example videos and attach the exact prompt users can reuse in Studio.</p>
         </div>
-        <a className="ghost" href="/studio">Back to studio</a>
+        <div className="showcaseAdminHeaderActions"><button className="ghost" onClick={importStarterTemplates} disabled={saving}>Import 20 starter templates</button><a className="ghost" href="/studio">Back to studio</a></div>
       </header>
 
       <form className="showcaseAdminForm" onSubmit={createItem}>
