@@ -10,7 +10,7 @@ export async function updateSession(request:NextRequest){
   }});
   const {data}=await supabase.auth.getClaims();
   const signedIn=Boolean(data?.claims?.sub);
-  const protectedPath=["/studio","/create","/characters","/renders"].some(path=>request.nextUrl.pathname.startsWith(path));
+  const protectedPath=["/studio","/create","/characters","/renders","/admin"].some(path=>request.nextUrl.pathname.startsWith(path));
   if(protectedPath&&!signedIn){const url=request.nextUrl.clone();url.pathname="/login";url.searchParams.set("next",request.nextUrl.pathname+request.nextUrl.search);return NextResponse.redirect(url);}
   if(request.nextUrl.pathname==="/login"&&signedIn){const url=request.nextUrl.clone();url.pathname="/studio";url.search="";return NextResponse.redirect(url);}
   return response;
