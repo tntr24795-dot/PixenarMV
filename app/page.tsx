@@ -77,7 +77,7 @@ export default async function Home() {
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
           <span>
-            Pixenar <b>MV</b>
+            Pixenar <b>Studio</b>
           </span>
         </Link>
         <div className="landingLinks">
@@ -92,15 +92,14 @@ export default async function Home() {
       </nav>
       <section className="hero">
         <div className="heroGlow" />
-        <p className="landingKicker">AI MOVIE & FULL-SONG MUSIC VIDEO STUDIO</p>
+        <p className="landingKicker">AI FILM · DRAMA · MUSIC · VIDEO CREATION STUDIO</p>
         <h1>
           Turn every story
           <br />
           into <span>cinema.</span>
         </h1>
         <p className="heroCopy">
-          Upload a track or begin with one idea. PixenarMV builds the script,
-          cast and scenes—then gives you control before the final render.
+          Start with a story, song or concept. Pixenar Studio builds the script, cast, scenes and production flow—then gives you control before the final render.
         </p>
         <div className="heroActions">
           <Link className="landingPrimary" href="/create?mode=music-video">
@@ -169,8 +168,7 @@ export default async function Home() {
             <p className="landingKicker">CREATE FROM AN EXAMPLE</p>
             <h2>See the idea. Open the prompt. Make it yours.</h2>
             <p className="sectionCopy">
-              Explore ready-to-create film concepts. Open any example to inspect the prompt,
-              then send it directly into PixenarMV Studio as your starting point.
+              Explore ready-to-create film, drama, music video, animation and commercial concepts. Open any example to inspect the prompt, then send it directly into Pixenar Studio as your starting point.
             </p>
           </div>
           <Link className="landingSecondary inline" href="/create?mode=film">
@@ -180,8 +178,8 @@ export default async function Home() {
         <ShowcaseCarousel items={showcaseItems} />
       </section>
       <section className="choice">
-        <p className="landingKicker">TWO WAYS TO CREATE</p>
-        <h2>One studio. Two complete workflows.</h2>
+        <p className="landingKicker">MULTIPLE WAYS TO CREATE</p>
+        <h2>One studio for stories, music and visual production.</h2>
         <div className="choiceGrid">
           <article>
             <span className="choiceIcon">♫</span>
@@ -324,11 +322,11 @@ export default async function Home() {
         <a href={mainSiteUrl} className="brand">
           <span className="brandMark">P</span>
           <span>
-            Pixenar <b>MV</b>
+            Pixenar <b>Studio</b>
           </span>
         </a>
-        <p>AI filmmaking for creators, musicians and storytellers.</p>
-        <span>© 2026 PixenarMV. All rights reserved.</span>
+        <p>AI creation for filmmakers, musicians, storytellers and brands.</p>
+        <span>© 2026 Pixenar Studio. All rights reserved.</span>
       </footer>
     </main>
   );
