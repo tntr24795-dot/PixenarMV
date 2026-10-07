@@ -5,6 +5,7 @@ import "./auth.css";
 import "./phase-two.css";
 import "./studio-phase-two.css";
 import "./final-tweaks.css";
+import "./showcase.css";
 
 export const metadata: Metadata = {
   title:"PixenarMV — AI Movie & Music Video Studio",
