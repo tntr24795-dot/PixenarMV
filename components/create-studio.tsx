@@ -4,8 +4,10 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
 import { mainSiteUrl } from "@/lib/brand-links";
+import type { ShowcaseTemplate } from "@/lib/showcase";
 
 type Mode = "film" | "music-video";
+type InitialTemplate = Pick<ShowcaseTemplate, "slug" | "title" | "prompt" | "style" | "aspectRatio" | "modelId">;
 type Scene = {
   id?: string;
   n: number;
@@ -57,11 +59,13 @@ const filmScenes: Scene[] = [
 export default function CreateStudio({
   initialMode = "film",
   initialProject,
+  initialTemplate,
   configuredModelIds = [],
 }: {
   configuredModelIds?: string[];
   initialMode?: Mode;
   initialProject?: InitialProject;
+  initialTemplate?: InitialTemplate;
 }) {
   const [mode, setMode] = useState<Mode>(
     initialProject
@@ -70,12 +74,12 @@ export default function CreateStudio({
         : "film"
       : initialMode,
   );
-  const [modelId, setModelId] = useState("runway-4-5");
+  const [modelId, setModelId] = useState(initialTemplate?.modelId ?? "runway-4-5");
   const [duration, setDuration] = useState(8);
   const [resolution, setResolution] = useState("720p");
   const [selected, setSelected] = useState(1);
   const [title, setTitle] = useState(
-    initialProject?.title ?? "Untitled project",
+    initialProject?.title ?? initialTemplate?.title ?? "Untitled project",
   );
   const [projectId, setProjectId] = useState<string | undefined>(
     initialProject?.id,
@@ -85,9 +89,9 @@ export default function CreateStudio({
   const [analysisSections, setAnalysisSections] = useState<
     { name: string; start: number; end: number }[]
   >(initialProject?.song_analysis?.sections ?? []);
-  const [story, setStory] = useState("");
-  const [storyStyle, setStoryStyle] = useState("cinematic-realism");
-  const [aspectRatio, setAspectRatio] = useState("9:16");
+  const [story, setStory] = useState(initialTemplate?.prompt ?? "");
+  const [storyStyle, setStoryStyle] = useState(initialTemplate?.style ?? "cinematic-realism");
+  const [aspectRatio, setAspectRatio] = useState(initialTemplate?.aspectRatio ?? "9:16");
   const [buildingStory, setBuildingStory] = useState(false);
   const [dramaReady, setDramaReady] = useState(
     Boolean(initialProject?.kind === "short_film" && initialProject.scenes.length),
