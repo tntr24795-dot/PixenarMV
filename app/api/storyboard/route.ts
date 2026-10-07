@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatedClient, readJson } from "@/lib/api/auth";
+import { planStory } from "@/lib/story-planner";
 
 const styles = new Set([
   "cinematic-realism",
@@ -8,20 +9,6 @@ const styles = new Set([
   "manga",
   "noir",
 ]);
-
-function storyBeats(source: string) {
-  const beats = source
-    .replace(/\r/g, "")
-    .split(/\n+|(?<=[.!?。！？])\s+/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  if (beats.length >= 3) return beats.slice(0, 12);
-  const words = source.trim().split(/\s+/);
-  const size = Math.max(12, Math.ceil(words.length / 5));
-  return Array.from({ length: Math.ceil(words.length / size) }, (_, index) =>
-    words.slice(index * size, (index + 1) * size).join(" "),
-  ).filter(Boolean);
-}
 
 export async function POST(request: Request) {
   const body = await readJson(request);
@@ -62,40 +49,48 @@ export async function POST(request: Request) {
       { status: 409 },
     );
 
-  const beats = storyBeats(story);
-  if (beats.length < 2)
+  const plan = await planStory(story, style, aspectRatio);
+  if (plan.scenes.length < 2)
     return NextResponse.json(
       { error: "Add a little more story detail so scenes can be created." },
       { status: 400 },
     );
 
-  const scenes = beats.map((beat, position) => ({
+  const scenes = plan.scenes.map((planned, position) => ({
     project_id: projectId,
     user_id: userId,
     position,
     start_seconds: position * 8,
     duration_seconds: 8,
-    title: `Story beat ${position + 1}`,
+    title: planned.title,
     section_name:
       position === 0
         ? "Opening"
-        : position === beats.length - 1
+        : position === plan.scenes.length - 1
           ? "Ending"
           : "Story",
-    prompt: `${style.replaceAll("-", " ")} short-drama scene, ${aspectRatio} composition. ${beat} Preserve the approved cast identity, wardrobe, location logic and visual palette. Expressive acting, clear blocking, cinematic camera movement, no text or watermark.`,
-    camera_direction:
-      position === 0
-        ? "Establishing push-in"
-        : position === beats.length - 1
-          ? "Emotional closing shot"
-          : "Director choice",
+    prompt: [
+      `${style.replaceAll("-", " ")} short-drama scene, ${aspectRatio} composition.`,
+      planned.visualPrompt,
+      `Location: ${planned.location}. Time: ${planned.timeOfDay}.`,
+      planned.dialogue.length
+        ? `Dialogue: ${planned.dialogue.map((line) => `${line.characterId}: "${line.text}" (${line.delivery})`).join(" ")}`
+        : "",
+      "Preserve approved cast identity, wardrobe, props, location logic and visual palette. Expressive acting, clear blocking, cinematic camera movement, no text or watermark.",
+    ].filter(Boolean).join(" "),
+    camera_direction: planned.cameraDirection,
     continuity: {
       identity: true,
       wardrobe: true,
       palette: true,
-      storyBeat: beat,
+      storyBeat: planned.summary,
       visualStyle: style,
       aspectRatio,
+      location: planned.location,
+      timeOfDay: planned.timeOfDay,
+      characterIds: planned.characterIds,
+      dialogue: planned.dialogue,
+      notes: planned.continuityNotes,
     },
     status: "queued",
   }));
@@ -120,7 +115,12 @@ export async function POST(request: Request) {
     style,
     aspect_ratio: aspectRatio,
     scene_count: scenes.length,
-    voiceover_status: "not_configured",
+    planner_source: plan.source,
+    title: plan.title,
+    logline: plan.logline,
+    characters: plan.characters,
+    planned_scenes: plan.scenes,
+    voiceover_status: plan.scenes.some((scene) => scene.dialogue.length) ? "planned" : "not_required",
     created_at: new Date().toISOString(),
   };
   const { error: updateError } = await supabase
