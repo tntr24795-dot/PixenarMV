@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type Item = {
   id: string;
@@ -64,16 +65,29 @@ export default function ShowcaseAdminManager() {
     setUploading(true);
     setNotice("");
     try {
-      const payload = new FormData();
-      payload.append("file", file);
-      payload.append("slug", slug);
-      payload.append("kind", kind);
       const response = await fetch("/api/admin/showcase/upload", {
         method: "POST",
-        body: payload,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          kind,
+          fileName: file.name,
+          mimeType: file.type,
+          sizeBytes: file.size,
+        }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Unable to upload showcase media.");
+      if (!response.ok) throw new Error(data.error || "Unable to prepare showcase upload.");
+
+      const supabase = createClient();
+      const { error: uploadError } = await supabase.storage
+        .from("showcase-media")
+        .uploadToSignedUrl(data.path, data.token, file, {
+          contentType: file.type,
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+
       setForm((current) => ({
         ...current,
         ...(kind === "video"
