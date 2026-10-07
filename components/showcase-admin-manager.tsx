@@ -198,7 +198,7 @@ export default function ShowcaseAdminManager() {
     <main className="showcaseAdmin">
       <header>
         <div>
-          <p className="eyebrow">PIXENARMV ADMIN</p>
+          <p className="eyebrow">PIXENAR STUDIO ADMIN</p>
           <h1>Showcase manager</h1>
           <p>Publish example videos and attach the exact prompt users can reuse in Studio.</p>
         </div>
