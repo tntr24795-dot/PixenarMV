@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { supabaseUrl } from "@/lib/supabase/config";
 
 type Item = {
   id: string;
@@ -258,14 +259,27 @@ export default function ShowcaseAdminManager() {
       <section className="showcaseAdminList">
         {items.map((item)=>(
           <article key={item.id}>
-            <div>
-              <small>{item.category} · {item.aspect_ratio} · {item.duration_seconds}s</small>
+            {item.video_path ? (
+              <video
+                className="showcaseAdminPreview"
+                src={`${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`}
+                poster={item.thumbnail_path ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}` : undefined}
+                muted
+                playsInline
+                controls
+                preload="metadata"
+              />
+            ) : (
+              <div className="showcaseAdminPreview empty">No video</div>
+            )}
+            <div className="showcaseAdminItemInfo">
+              <small>{item.category} · {item.aspect_ratio} · {item.duration_seconds}s · order {item.featured_order}</small>
               <h3>{item.title}</h3>
               <p>{item.slug}</p>
             </div>
             <div className="showcaseAdminActions">
               <button onClick={()=>beginEdit(item)}>Edit</button><button onClick={()=>patch(item.id,{published:!item.published})}>{item.published ? "Unpublish" : "Publish"}</button>
-              <button onClick={()=>patch(item.id,{featuredOrder:item.featured_order+1})}>Move later</button>
+              <button onClick={()=>patch(item.id,{featuredOrder:Math.max(0,item.featured_order-1)})}>Earlier</button><button onClick={()=>patch(item.id,{featuredOrder:item.featured_order+1})}>Later</button>
               <button className="danger" onClick={()=>remove(item.id)}>Delete</button>
             </div>
           </article>
