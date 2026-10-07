@@ -48,7 +48,7 @@ export default async function Home() {
   const supabase = await createClient();
   const { data: publishedShowcase } = await supabase
     .from("showcase_videos")
-    .select("slug,title,category,description,prompt,style,aspect_ratio,duration_seconds,model_id,video_path,is_featured,featured_order")
+    .select("slug,title,category,description,prompt,style,aspect_ratio,duration_seconds,model_id,video_path,thumbnail_path,is_featured,featured_order")
     .eq("published", true)
     .eq("is_featured", true)
     .order("featured_order", { ascending: true })
@@ -65,6 +65,9 @@ export default async function Home() {
     modelId: item.model_id,
     videoSrc: item.video_path
       ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
+      : undefined,
+    thumbnailSrc: item.thumbnail_path
+      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}`
       : undefined,
   }));
   const showcaseItems = liveShowcase.length ? liveShowcase : showcaseTemplates;
