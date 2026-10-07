@@ -17,13 +17,18 @@ export default function AuthForm() {
     const email = String(form.get("email"));
     const password = String(form.get("password"));
     const supabase = createClient();
+    const requestedNext = params.get("next");
+    const safeNext =
+      requestedNext?.startsWith("/") && !requestedNext.startsWith("//")
+        ? requestedNext
+        : "/studio";
     const result =
       mode === "login"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: `${location.origin}/studio` },
+            options: { emailRedirectTo: `${location.origin}${safeNext}` },
           });
     if (result.error) {
       setMessage(result.error.message);
@@ -35,11 +40,7 @@ export default function AuthForm() {
       setBusy(false);
       return;
     }
-    const destination = params.get("next");
-    location.href =
-      destination?.startsWith("/") && !destination.startsWith("//")
-        ? destination
-        : "/studio";
+    location.href = safeNext;
   }
   return (
     <div className="authCard">
