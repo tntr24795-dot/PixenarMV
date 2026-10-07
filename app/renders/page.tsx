@@ -70,7 +70,7 @@ export default async function RendersPage() {
         <Link className="brand" href="/studio">
           <span className="brandMark">P</span>
           <span>
-            PIXENAR<span>MV</span>
+            PIXENAR <span>STUDIO</span>
           </span>
         </Link>
         <nav>
@@ -109,7 +109,7 @@ export default async function RendersPage() {
         </div>
       </div>
       <footer className="appCopyright">
-        © 2026 PixenarMV. All rights reserved.
+        © 2026 Pixenar Studio. All rights reserved.
       </footer>
     </main>
   );
