@@ -9,6 +9,7 @@ export type ShowcaseTemplate = {
   durationSeconds: number;
   modelId: string;
   videoSrc?: string;
+  thumbnailSrc?: string;
 };
 
 export const showcaseTemplates: ShowcaseTemplate[] = [
