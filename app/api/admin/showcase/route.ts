@@ -19,7 +19,7 @@ async function requireAdmin() {
 export async function GET() {
   const auth = await requireAdmin();
   if ("error" in auth) return auth.error;
-  const { data, error } = await admin
+  const { data, error } = await createAdminClient()
     .from("showcase_videos")
     .select("*")
     .order("featured_order", { ascending: true })
