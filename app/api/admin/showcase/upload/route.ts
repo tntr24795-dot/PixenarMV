@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
-import { authenticatedClient } from "@/lib/api/auth";
+import { authenticatedClient, readJson } from "@/lib/api/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const allowedTypes = new Set([
-  "video/mp4",
-  "video/webm",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
 
 async function requireAdmin() {
   const { supabase, userId } = await authenticatedClient();
@@ -24,56 +16,55 @@ async function requireAdmin() {
   return { userId };
 }
 
-function safeName(name: string) {
-  const cleaned = name
+function safeBase(name: string) {
+  return name
+    .replace(/\.[^.]+$/, "")
     .toLowerCase()
-    .replace(/[^a-z0-9.\-_]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-  return cleaned.slice(0, 120) || "asset";
+    .replace(/[^a-z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "showcase";
 }
 
 export async function POST(request: Request) {
   const auth = await requireAdmin();
   if ("error" in auth) return auth.error;
+  const body = await readJson(request);
+  const slug = String(body?.slug ?? "").trim().toLowerCase();
+  const kind = String(body?.kind ?? "video");
+  const fileName = String(body?.fileName ?? "");
+  const mimeType = String(body?.mimeType ?? "");
+  const sizeBytes = Number(body?.sizeBytes ?? 0);
 
-  const form = await request.formData();
-  const file = form.get("file");
-  const slug = String(form.get("slug") ?? "").trim().toLowerCase();
-  const kind = String(form.get("kind") ?? "video");
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Select a file to upload." }, { status: 400 });
-  }
   if (!/^[a-z0-9-]{3,80}$/.test(slug)) {
     return NextResponse.json({ error: "A valid showcase slug is required." }, { status: 400 });
   }
-  if (!allowedTypes.has(file.type)) {
+
+  const allowedVideo = ["video/mp4", "video/webm"];
+  const allowedImage = ["image/jpeg", "image/png", "image/webp"];
+  const allowed = kind === "thumbnail" ? allowedImage : allowedVideo;
+  if (!allowed.includes(mimeType)) {
     return NextResponse.json({ error: "Unsupported showcase media type." }, { status: 415 });
   }
-  if (file.size > 200 * 1024 * 1024) {
-    return NextResponse.json({ error: "Showcase media must be 200 MB or smaller." }, { status: 413 });
+
+  const maxBytes = kind === "thumbnail" ? 15 * 1024 * 1024 : 200 * 1024 * 1024;
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0 || sizeBytes > maxBytes) {
+    return NextResponse.json({ error: "Showcase media exceeds the upload limit." }, { status: 413 });
   }
 
-  const ext = safeName(file.name).split(".").pop() || (file.type.startsWith("video/") ? "mp4" : "webp");
+  const extension =
+    mimeType === "video/webm" ? "webm" :
+    mimeType === "image/jpeg" ? "jpg" :
+    mimeType === "image/png" ? "png" :
+    mimeType === "image/webp" ? "webp" : "mp4";
   const folder = kind === "thumbnail" ? "thumbnails" : "videos";
-  const path = `${folder}/${slug}-${Date.now()}.${ext}`;
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const path = `${folder}/${slug}-${Date.now()}-${safeBase(fileName)}.${extension}`;
 
-  const { error } = await createAdminClient().storage
+  const { data, error } = await createAdminClient().storage
     .from("showcase-media")
-    .upload(path, bytes, {
-      contentType: file.type,
-      upsert: false,
-      cacheControl: "31536000",
-    });
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    .createSignedUploadUrl(path);
+  if (error || !data?.token) {
+    return NextResponse.json({ error: error?.message ?? "Unable to create upload URL." }, { status: 400 });
   }
 
-  return NextResponse.json({
-    path,
-    kind,
-    sizeBytes: file.size,
-    mimeType: file.type,
-  }, { status: 201 });
+  return NextResponse.json({ path, token: data.token, mimeType, sizeBytes });
 }
