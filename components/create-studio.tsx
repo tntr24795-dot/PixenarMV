@@ -91,7 +91,7 @@ export default function CreateStudio({
   >(initialProject?.song_analysis?.sections ?? []);
   const [story, setStory] = useState(initialTemplate?.prompt ?? "");
   const [storyStyle, setStoryStyle] = useState(initialTemplate?.style ?? "cinematic-realism");
-  const [aspectRatio, setAspectRatio] = useState(initialTemplate?.aspectRatio ?? "9:16");
+  const [aspectRatio, setAspectRatio] = useState<string>(initialTemplate?.aspectRatio ?? "9:16");
   const [buildingStory, setBuildingStory] = useState(false);
   const [dramaReady, setDramaReady] = useState(
     Boolean(initialProject?.kind === "short_film" && initialProject.scenes.length),
