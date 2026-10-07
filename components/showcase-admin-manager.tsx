@@ -44,6 +44,7 @@ export default function ShowcaseAdminManager() {
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function load() {
     const response = await fetch("/api/admin/showcase", { cache: "no-store" });
@@ -118,21 +119,50 @@ export default function ShowcaseAdminManager() {
     }
   }
 
+  function beginEdit(item: Item) {
+    setEditingId(item.id);
+    setForm({
+      slug: item.slug,
+      title: item.title,
+      category: item.category,
+      description: item.description,
+      prompt: item.prompt,
+      style: item.style,
+      aspectRatio: item.aspect_ratio,
+      durationSeconds: item.duration_seconds,
+      modelId: item.model_id,
+      videoPath: item.video_path ?? "",
+      thumbnailPath: item.thumbnail_path ?? "",
+      published: item.published,
+      isFeatured: item.is_featured,
+      featuredOrder: item.featured_order,
+    });
+    setNotice(`Editing ${item.title}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setNotice("");
+  }
+
   async function createItem(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
     setNotice("");
     try {
       const response = await fetch("/api/admin/showcase", {
-        method: "POST",
+        method: editingId ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(editingId ? { id: editingId, ...form } : form),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Unable to create showcase item.");
+      if (!response.ok) throw new Error(data.error || (editingId ? "Unable to update showcase item." : "Unable to create showcase item."));
       setForm(emptyForm);
+      setEditingId(null);
       await load();
-      setNotice("Showcase item created.");
+      setNotice(editingId ? "Showcase item updated." : "Showcase item created.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Unable to create showcase item.");
     } finally {
@@ -216,7 +246,12 @@ export default function ShowcaseAdminManager() {
           <label><input type="checkbox" checked={form.published} onChange={(e)=>setForm({...form,published:e.target.checked})} /> Published</label>
           <label><input type="checkbox" checked={form.isFeatured} onChange={(e)=>setForm({...form,isFeatured:e.target.checked})} /> Featured</label>
         </div>
-        <button className="primary" disabled={saving || uploading}>{saving ? "Saving…" : uploading ? "Uploading media…" : "Add showcase item"}</button>
+        <div className="showcaseAdminFormActions">
+          <button className="primary" disabled={saving || uploading}>
+            {saving ? "Saving…" : uploading ? "Uploading media…" : editingId ? "Save changes" : "Add showcase item"}
+          </button>
+          {editingId ? <button type="button" className="ghost" onClick={cancelEdit}>Cancel edit</button> : null}
+        </div>
         {notice ? <p className="uploadNotice">{notice}</p> : null}
       </form>
 
@@ -229,7 +264,7 @@ export default function ShowcaseAdminManager() {
               <p>{item.slug}</p>
             </div>
             <div className="showcaseAdminActions">
-              <button onClick={()=>patch(item.id,{published:!item.published})}>{item.published ? "Unpublish" : "Publish"}</button>
+              <button onClick={()=>beginEdit(item)}>Edit</button><button onClick={()=>patch(item.id,{published:!item.published})}>{item.published ? "Unpublish" : "Publish"}</button>
               <button onClick={()=>patch(item.id,{featuredOrder:item.featured_order+1})}>Move later</button>
               <button className="danger" onClick={()=>remove(item.id)}>Delete</button>
             </div>
