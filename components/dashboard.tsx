@@ -51,7 +51,7 @@ export default function Dashboard({
         <Link className="brand" href="/">
           <span className="brandMark">P</span>
           <span>
-            PIXENAR<span>MV</span>
+            PIXENAR <span>STUDIO</span>
           </span>
         </Link>
         <nav aria-label="Main navigation">
