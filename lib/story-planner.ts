@@ -134,7 +134,7 @@ export async function planStory(story: string, style: string, aspectRatio: strin
   if (!key) return deterministicPlan(story);
 
   const system = [
-    "You are the PixenarMV story planner.",
+    "You are the Pixenar Studio story planner.",
     "Return valid JSON only.",
     "Convert the user's story into a production-ready short film plan.",
     "Keep scenes renderable as independent 8-second AI video shots while preserving continuity.",
