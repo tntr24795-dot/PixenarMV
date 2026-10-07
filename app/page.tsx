@@ -2,6 +2,8 @@ import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
 import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
+import { createClient } from "@/lib/supabase/server";
+import { supabaseUrl } from "@/lib/supabase/config";
 
 const workflow = [
   {
@@ -42,7 +44,30 @@ const modelNames = [
   "Seedance 2.5",
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: publishedShowcase } = await supabase
+    .from("showcase_videos")
+    .select("slug,title,category,description,prompt,style,aspect_ratio,duration_seconds,model_id,video_path,is_featured,featured_order")
+    .eq("published", true)
+    .eq("is_featured", true)
+    .order("featured_order", { ascending: true })
+    .limit(30);
+  const liveShowcase = (publishedShowcase ?? []).map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    category: item.category,
+    description: item.description,
+    prompt: item.prompt,
+    style: item.style,
+    aspectRatio: item.aspect_ratio === "9:16" ? "9:16" as const : "16:9" as const,
+    durationSeconds: item.duration_seconds,
+    modelId: item.model_id,
+    videoSrc: item.video_path
+      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
+      : undefined,
+  }));
+  const showcaseItems = liveShowcase.length ? liveShowcase : showcaseTemplates;
   return (
     <main className="landing">
       <nav className="landingNav">
@@ -149,7 +174,7 @@ export default function Home() {
             Start from scratch
           </Link>
         </div>
-        <ShowcaseCarousel items={showcaseTemplates} />
+        <ShowcaseCarousel items={showcaseItems} />
       </section>
       <section className="choice">
         <p className="landingKicker">TWO WAYS TO CREATE</p>
