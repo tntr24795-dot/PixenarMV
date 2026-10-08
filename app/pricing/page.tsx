@@ -1,3 +1,4 @@
+import "./pricing.css";
 import Link from "next/link";
 import PricingSelector from "@/components/pricing-selector";
 import { mainSiteUrl } from "@/lib/brand-links";
