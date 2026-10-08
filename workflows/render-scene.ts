@@ -8,7 +8,7 @@ type GenerationRecord = {
   user_id: string;
   model: string;
   provider: string;
-  request_payload: { prompt?: string; duration?: number; resolution?: string; aspectRatio?: string };
+  request_payload: { prompt?: string; duration?: number; resolution?: string; aspectRatio?: string; referenceAssetIds?: string[] };
   provider_task_id: string | null;
   projects: { aspect_ratio: string; resolution: string } | null;
 };
@@ -27,9 +27,29 @@ async function loadGeneration(generationId: string) {
 async function submitGeneration(generation: GenerationRecord) {
   "use step";
   if (generation.provider_task_id) return generation.provider_task_id;
-  const {data: claimed,error: claimError}=await createAdminClient().rpc("claim_generation_submission",{p_generation_id:generation.id});
+  const admin=createAdminClient();
+  const {data: claimed,error: claimError}=await admin.rpc("claim_generation_submission",{p_generation_id:generation.id});
   if(claimError || !claimed) throw new Error("Generation cannot be submitted twice.");
   const payload = generation.request_payload ?? {};
+  const referenceIds = Array.isArray(payload.referenceAssetIds) ? payload.referenceAssetIds : [];
+  let references: {uri:string;type:"image"|"video"|"audio"}[] = [];
+  if(referenceIds.length) {
+    const {data:assets,error:assetError}=await admin
+      .from("project_assets")
+      .select("id,kind,storage_path")
+      .in("id",referenceIds)
+      .eq("user_id",generation.user_id);
+    if(assetError) throw new Error(assetError.message);
+    if((assets ?? []).length !== referenceIds.length) throw new Error("Reference assets are missing.");
+    references = await Promise.all((assets ?? []).map(async asset => {
+      const {data:signed,error:signedError}=await admin.storage
+        .from("source-media")
+        .createSignedUrl(asset.storage_path,3600);
+      if(signedError || !signed?.signedUrl) throw new Error("Unable to sign a private reference asset.");
+      const type = asset.kind === "reference_image" ? "image" : asset.kind === "reference_video" ? "video" : "audio";
+      return {uri:signed.signedUrl,type};
+    }));
+  }
   const submitted = await submitVideo({
     generationId: generation.id,
     model: generation.model,
@@ -37,6 +57,7 @@ async function submitGeneration(generation: GenerationRecord) {
     duration: Number(payload.duration ?? 8),
     aspectRatio: payload.aspectRatio ?? generation.projects?.aspect_ratio ?? "16:9",
     resolution: payload.resolution ?? generation.projects?.resolution ?? "720p",
+    references,
   });
   const { error } = await createAdminClient().rpc("mark_generation_processing", {
     p_generation_id: generation.id,
