@@ -24,6 +24,9 @@ const providerModels: Record<string, string> = {
   "runway-4-5": "gen4.5",
   "wan-3-0": "wan3",
   "wan-3-0-prime": "wan3_prime",
+  "grok-imagine-1-5": "grok_imagine_1_5",
+  "seedance-2-0": "seedance2",
+  "seedance-2-5": "seedance2_5",
 };
 
 function client() {
@@ -32,11 +35,50 @@ function client() {
   return new RunwayML({ apiKey, maxRetries: 0 });
 }
 
-function ratioFor(aspectRatio: string, resolution: string, supports1080 = true) {
+function pixelRatio(aspectRatio: string, resolution: string) {
   const portrait = aspectRatio === "9:16";
-  if (resolution === "480p") return portrait ? "480:832" : "832:480";
-  if (resolution === "1080p" && supports1080) return portrait ? "1080:1920" : "1920:1080";
+  if (resolution === "480p") return portrait ? "480:854" : "854:480";
+  if (resolution === "1080p") return portrait ? "1080:1920" : "1920:1080";
   return portrait ? "720:1280" : "1280:720";
+}
+
+function runwayParams(input: RenderInput, providerModel: string) {
+  const promptText = input.prompt.slice(0, input.model === "runway-4-5" ? 1000 : 3500);
+
+  if (input.model === "grok-imagine-1-5") {
+    return {
+      model: providerModel,
+      promptText,
+      duration: input.duration,
+      ratio: input.aspectRatio === "9:16" ? "9:16" : "16:9",
+      resolution: input.resolution,
+    };
+  }
+
+  if (input.model === "seedance-2-0" || input.model === "seedance-2-5") {
+    return {
+      model: providerModel,
+      promptText,
+      duration: input.duration,
+      ratio: pixelRatio(input.aspectRatio, input.resolution),
+    };
+  }
+
+  const portrait = input.aspectRatio === "9:16";
+  const supports1080 = input.model !== "runway-4-5";
+  const ratio =
+    input.resolution === "480p"
+      ? portrait ? "480:832" : "832:480"
+      : input.resolution === "1080p" && supports1080
+        ? portrait ? "1080:1920" : "1920:1080"
+        : portrait ? "720:1280" : "1280:720";
+
+  return {
+    model: providerModel,
+    promptText,
+    duration: input.duration,
+    ratio,
+  };
 }
 
 export function hasVideoProviderConfiguration(model = "runway-4-5") {
@@ -46,15 +88,7 @@ export function hasVideoProviderConfiguration(model = "runway-4-5") {
 export async function submitVideo(input: RenderInput) {
   const providerModel = providerModels[input.model];
   if (!providerModel) throw new Error(`Unsupported provider model: ${input.model}`);
-  const promptText = input.prompt.slice(0, input.model === "runway-4-5" ? 1000 : 3500);
-  const supports1080 = !["runway-4-5", "gemini-omni-flash"].includes(input.model);
-  const params: Record<string, unknown> = {
-    model: providerModel,
-    promptText,
-    duration: input.duration,
-    ratio: ratioFor(input.aspectRatio, input.resolution, supports1080),
-  };
-  const task = await client().textToVideo.create(params as never, {
+  const task = await client().textToVideo.create(runwayParams(input, providerModel) as never, {
     idempotencyKey: `pixenar-${input.generationId}`,
   });
   return { taskId: task.id, providerStatus: "PENDING" };
