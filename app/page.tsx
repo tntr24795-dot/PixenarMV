@@ -120,6 +120,18 @@ export default async function Home() {
           <span>✓ Multi-model control</span>
           <span>✓ 16:9 + 9:16</span>
         </div>
+        <div className="heroPricing" aria-label="Pixenar Studio pricing">
+          {planIds.map((planId) => {
+            const plan = subscriptionPlans[planId];
+            return (
+              <a href="#pricing" className={planId === "premium" ? "heroPriceCard featured" : "heroPriceCard"} key={planId}>
+                <small>{plan.name}{planId === "premium" ? " · MOST POPULAR" : ""}</small>
+                <b><strong>${plan.monthlyPriceUsd}</strong><span>/mo</span></b>
+                <em>{plan.monthlyCredits.toLocaleString()} credits · ${plan.annualPriceUsd}/year</em>
+              </a>
+            );
+          })}
+        </div>
         <div className="productWindow">
           <div className="windowBar">
             <i />
@@ -173,7 +185,7 @@ export default async function Home() {
             <p className="landingKicker">CREATE FROM AN EXAMPLE</p>
             <h2>See the idea. Open the prompt. Make it yours.</h2>
             <p className="sectionCopy">
-              Explore ready-to-create film, drama, music video, animation and commercial concepts. Open any example to inspect the prompt, then send it directly into Pixenar Studio as your starting point.
+              Explore ready-to-create film, drama, music video, animation and commercial concepts. Every card includes its prompt and settings. When a preview video has not been uploaded yet, Pixenar shows a visual concept card instead of an empty frame.
             </p>
           </div>
           <Link className="landingSecondary inline" href="/create?mode=film">

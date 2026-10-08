@@ -15,3 +15,12 @@
 .pricingCta{margin-top:auto;width:100%;justify-content:center;min-width:0}.pricingFootnote{margin:20px auto 0;color:#70798c;font-size:11px}
 @media(max-width:900px){.pricingGrid{grid-template-columns:1fr}.pricingCard{max-width:620px;width:100%;margin:auto}.pricingSection{padding-block:80px}}
 @media(max-width:600px){.pricingSection{padding:70px 22px}.pricingPrice strong{font-size:50px}}
+
+.heroPricing{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:900px;margin:0 auto 44px;text-align:left}
+.heroPriceCard{display:grid;gap:7px;padding:16px 18px;border:1px solid #28364a;border-radius:14px;background:linear-gradient(145deg,#0e1420,#0a0e17);text-decoration:none;color:#fff}
+.heroPriceCard.featured{border-color:#2c8cc5;background:linear-gradient(145deg,#102943,#0b111a);box-shadow:0 15px 40px #0b5f9530}
+.heroPriceCard small{font-size:9px;font-weight:900;letter-spacing:1px;color:#79d1ff}
+.heroPriceCard b{display:flex;align-items:flex-end;gap:6px}.heroPriceCard strong{font-size:34px;line-height:1}.heroPriceCard b span{font-size:11px;color:#8c95a6;padding-bottom:3px}
+.heroPriceCard em{font-style:normal;font-size:10px;color:#a5adbb}
+.heroPriceCard:hover{transform:translateY(-2px);border-color:#3aa7e7}
+@media(max-width:760px){.heroPricing{grid-template-columns:1fr;max-width:520px;margin-bottom:34px}.heroPriceCard{padding:14px 16px}}

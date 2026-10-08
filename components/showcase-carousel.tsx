@@ -54,10 +54,13 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
               {item.videoSrc ? (
                 <video ref={(node)=>{if(node) videoRefs.current.set(item.slug,node); else videoRefs.current.delete(item.slug)}} src={item.videoSrc} poster={item.thumbnailSrc} muted loop playsInline preload="metadata" />
               ) : (
-                <span className="showcasePlaceholder" aria-hidden="true">
+                <span className={`showcasePlaceholder showcaseVisual theme-${item.category.toLowerCase().replace(/[^a-z0-9]+/g,"-")}`} aria-hidden="true">
+                  <span className="visualScene" />
+                  <span className="visualSubject one" />
+                  <span className="visualSubject two" />
                   <i />
                   <b>{item.title}</b>
-                  <small>{item.category} · {item.aspectRatio}</small>
+                  <small>{item.category} · {item.aspectRatio} · visual concept</small>
                 </span>
               )}
               <span className="showcaseWatermark">Pixenar Studio</span>
@@ -69,6 +72,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p className="showcasePromptPreview"><b>Prompt:</b> {item.prompt}</p>
+                {!item.videoSrc ? <p className="showcaseMediaStatus">Preview video pending upload · prompt is ready to use now</p> : null}
               </div>
               <button onClick={()=>setActive(item)}>View prompt</button>
             </div>
