@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
+import VideoLibrary, { type VideoLibraryItem } from "@/components/video-library";
 type SavedProject = {
   id: string;
   title: string;
@@ -38,10 +39,12 @@ export default function Dashboard({
   savedProjects = [],
   credits = 0,
   role = "user",
+  videos = [],
 }: {
   savedProjects?: SavedProject[];
   credits?: number;
   role?: "user" | "admin";
+  videos?: VideoLibraryItem[];
 }) {
   const empty = savedProjects.length === 0;
   const projects = empty ? samples : savedProjects;
@@ -194,6 +197,7 @@ export default function Dashboard({
             );
           })}
         </div>
+        <VideoLibrary items={videos} />
         <div className="startRow">
           <article className="startCard">
             <span className="icon">🎬</span>
