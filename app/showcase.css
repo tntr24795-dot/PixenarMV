@@ -34,3 +34,10 @@
 .showcaseActions{display:flex;gap:10px;margin-top:15px}
 .showcaseActions a{display:inline-flex;align-items:center;text-decoration:none;color:#fff;background:linear-gradient(100deg,#167fe9,#35b5ed);border-radius:10px;padding:11px 16px;font-weight:800}
 @media(max-width:760px){.showcaseSection{padding:72px 18px}.showcaseHead{display:block}.showcaseHead>a{margin-top:18px}.showcaseCard{flex-basis:88vw}.showcaseMeta{align-items:flex-start;flex-direction:column}.showcaseMeta h3{font-size:20px}.showcaseDialog{width:100%;max-height:94vh}.showcaseDialogBody{padding:20px}.showcaseActions{flex-direction:column}.showcaseActions a,.showcaseActions button{justify-content:center;text-align:center}}
+
+.showcasePlaceholder{grid-template-rows:1fr auto auto 1fr;gap:7px;text-align:center;padding:28px}
+.showcasePlaceholder b{align-self:end;max-width:80%;margin:auto;font-size:clamp(16px,2.2vw,28px);letter-spacing:-.3px;text-transform:none;color:#e8f6ff}
+.showcasePlaceholder small{z-index:1;align-self:start;color:#7fcfff;font-size:10px;letter-spacing:1.2px;text-transform:uppercase}
+.showcasePromptPreview{margin-top:12px!important;padding-top:12px;border-top:1px solid #202a3b;color:#b8c3d4!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.showcasePromptPreview b{color:#79ccff}
+.showcaseCard:not(:has(video)) .showcasePlay{display:none}
