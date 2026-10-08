@@ -21,7 +21,7 @@ export const videoModels: VideoModel[] = [
 
 for (const model of videoModels.filter(m => m.available)) model.credits = quoteVideo(model.id,model.durations[0],model.resolutions?.[0] || "720p").credits / model.durations[0];
 
-export function creditsFor(modelId:string, duration:number, resolution = "720p") {
-  try { return quoteVideo(modelId, duration, resolution).credits; }
+export function creditsFor(modelId:string, duration:number, resolution = "720p", references = {}) {
+  try { return quoteVideo(modelId, duration, resolution, references).credits; }
   catch { return 0; } // Unpriced catalogue entries cannot generate.
 }

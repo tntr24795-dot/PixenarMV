@@ -13,3 +13,8 @@
 .inspectorTitle input:focus{border-bottom-color:#4ea7e6}
 .inspectorTitle .dangerMenu{border:1px solid #603340;background:#281217;color:#ffc8d0;border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer}
 .inspectorTitle .dangerMenu:hover{background:#351820}
+
+.referencePanel{display:grid;gap:8px;padding:12px;border:1px solid #24384d;border-radius:10px;background:#0b1421}
+.referenceHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.referenceHead b{font-size:11px;color:#eef4ff}.referenceHead small{font-size:9px;color:#7f91a8}
+.referenceUpload{display:flex;align-items:center;gap:10px;border:1px dashed #31536f;border-radius:9px;padding:10px;cursor:pointer;background:#0d1928}.referenceUpload:hover{border-color:#4ea7e6}.referenceUpload.disabled{opacity:.55;cursor:wait}.referenceUpload>span{font-size:18px;color:#72cbff}.referenceUpload div{display:grid;gap:2px}.referenceUpload b{font-size:11px;color:#eaf4ff}.referenceUpload small{font-size:9px;color:#71849a}
+.referenceList{display:grid;gap:6px}.referenceItem{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 8px;border-radius:8px;background:#0a111c;border:1px solid #1e2d3e}.referenceItem>span{font-size:8px;font-weight:800;color:#7fd5ff;letter-spacing:.08em}.referenceItem small{font-size:9px;color:#9aabc0}.referenceItem button{border:0;background:transparent;color:#ff9daa;font-size:9px;cursor:pointer}.referenceMessage{color:#7fd5ff;font-size:9px;line-height:1.35}
