@@ -278,20 +278,25 @@ export default async function Home() {
           </Link>
         </div>
         <div className="characterCard">
-          <div className="portrait">
-            <span />
-            <span />
-            <span />
+          <div className="portrait realCharacter">
+            {showcaseItems[0]?.videoSrc ? (
+              <video src={showcaseItems[0].videoSrc} autoPlay muted loop playsInline preload="metadata" />
+            ) : null}
+            <div className="characterOverlay">
+              <span>LEAD CHARACTER</span>
+              <b>ARIA</b>
+            </div>
           </div>
           <div className="lockRow">
             <b>ARIA · LEAD</b>
             <em>Identity locked</em>
           </div>
-          <div className="referenceStrip">
-            <i />
-            <i />
-            <i />
-            <i />
+          <div className="referenceStrip realReferences">
+            {[0,1,2,3].map((n)=>(
+              <span key={n}>
+                {showcaseItems[n]?.videoSrc ? <video src={showcaseItems[n].videoSrc} muted playsInline preload="metadata" /> : null}
+              </span>
+            ))}
           </div>
         </div>
       </section>
