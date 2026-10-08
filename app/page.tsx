@@ -65,10 +65,14 @@ export default async function Home() {
     durationSeconds: item.duration_seconds,
     modelId: item.model_id,
     videoSrc: item.video_path
-      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
+      ? /^https?:\/\//.test(item.video_path)
+        ? item.video_path
+        : `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
       : undefined,
     thumbnailSrc: item.thumbnail_path
-      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}`
+      ? /^https?:\/\//.test(item.thumbnail_path)
+        ? item.thumbnail_path
+        : `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}`
       : undefined,
   }));
   const showcaseItems = liveShowcase.length ? liveShowcase : showcaseTemplates;
