@@ -1,5 +1,6 @@
 import { videoModels } from "@/lib/models";
 import { hasVideoProviderConfiguration } from "@/lib/providers/video";
+import { hasVoiceProviderConfiguration } from "@/lib/providers/voice";
 import CreateStudio from "@/components/create-studio";
 import { createClient } from "@/lib/supabase/server";
 import { getShowcaseTemplate } from "@/lib/showcase";
@@ -33,6 +34,7 @@ export default async function CreatePage({
       initialTemplate={initialTemplate}
       initialProject={initialProject}
       configuredModelIds={videoModels.filter(m => m.available && hasVideoProviderConfiguration(m.id)).map(m => m.id)}
+      voiceConfigured={hasVoiceProviderConfiguration()}
     />
   );
 }
