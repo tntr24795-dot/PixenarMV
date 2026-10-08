@@ -64,9 +64,6 @@ export default function Dashboard({
           <Link className="nav" href="/characters">
             <span>♙</span>Characters
           </Link>
-          <a className="nav" href="#assets">
-            <span>▣</span>Assets
-          </a>
           <Link className="nav" href="/renders">
             <span>◉</span>Render queue
           </Link>
@@ -84,11 +81,8 @@ export default function Dashboard({
             <small>AVAILABLE CREDITS</small>
             <strong>{credits.toLocaleString()}</strong>
             <span>Secure account wallet</span>
-            <button>Manage plan</button>
+            <button disabled title="Billing portal will be enabled with Stripe configuration">Billing setup pending</button>
           </div>
-          <a className="nav" href="#settings">
-            <span>⚙</span>Settings
-          </a>
         </div>
       </aside>
       <section className="content" id="projects">
@@ -141,7 +135,7 @@ export default function Dashboard({
                 : "Continue where you left off"}
             </p>
           </div>
-          <button className="ghost">View all</button>
+          <span className="sectionCount">{savedProjects.length} saved</span>
         </div>
         <div className="projectGrid">
           {projects.map((project, index) => {
@@ -180,9 +174,9 @@ export default function Dashboard({
                         })}
                       </p>
                     </div>
-                    <button aria-label="Project menu" className="dots">
-                      •••
-                    </button>
+                    <Link className="dots" aria-label={`Open ${project.title}`} href={empty ? "/create" : `/create?project=${project.id}`}>
+                      Open
+                    </Link>
                   </div>
                   <div className="progressMeta">
                     <span>
@@ -225,7 +219,7 @@ export default function Dashboard({
           </article>
         </div>
         <footer className="appCopyright">
-          © 2026 PixenarMV. All rights reserved.
+          © 2026 Pixenar Studio. All rights reserved.
         </footer>
       </section>
     </main>
