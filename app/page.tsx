@@ -2,7 +2,7 @@ import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
 import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
 import { annualSavingsUsd, subscriptionPlans, type SubscriptionPlanId } from "@/lib/plans";
 
@@ -49,8 +49,8 @@ const modelNames = [
 ];
 
 export default async function Home() {
-  const admin = createAdminClient();
-  const { data: publishedShowcase } = await admin
+  const supabase = await createClient();
+  const { data: publishedShowcase } = await supabase
     .from("showcase_videos")
     .select("slug,title,category,description,prompt,style,aspect_ratio,duration_seconds,model_id,video_path,thumbnail_path,is_featured,featured_order")
     .eq("published", true)
