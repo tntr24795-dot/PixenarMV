@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
-import { showcaseTemplates } from "@/lib/showcase";
+import { legacyBase44ShowcaseVideos, showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
@@ -54,7 +54,7 @@ export default async function Home() {
     .eq("is_featured", true)
     .order("featured_order", { ascending: true })
     .limit(30);
-  const liveShowcase = (publishedShowcase ?? []).map((item) => ({
+  const liveShowcase = (publishedShowcase ?? []).map((item, index) => ({
     slug: item.slug,
     title: item.title,
     category: item.category,
@@ -66,7 +66,7 @@ export default async function Home() {
     modelId: item.model_id,
     videoSrc: item.video_path
       ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
-      : undefined,
+      : legacyBase44ShowcaseVideos[index % legacyBase44ShowcaseVideos.length],
     thumbnailSrc: item.thumbnail_path
       ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}`
       : undefined,
