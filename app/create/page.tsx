@@ -17,12 +17,12 @@ export default async function CreatePage({
     const [{ data: projectRow }, { data: sceneRows }] = await Promise.all([
       supabase
         .from("projects")
-        .select("id,title,kind,song_analysis")
+        .select("id,title,kind,status,concept,aspect_ratio,storyboard,song_analysis")
         .eq("id", project)
         .maybeSingle(),
       supabase
         .from("scenes")
-        .select("id,position,title,duration_seconds,prompt,status")
+        .select("id,position,title,duration_seconds,prompt,status,camera_direction,model")
         .eq("project_id", project)
         .order("position"),
     ]);

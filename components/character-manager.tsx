@@ -10,6 +10,7 @@ export type Character = {
   identity_lock: { notes?: string };
   wardrobe_lock: { notes?: string };
   created_at: string;
+  signed_url?: string | null;
 };
 export default function CharacterManager({
   initialCharacters,
@@ -158,7 +159,11 @@ export default function CharacterManager({
           characters.map((character) => (
             <article className="characterCard" key={character.id}>
               <span className="characterAvatar">
-                {character.name.slice(0, 1).toUpperCase()}
+                {character.signed_url ? (
+                  <img src={character.signed_url} alt="" />
+                ) : (
+                  character.name.slice(0, 1).toUpperCase()
+                )}
               </span>
               <div>
                 <h3>{character.name}</h3>

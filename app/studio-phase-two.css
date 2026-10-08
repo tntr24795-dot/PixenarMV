@@ -8,3 +8,8 @@
 .dramaActions .editStory{margin:0}
 .dramaActions .primary{min-width:220px;justify-content:center}
 @media(max-width:760px){.dramaActions{align-items:stretch;flex-direction:column}.dramaActions .primary,.dramaActions .editStory{width:100%}}
+
+.inspectorTitle input{width:100%;max-width:220px;border:0;border-bottom:1px solid transparent;background:transparent;color:#eef4ff;font:inherit;font-weight:700;padding:2px 0;outline:none}
+.inspectorTitle input:focus{border-bottom-color:#4ea7e6}
+.inspectorTitle .dangerMenu{border:1px solid #603340;background:#281217;color:#ffc8d0;border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer}
+.inspectorTitle .dangerMenu:hover{background:#351820}
