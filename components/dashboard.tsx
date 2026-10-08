@@ -51,7 +51,7 @@ export default function Dashboard({
         <Link className="brand" href="/">
           <span className="brandMark">P</span>
           <span>
-            PIXENAR<span>MV</span>
+            PIXENAR <span>STUDIO</span>
           </span>
         </Link>
         <nav aria-label="Main navigation">
@@ -70,6 +70,11 @@ export default function Dashboard({
           <Link className="nav" href="/renders">
             <span>◉</span>Render queue
           </Link>
+          {role === "admin" ? (
+            <Link className="nav" href="/admin/showcase">
+              <span>▤</span>Showcase admin
+            </Link>
+          ) : null}
         </nav>
         <div className="sideBottom">
           <a className="nav mainSiteLink" href={mainSiteUrl}>

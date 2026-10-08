@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
+import { showcaseTemplates } from "@/lib/showcase";
+import ShowcaseCarousel from "@/components/showcase-carousel";
+import { createClient } from "@/lib/supabase/server";
+import { supabaseUrl } from "@/lib/supabase/config";
 
 const workflow = [
   {
@@ -40,14 +44,40 @@ const modelNames = [
   "Seedance 2.5",
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: publishedShowcase } = await supabase
+    .from("showcase_videos")
+    .select("slug,title,category,description,prompt,style,aspect_ratio,duration_seconds,model_id,video_path,thumbnail_path,is_featured,featured_order")
+    .eq("published", true)
+    .eq("is_featured", true)
+    .order("featured_order", { ascending: true })
+    .limit(30);
+  const liveShowcase = (publishedShowcase ?? []).map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    category: item.category,
+    description: item.description,
+    prompt: item.prompt,
+    style: item.style,
+    aspectRatio: item.aspect_ratio === "9:16" ? "9:16" as const : "16:9" as const,
+    durationSeconds: item.duration_seconds,
+    modelId: item.model_id,
+    videoSrc: item.video_path
+      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}`
+      : undefined,
+    thumbnailSrc: item.thumbnail_path
+      ? `${supabaseUrl}/storage/v1/object/public/showcase-media/${item.thumbnail_path.split("/").map(encodeURIComponent).join("/")}`
+      : undefined,
+  }));
+  const showcaseItems = liveShowcase.length ? liveShowcase : showcaseTemplates;
   return (
     <main className="landing">
       <nav className="landingNav">
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
           <span>
-            Pixenar <b>MV</b>
+            Pixenar <b>Studio</b>
           </span>
         </Link>
         <div className="landingLinks">
@@ -62,15 +92,14 @@ export default function Home() {
       </nav>
       <section className="hero">
         <div className="heroGlow" />
-        <p className="landingKicker">AI MOVIE & FULL-SONG MUSIC VIDEO STUDIO</p>
+        <p className="landingKicker">AI FILM · DRAMA · MUSIC · VIDEO CREATION STUDIO</p>
         <h1>
           Turn every story
           <br />
           into <span>cinema.</span>
         </h1>
         <p className="heroCopy">
-          Upload a track or begin with one idea. PixenarMV builds the script,
-          cast and scenes—then gives you control before the final render.
+          Start with a story, song or concept. Pixenar Studio builds the script, cast, scenes and production flow—then gives you control before the final render.
         </p>
         <div className="heroActions">
           <Link className="landingPrimary" href="/create?mode=music-video">
@@ -133,9 +162,24 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <section className="showcaseSection" id="examples">
+        <div className="showcaseHead">
+          <div>
+            <p className="landingKicker">CREATE FROM AN EXAMPLE</p>
+            <h2>See the idea. Open the prompt. Make it yours.</h2>
+            <p className="sectionCopy">
+              Explore ready-to-create film, drama, music video, animation and commercial concepts. Open any example to inspect the prompt, then send it directly into Pixenar Studio as your starting point.
+            </p>
+          </div>
+          <Link className="landingSecondary inline" href="/create?mode=film">
+            Start from scratch
+          </Link>
+        </div>
+        <ShowcaseCarousel items={showcaseItems} />
+      </section>
       <section className="choice">
-        <p className="landingKicker">TWO WAYS TO CREATE</p>
-        <h2>One studio. Two complete workflows.</h2>
+        <p className="landingKicker">MULTIPLE WAYS TO CREATE</p>
+        <h2>One studio for stories, music and visual production.</h2>
         <div className="choiceGrid">
           <article>
             <span className="choiceIcon">♫</span>
@@ -278,11 +322,11 @@ export default function Home() {
         <a href={mainSiteUrl} className="brand">
           <span className="brandMark">P</span>
           <span>
-            Pixenar <b>MV</b>
+            Pixenar <b>Studio</b>
           </span>
         </a>
-        <p>AI filmmaking for creators, musicians and storytellers.</p>
-        <span>© 2026 PixenarMV. All rights reserved.</span>
+        <p>AI creation for filmmakers, musicians, storytellers and brands.</p>
+        <span>© 2026 Pixenar Studio. All rights reserved.</span>
       </footer>
     </main>
   );

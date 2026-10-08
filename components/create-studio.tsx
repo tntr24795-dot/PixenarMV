@@ -4,8 +4,10 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
 import { mainSiteUrl } from "@/lib/brand-links";
+import type { ShowcaseTemplate } from "@/lib/showcase";
 
 type Mode = "film" | "music-video";
+type InitialTemplate = Pick<ShowcaseTemplate, "slug" | "title" | "prompt" | "style" | "aspectRatio" | "modelId">;
 type Scene = {
   id?: string;
   n: number;
@@ -57,11 +59,15 @@ const filmScenes: Scene[] = [
 export default function CreateStudio({
   initialMode = "film",
   initialProject,
+  initialTemplate,
   configuredModelIds = [],
+  voiceConfigured = false,
 }: {
   configuredModelIds?: string[];
+  voiceConfigured?: boolean;
   initialMode?: Mode;
   initialProject?: InitialProject;
+  initialTemplate?: InitialTemplate;
 }) {
   const [mode, setMode] = useState<Mode>(
     initialProject
@@ -70,12 +76,12 @@ export default function CreateStudio({
         : "film"
       : initialMode,
   );
-  const [modelId, setModelId] = useState("runway-4-5");
+  const [modelId, setModelId] = useState(initialTemplate?.modelId ?? "runway-4-5");
   const [duration, setDuration] = useState(8);
   const [resolution, setResolution] = useState("720p");
   const [selected, setSelected] = useState(1);
   const [title, setTitle] = useState(
-    initialProject?.title ?? "Untitled project",
+    initialProject?.title ?? initialTemplate?.title ?? "Untitled project",
   );
   const [projectId, setProjectId] = useState<string | undefined>(
     initialProject?.id,
@@ -85,10 +91,12 @@ export default function CreateStudio({
   const [analysisSections, setAnalysisSections] = useState<
     { name: string; start: number; end: number }[]
   >(initialProject?.song_analysis?.sections ?? []);
-  const [story, setStory] = useState("");
-  const [storyStyle, setStoryStyle] = useState("cinematic-realism");
-  const [aspectRatio, setAspectRatio] = useState("9:16");
+  const [story, setStory] = useState(initialTemplate?.prompt ?? "");
+  const [storyStyle, setStoryStyle] = useState(initialTemplate?.style ?? "cinematic-realism");
+  const [aspectRatio, setAspectRatio] = useState<string>(initialTemplate?.aspectRatio ?? "9:16");
   const [buildingStory, setBuildingStory] = useState(false);
+  const [generatingVoices, setGeneratingVoices] = useState(false);
+  const [voicesReady, setVoicesReady] = useState(false);
   const [dramaReady, setDramaReady] = useState(
     Boolean(initialProject?.kind === "short_film" && initialProject.scenes.length),
   );
@@ -300,6 +308,36 @@ export default function CreateStudio({
       setBuildingStory(false);
     }
   }
+  async function generateDialogueVoices() {
+    if (!projectId) {
+      setNotice("Build the storyboard before generating dialogue voices.");
+      return;
+    }
+    setGeneratingVoices(true);
+    setNotice("Generating character dialogue voices…");
+    try {
+      const response = await fetch("/api/voice", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ projectId }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to generate dialogue voices.");
+      setVoicesReady(data.status === "ready" || data.status === "not_required");
+      setNotice(
+        data.status === "not_required"
+          ? "This storyboard has no dialogue to generate."
+          : `${data.generated} dialogue voice clips are ready for final export.`,
+      );
+    } catch (error) {
+      setNotice(
+        error instanceof Error ? error.message : "Unable to generate dialogue voices.",
+      );
+    } finally {
+      setGeneratingVoices(false);
+    }
+  }
+
   function updatePrompt(prompt: string) {
     setScenes((current) =>
       current.map((scene, index) =>
@@ -528,7 +566,7 @@ export default function CreateStudio({
                   <p className="eyebrow">AI SHORT DRAMA CREATOR</p>
                   <h2>Turn any story into a mini drama.</h2>
                   <p>
-                    Paste a story or script. PixenarMV will break it into
+                    Paste a story or script. Pixenar Studio will break it into
                     editable scenes with continuity-ready visual prompts.
                   </p>
                 </div>
@@ -584,9 +622,9 @@ export default function CreateStudio({
               </button>
               {notice && <p className="uploadNotice">{notice}</p>}
               <small className="voiceNote">
-                Voiceover and dialogue generation will be enabled after the
-                voice provider is connected. Visual scenes and final export use
-                the existing private PixenarMV workflow.
+                Pixenar Studio plans recurring characters and dialogue before rendering.
+                After the storyboard is created, generate character voices and they
+                will be mixed automatically into the final export.
               </small>
             </div>
           ) : (
@@ -603,9 +641,25 @@ export default function CreateStudio({
                   {String(currentScene.duration).padStart(2, "0")}
                 </span>
               </div>
-              <button className="editStory" onClick={() => setDramaReady(false)}>
-                Edit story and rebuild storyboard
-              </button>
+              <div className="dramaActions">
+                <button className="editStory" onClick={() => setDramaReady(false)}>
+                  Edit story and rebuild storyboard
+                </button>
+                <button
+                  className="primary"
+                  disabled={generatingVoices || !voiceConfigured}
+                  onClick={generateDialogueVoices}
+                >
+                  {!voiceConfigured
+                    ? "Dialogue voice setup pending"
+                    : generatingVoices
+                      ? "Generating voices…"
+                      : voicesReady
+                        ? "Dialogue voices ready ✓"
+                        : "Generate dialogue voices"}
+                </button>
+              </div>
+              {notice && <p className="uploadNotice">{notice}</p>}
             </>
           )}
           {((mode === "film" && dramaReady) || analysisSections.length > 0) && (
@@ -741,7 +795,7 @@ export default function CreateStudio({
         </aside>
       </div>
       <footer className="studioCopyright">
-        © 2026 PixenarMV. All rights reserved.
+        © 2026 Pixenar Studio. All rights reserved.
       </footer>
     </div>
   );

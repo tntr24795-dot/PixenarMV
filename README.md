@@ -1,6 +1,6 @@
-# PixenarMV
+# Pixenar Studio
 
-PixenarMV is an AI filmmaking studio for creating short films and full-song music videos with scene-level control, reusable characters, and multiple generation providers.
+Pixenar Studio is an AI creation platform for films, dramas, full-song music videos, animation, commercials and cinematic stories with scene-level control, reusable characters and multiple generation providers.
 
 ## Local development
 

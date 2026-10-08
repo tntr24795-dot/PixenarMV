@@ -7,7 +7,7 @@ export default function LoginPage() {
         <AuthForm />
       </Suspense>
       <footer className="authCopyright">
-        © 2026 PixenarMV. All rights reserved.
+        © 2026 Pixenar Studio. All rights reserved.
       </footer>
     </main>
   );

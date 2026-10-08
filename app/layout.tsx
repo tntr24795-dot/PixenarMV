@@ -5,10 +5,12 @@ import "./auth.css";
 import "./phase-two.css";
 import "./studio-phase-two.css";
 import "./final-tweaks.css";
+import "./showcase.css";
+import "./showcase-admin.css";
 
 export const metadata: Metadata = {
-  title:"PixenarMV — AI Movie & Music Video Studio",
-  description:"Create consistent AI short films and music videos, scene by scene.",
+  title:"Pixenar Studio — AI Film, Drama, Music & Video Creation Studio",
+  description:"Create films, dramas, music videos, animation and cinematic stories with AI, scene by scene.",
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}){

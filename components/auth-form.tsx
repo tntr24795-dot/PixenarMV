@@ -17,13 +17,18 @@ export default function AuthForm() {
     const email = String(form.get("email"));
     const password = String(form.get("password"));
     const supabase = createClient();
+    const requestedNext = params.get("next");
+    const safeNext =
+      requestedNext?.startsWith("/") && !requestedNext.startsWith("//")
+        ? requestedNext
+        : "/studio";
     const result =
       mode === "login"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: `${location.origin}/studio` },
+            options: { emailRedirectTo: `${location.origin}${safeNext}` },
           });
     if (result.error) {
       setMessage(result.error.message);
@@ -35,18 +40,14 @@ export default function AuthForm() {
       setBusy(false);
       return;
     }
-    const destination = params.get("next");
-    location.href =
-      destination?.startsWith("/") && !destination.startsWith("//")
-        ? destination
-        : "/studio";
+    location.href = safeNext;
   }
   return (
     <div className="authCard">
       <a className="brand" href="/">
         <span className="brandMark">P</span>
         <span>
-          PIXENAR<span>MV</span>
+          PIXENAR <span>STUDIO</span>
         </span>
       </a>
       <p className="eyebrow">PIXENAR CREATIVE CLOUD</p>
@@ -94,7 +95,7 @@ export default function AuthForm() {
         }}
       >
         {mode === "login"
-          ? "New to PixenarMV? Create an account"
+          ? "New to Pixenar Studio? Create an account"
           : "Already have an account? Sign in"}
       </button>
       <small>
@@ -102,7 +103,7 @@ export default function AuthForm() {
         use.
       </small>
       <a className="authHomeLink" href={mainSiteUrl}>
-        ← Back to PixenarMV main website
+        ← Back to Pixenar Studio main website
       </a>
     </div>
   );
