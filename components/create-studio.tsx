@@ -359,14 +359,114 @@ export default function CreateStudio({
       ),
     );
   }
-  async function saveScenePrompt() {
+  async function patchScene(values: Record<string, unknown>) {
     if (!currentScene.id) return;
-    const prompt = currentScene.prompt.trim();
-    const { error } = await createClient()
-      .from("scenes")
-      .update({ prompt })
-      .eq("id", currentScene.id);
-    if (error) setNotice(error.message);
+    const response = await fetch("/api/scenes", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sceneId: currentScene.id,
+        projectId,
+        ...values,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Unable to save scene changes.");
+    return data;
+  }
+
+  async function saveScenePrompt() {
+    try {
+      await patchScene({ prompt: currentScene.prompt.trim() });
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to save scene prompt.");
+    }
+  }
+
+  async function saveSceneTitle() {
+    try {
+      const title = currentScene.title.trim();
+      if (!title) return;
+      await patchScene({ title });
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to save scene title.");
+    }
+  }
+
+  async function setSceneCamera(cameraDirection: string) {
+    setScenes((current) =>
+      current.map((scene, index) =>
+        index === selected - 1 ? { ...scene, cameraDirection } : scene,
+      ),
+    );
+    try {
+      await patchScene({ cameraDirection });
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to save camera direction.");
+    }
+  }
+
+  async function setSceneDuration(nextDuration: number) {
+    setDuration(nextDuration);
+    setScenes((current) =>
+      current.map((scene, index) =>
+        index === selected - 1 ? { ...scene, duration: nextDuration } : scene,
+      ),
+    );
+    try {
+      await patchScene({ durationSeconds: nextDuration });
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to save scene duration.");
+    }
+  }
+
+  async function setSceneModel(nextModelId: string) {
+    chooseModel(nextModelId);
+    setScenes((current) =>
+      current.map((scene, index) =>
+        index === selected - 1 ? { ...scene, modelId: nextModelId } : scene,
+      ),
+    );
+    try {
+      await patchScene({ modelId: nextModelId });
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to save scene model.");
+    }
+  }
+
+  function selectScene(scene: Scene) {
+    setSelected(scene.n);
+    setDuration(scene.duration);
+    const savedModel = scene.modelId && videoModels.some((item) => item.id === scene.modelId)
+      ? scene.modelId
+      : modelId;
+    if (savedModel !== modelId) chooseModel(savedModel);
+  }
+
+  async function deleteCurrentScene() {
+    if (!projectId || !currentScene.id) return;
+    if (scenes.length <= 1) {
+      setNotice("A project must keep at least one scene.");
+      return;
+    }
+    if (!window.confirm(`Delete Scene ${currentScene.n}: ${currentScene.title}?`)) return;
+    try {
+      const response = await fetch("/api/scenes", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ sceneId: currentScene.id, projectId }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to delete scene.");
+      const remaining = scenes
+        .filter((scene) => scene.id !== currentScene.id)
+        .map((scene, index) => ({ ...scene, n: index + 1 }));
+      setScenes(remaining);
+      setSelected(Math.min(selected, remaining.length));
+      setNotice("Scene deleted. Timeline timing was rebuilt automatically.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to delete scene.");
+    }
   }
 
   async function addScene() {
@@ -551,7 +651,7 @@ export default function CreateStudio({
           </div>
           {scenes.map((scene) => (
             <button
-              onClick={() => setSelected(scene.n)}
+              onClick={() => selectScene(scene)}
               className={`sceneItem ${selected === scene.n ? "selected" : ""}`}
               key={scene.n}
             >
@@ -770,9 +870,20 @@ export default function CreateStudio({
           <div className="inspectorTitle">
             <div>
               <b>Scene {selected}</b>
-              <span>{currentScene.title}</span>
+              <input
+                aria-label="Scene title"
+                value={currentScene.title}
+                onChange={(event) =>
+                  setScenes((current) =>
+                    current.map((scene, index) =>
+                      index === selected - 1 ? { ...scene, title: event.target.value } : scene,
+                    ),
+                  )
+                }
+                onBlur={saveSceneTitle}
+              />
             </div>
-            <button>⋯</button>
+            <button className="dangerMenu" onClick={deleteCurrentScene} aria-label="Delete scene">Delete</button>
           </div>
           <label>
             Scene prompt
@@ -787,7 +898,7 @@ export default function CreateStudio({
               Video model
               <select
                 value={modelId}
-                onChange={(e) => chooseModel(e.target.value)}
+                onChange={(e) => setSceneModel(e.target.value)}
               >
                 {videoModels.map((m) => (
                   <option disabled={!m.available || !configuredModelIds.includes(m.id)} value={m.id} key={m.id}>
@@ -801,7 +912,7 @@ export default function CreateStudio({
               Duration
               <select
                 value={duration}
-                onChange={(e) => setDuration(Number(e.target.value))}
+                onChange={(e) => setSceneDuration(Number(e.target.value))}
               >
                 {model.durations.map((d) => (
                   <option value={d} key={d}>
@@ -836,11 +947,14 @@ export default function CreateStudio({
           </label>
           <label>
             Camera direction
-            <select defaultValue="slow-dolly">
-              <option value="slow-dolly">Slow dolly forward</option>
-              <option>Static tripod</option>
-              <option>Handheld follow</option>
-              <option>Wide orbit</option>
+            <select
+              value={currentScene.cameraDirection || "Slow dolly forward"}
+              onChange={(event) => setSceneCamera(event.target.value)}
+            >
+              <option value="Slow dolly forward">Slow dolly forward</option>
+              <option value="Static tripod">Static tripod</option>
+              <option value="Handheld follow">Handheld follow</option>
+              <option value="Wide orbit">Wide orbit</option>
             </select>
           </label>
           <div className="cost">
