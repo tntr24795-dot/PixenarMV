@@ -61,8 +61,10 @@ export default function CreateStudio({
   initialProject,
   initialTemplate,
   configuredModelIds = [],
+  voiceConfigured = false,
 }: {
   configuredModelIds?: string[];
+  voiceConfigured?: boolean;
   initialMode?: Mode;
   initialProject?: InitialProject;
   initialTemplate?: InitialTemplate;
@@ -645,14 +647,16 @@ export default function CreateStudio({
                 </button>
                 <button
                   className="primary"
-                  disabled={generatingVoices}
+                  disabled={generatingVoices || !voiceConfigured}
                   onClick={generateDialogueVoices}
                 >
-                  {generatingVoices
-                    ? "Generating voices…"
-                    : voicesReady
-                      ? "Dialogue voices ready ✓"
-                      : "Generate dialogue voices"}
+                  {!voiceConfigured
+                    ? "Dialogue voice setup pending"
+                    : generatingVoices
+                      ? "Generating voices…"
+                      : voicesReady
+                        ? "Dialogue voices ready ✓"
+                        : "Generate dialogue voices"}
                 </button>
               </div>
               {notice && <p className="uploadNotice">{notice}</p>}
