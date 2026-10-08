@@ -3,6 +3,7 @@ import {authenticatedClient,readJson} from "@/lib/api/auth";
 import {createAdminClient,hasAdminConfiguration} from "@/lib/supabase/admin";
 import {createLongDramaOutline} from "@/lib/long-drama-outline";
 import {createShotManifest,inspectProduction} from "@/lib/long-drama-progress";
+import {videoModels} from "@/lib/models";
 export const dynamic="force-dynamic";
 
 export async function GET(request:Request){
@@ -29,7 +30,9 @@ export async function POST(request:Request){
   if(genError)return NextResponse.json({error:genError.message},{status:400});
   if(count) return NextResponse.json({error:"Cannot replace an already rendered project"},{status:409});
   const outline=createLongDramaOutline({minutes:Number(body?.minutes),premise:String(body?.premise??""),modelId:String(body?.modelId??""),resolution:String(body?.resolution??"")});
-  const manifest=createShotManifest(projectId,outline.chapters,30);
+  const model=videoModels.find(item=>item.id===outline.modelId && item.available);
+  if(!model) return NextResponse.json({error:"Model unavailable"},{status:400});
+  const manifest=createShotManifest(projectId,outline.chapters,Math.max(...model.durations));
   const admin=createAdminClient();
   // INSERT-only: concurrent attempts cannot overwrite or reset existing progress.
   const {error}=await admin.from("long_drama_manifests").insert({project_id:projectId,user_id:userId,manifest:{...manifest,outline,stage:"planning_only"}});
