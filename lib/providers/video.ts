@@ -1,6 +1,7 @@
 import "server-only";
 import { inspectWan } from "./wan";
 import RunwayML from "@runwayml/sdk";
+import { gateway } from "@ai-sdk/gateway";
 
 export type RenderReference = { uri: string; type: "image" | "video" | "audio" };
 
@@ -21,6 +22,10 @@ export type ProviderState = {
   error?: string;
   providerStatus: string;
   refundable?: boolean;
+};
+
+const gatewayModels: Record<string,string> = {
+  "veo-3-1-fast": "google/veo-3.1-fast-generate-001",
 };
 
 const providerModels: Record<string, string> = {
@@ -97,10 +102,23 @@ function runwayParams(input: RenderInput, providerModel: string) {
 }
 
 export function hasVideoProviderConfiguration(model = "runway-4-5") {
+  if (gatewayModels[model]) return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
   return Boolean(providerModels[model] && process.env.RUNWAYML_API_SECRET);
 }
 
 export async function submitVideo(input: RenderInput) {
+  const gatewayModelId = gatewayModels[input.model];
+  if (gatewayModelId) {
+    const started = await gateway.videoModel(gatewayModelId).doStart({
+      prompt: input.prompt.slice(0,3500),
+      duration: input.duration,
+      aspectRatio: input.aspectRatio === "9:16" ? "9:16" : "16:9",
+      resolution: "1280x720",
+      generateAudio: false,
+    });
+    const taskId = Buffer.from(JSON.stringify(started.operation)).toString("base64url");
+    return { taskId: `gateway:${input.model}:${taskId}`, providerStatus: "PENDING" };
+  }
   const providerModel = providerModels[input.model];
   if (!providerModel) throw new Error(`Unsupported provider model: ${input.model}`);
   const task = await client().textToVideo.create(runwayParams(input, providerModel) as never, {
@@ -110,6 +128,23 @@ export async function submitVideo(input: RenderInput) {
 }
 
 export async function inspectVideo(taskId: string, provider = "runway"): Promise<ProviderState> {
+  if (provider === "gateway") {
+    const [, modelId, encoded] = taskId.split(":", 3);
+    const gatewayModelId = gatewayModels[modelId];
+    if (!gatewayModelId || !encoded) throw new Error("Invalid AI Gateway task handle.");
+    const operation = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+    const state = await gateway.videoModel(gatewayModelId).doStatus({ operation });
+    if (state.status === "completed") {
+      const video = state.videos?.find((item) => item.type === "url");
+      return video?.url
+        ? { status:"succeeded",progress:100,outputUrl:video.url,providerStatus:"COMPLETED" }
+        : { status:"failed",progress:0,error:"AI Gateway completed without a downloadable video URL.",providerStatus:"COMPLETED",refundable:false };
+    }
+    if (state.status === "failed") {
+      return { status:"failed",progress:0,error:"AI Gateway video generation failed.",providerStatus:"FAILED",refundable:true };
+    }
+    return { status:"processing",progress:20,providerStatus:String(state.status).toUpperCase() };
+  }
   if (provider === "alibaba") return { ...await inspectWan(taskId), refundable: false };
   const task = await client().tasks.retrieve(taskId);
   if (task.status === "SUCCEEDED") {
