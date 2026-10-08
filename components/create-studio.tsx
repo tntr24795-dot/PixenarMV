@@ -15,11 +15,21 @@ type Scene = {
   duration: number;
   prompt: string;
   status?: string;
+  cameraDirection?: string | null;
+  modelId?: string | null;
 };
 type InitialProject = {
   id: string;
   title: string;
   kind: string;
+  status?: string | null;
+  concept?: string | null;
+  aspect_ratio?: string | null;
+  storyboard?: {
+    style?: string;
+    aspect_ratio?: string;
+    voiceover_status?: string;
+  } | null;
   song_analysis: {
     sections?: { name: string; start: number; end: number }[];
   } | null;
@@ -30,6 +40,8 @@ type InitialProject = {
     duration_seconds: number;
     prompt: string;
     status: string;
+    camera_direction?: string | null;
+    model?: string | null;
   }[];
 };
 const filmScenes: Scene[] = [
@@ -91,12 +103,12 @@ export default function CreateStudio({
   const [analysisSections, setAnalysisSections] = useState<
     { name: string; start: number; end: number }[]
   >(initialProject?.song_analysis?.sections ?? []);
-  const [story, setStory] = useState(initialTemplate?.prompt ?? "");
-  const [storyStyle, setStoryStyle] = useState(initialTemplate?.style ?? "cinematic-realism");
-  const [aspectRatio, setAspectRatio] = useState<string>(initialTemplate?.aspectRatio ?? "9:16");
+  const [story, setStory] = useState(initialProject?.concept ?? initialTemplate?.prompt ?? "");
+  const [storyStyle, setStoryStyle] = useState(initialProject?.storyboard?.style ?? initialTemplate?.style ?? "cinematic-realism");
+  const [aspectRatio, setAspectRatio] = useState<string>(initialProject?.aspect_ratio ?? initialProject?.storyboard?.aspect_ratio ?? initialTemplate?.aspectRatio ?? "9:16");
   const [buildingStory, setBuildingStory] = useState(false);
   const [generatingVoices, setGeneratingVoices] = useState(false);
-  const [voicesReady, setVoicesReady] = useState(false);
+  const [voicesReady, setVoicesReady] = useState(initialProject?.storyboard?.voiceover_status === "ready" || initialProject?.storyboard?.voiceover_status === "not_required");
   const [dramaReady, setDramaReady] = useState(
     Boolean(initialProject?.kind === "short_film" && initialProject.scenes.length),
   );
@@ -109,6 +121,8 @@ export default function CreateStudio({
           duration: scene.duration_seconds,
           prompt: scene.prompt,
           status: scene.status,
+          cameraDirection: scene.camera_direction,
+          modelId: scene.model,
         }))
       : filmScenes,
   );
@@ -345,6 +359,63 @@ export default function CreateStudio({
       ),
     );
   }
+  async function saveScenePrompt() {
+    if (!currentScene.id) return;
+    const prompt = currentScene.prompt.trim();
+    const { error } = await createClient()
+      .from("scenes")
+      .update({ prompt })
+      .eq("id", currentScene.id);
+    if (error) setNotice(error.message);
+  }
+
+  async function addScene() {
+    try {
+      const id = await ensureProject();
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Please sign in again.");
+      const n = scenes.length + 1;
+      const startSeconds = scenes.reduce((sum, scene) => sum + scene.duration, 0);
+      const payload = {
+        project_id: id,
+        user_id: user.id,
+        position: scenes.length,
+        start_seconds: startSeconds,
+        duration_seconds: 8,
+        title: `Scene ${n}`,
+        prompt: "Describe the next shot, action, characters, location and camera movement.",
+        status: "queued",
+      };
+      const { data, error } = await supabase
+        .from("scenes")
+        .insert(payload)
+        .select("id,position,title,duration_seconds,prompt,status,camera_direction,model")
+        .single();
+      if (error) throw error;
+      setScenes((current) => [
+        ...current,
+        {
+          id: data.id,
+          n: data.position + 1,
+          title: data.title ?? `Scene ${n}`,
+          duration: data.duration_seconds,
+          prompt: data.prompt,
+          status: data.status,
+          cameraDirection: data.camera_direction,
+          modelId: data.model,
+        },
+      ]);
+      setSelected(n);
+      setDramaReady(mode === "film" ? true : dramaReady);
+      setNotice(`Scene ${n} added and saved.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to add scene.");
+    }
+  }
+
   async function saveTitle() {
     if (!projectId) return;
     await createClient()
@@ -441,7 +512,7 @@ export default function CreateStudio({
         <div className="brand compact">
           <span className="brandMark">P</span>
           <span>
-            PIXENAR<span>MV</span>
+            PIXENAR <span>STUDIO</span>
           </span>
         </div>
         <div className="projectTitle">
@@ -457,7 +528,7 @@ export default function CreateStudio({
           <a className="homeLink" href={mainSiteUrl}>
             Main website
           </a>
-          <button className="ghost">Preview</button>
+          <button className="ghost" onClick={() => (location.href = "/renders")}>Review renders</button>
           <button className="primary" disabled={exporting} onClick={exportProject}>
             {exporting ? "Preparing…" : "Export"}
           </button>
@@ -476,7 +547,7 @@ export default function CreateStudio({
                 s
               </span>
             </div>
-            <button>＋</button>
+            <button onClick={addScene} aria-label="Add scene">＋</button>
           </div>
           {scenes.map((scene) => (
             <button
@@ -490,11 +561,11 @@ export default function CreateStudio({
               </span>
               <span>
                 <b>{scene.title}</b>
-                <small>{scene.duration}s · Draft</small>
+                <small>{scene.duration}s · {scene.status ? scene.status.replaceAll("_", " ") : "draft"}</small>
               </span>
             </button>
           ))}
-          <button className="addScene">＋ Add scene</button>
+          <button className="addScene" onClick={addScene}>＋ Add scene</button>
         </aside>
         <section className="canvasArea">
           <div className="modeTabs" role="tablist">
@@ -708,6 +779,7 @@ export default function CreateStudio({
             <textarea
               value={currentScene.prompt}
               onChange={(event) => updatePrompt(event.target.value)}
+              onBlur={saveScenePrompt}
             />
           </label>
           <div className="labelRow">
