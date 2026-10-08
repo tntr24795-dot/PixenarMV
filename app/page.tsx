@@ -151,16 +151,16 @@ export default async function Home() {
               ))}
             </aside>
             <div className="windowViewer">
-              <div className="cinemaScene">
-                <span className="rain" />
-                <div className="character one" />
-                <div className="character two" />
+              <div className="cinemaScene realPreview">
+                {showcaseItems[0]?.videoSrc ? (
+                  <video src={showcaseItems[0].videoSrc} autoPlay muted loop playsInline preload="metadata" />
+                ) : null}
                 <b>SCENE 02 · RAINY NIGHT</b>
               </div>
-              <div className="fakeTimeline">
-                {[28, 18, 30, 24].map((w, n) => (
-                  <i style={{ width: `${w}%` }} key={n} />
-                ))}
+              <div className="promptExamples" aria-label="Example scene prompt">
+                <span>🎬 Two people standing in the rain at night…</span>
+                <span>◉ Cinematic, moody lighting, neon reflections…</span>
+                <span>✦ Close-up, emotional, 35mm film look…</span>
               </div>
             </div>
             <div className="windowInspector">
