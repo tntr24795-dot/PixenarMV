@@ -49,6 +49,33 @@ export async function POST(request: NextRequest) {
   }
   const { supabase, userId } = await authenticatedClient();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: scenes, error: sceneError } = await supabase
+    .from("scenes")
+    .select("id,title,status")
+    .eq("project_id", projectId)
+    .eq("user_id", userId)
+    .order("position", { ascending: true });
+  if (sceneError) {
+    return NextResponse.json({ error: sceneError.message }, { status: 400 });
+  }
+  if (!scenes?.length) {
+    return NextResponse.json(
+      { error: "Add at least one scene before exporting." },
+      { status: 409 },
+    );
+  }
+  const incomplete = scenes.filter((scene) => scene.status !== "completed");
+  if (incomplete.length) {
+    return NextResponse.json(
+      {
+        error: `Render every scene before final export. ${incomplete.length} scene${incomplete.length === 1 ? "" : "s"} still need a completed render.`,
+        incompleteSceneIds: incomplete.map((scene) => scene.id),
+      },
+      { status: 409 },
+    );
+  }
+
   const { data: exportId, error } = await supabase.rpc("enqueue_export", {
     p_project_id: projectId,
   });
