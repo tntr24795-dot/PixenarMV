@@ -24,3 +24,18 @@ export function resumeCandidates(manifest:ProductionManifest,limit=10){
  // Never automatically retry failed or active shots; reconciliation must query provider status.
  return manifest.shots.filter(s=>s.status==="pending").slice(0,limit);
 }
+
+/** Builds exact-duration shot placeholders, grouped by planned 5-minute chapter. */
+export function createShotManifest(projectId:string,chapters:ReadonlyArray<{index:number;startSeconds:number;durationSeconds:number}>,shotSeconds=30):ProductionManifest{
+ if(!projectId||!Number.isSafeInteger(shotSeconds)||shotSeconds<2||shotSeconds>30) throw new Error("Invalid production configuration");
+ const shots:ShotRecord[]=[];let cursor=0;
+ for(const chapter of chapters){
+  if(chapter.startSeconds!==cursor||!Number.isSafeInteger(chapter.durationSeconds)||chapter.durationSeconds<=0) throw new Error("Invalid chapter timeline");
+  const end=cursor+chapter.durationSeconds;
+  while(cursor<end){const seconds=Math.min(shotSeconds,end-cursor);
+   shots.push({id:`shot-${shots.length+1}`,chapterIndex:chapter.index,position:shots.length,startSeconds:cursor,durationSeconds:seconds,status:"pending",attempts:0});
+   cursor+=seconds;
+  }
+ }
+ const manifest:ProductionManifest={version:1,projectId,targetSeconds:cursor,shots};inspectProduction(manifest);return manifest;
+}
