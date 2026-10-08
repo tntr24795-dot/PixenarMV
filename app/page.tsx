@@ -4,7 +4,6 @@ import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
-import { annualSavingsUsd, subscriptionPlans, type SubscriptionPlanId } from "@/lib/plans";
 
 const workflow = [
   {
@@ -36,8 +35,6 @@ const workflow = [
     meta: "16:9 · 9:16 · 720P · 1080P",
   },
 ];
-const planIds = Object.keys(subscriptionPlans) as SubscriptionPlanId[];
-
 const modelNames = [
   "Veo 3.1 Fast",
   "WAN 3.0",
@@ -89,7 +86,7 @@ export default async function Home() {
           <a href="#workflow">How it works</a>
           <a href="#continuity">Characters</a>
           <a href="#models">Models</a>
-          <a href="#pricing">Pricing</a>
+          <Link href="/pricing">Pricing</Link>
         </div>
         <Link className="navCta" href="/create">
           Create
@@ -119,18 +116,6 @@ export default async function Home() {
           <span>✓ Character continuity</span>
           <span>✓ Multi-model control</span>
           <span>✓ 16:9 + 9:16</span>
-        </div>
-        <div className="heroPricing" aria-label="Pixenar Studio pricing">
-          {planIds.map((planId) => {
-            const plan = subscriptionPlans[planId];
-            return (
-              <a href="#pricing" className={planId === "premium" ? "heroPriceCard featured" : "heroPriceCard"} key={planId}>
-                <small>{plan.name}{planId === "premium" ? " · MOST POPULAR" : ""}</small>
-                <b><strong>${plan.monthlyPriceUsd}</strong><span>/mo</span></b>
-                <em>{plan.monthlyCredits.toLocaleString()} credits · ${plan.annualPriceUsd}/year</em>
-              </a>
-            );
-          })}
         </div>
         <div className="productWindow">
           <div className="windowBar">
@@ -320,54 +305,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="pricingSection" id="pricing">
-        <div className="pricingHead">
-          <p className="landingKicker">SIMPLE CREATOR PRICING</p>
-          <h2>Choose the credits that fit your production pace.</h2>
-          <p className="sectionCopy">
-            Every plan includes access to available Pixenar Studio workflows and models. Credits are used dynamically based on the model, duration, resolution and references you choose.
-          </p>
+      <section className="pricingPreview" id="pricing">
+        <div>
+          <p className="landingKicker">PRICING</p>
+          <h2>Monthly, annual and top-up credits — clearly separated.</h2>
+          <p className="sectionCopy">Compare subscription billing or buy extra credits without changing your plan.</p>
         </div>
-        <div className="pricingGrid">
-          {planIds.map((planId) => {
-            const plan = subscriptionPlans[planId];
-            const savings = annualSavingsUsd(planId);
-            const featured = planId === "premium";
-            return (
-              <article className={featured ? "pricingCard featured" : "pricingCard"} key={planId}>
-                {featured ? <span className="pricingBadge">MOST POPULAR</span> : null}
-                <div className="pricingTitleRow">
-                  <div>
-                    <small>{plan.name.toUpperCase()}</small>
-                    <h3>{plan.monthlyCredits.toLocaleString()} credits</h3>
-                  </div>
-                  <span>per month</span>
-                </div>
-                <div className="pricingPrice">
-                  <strong>${plan.monthlyPriceUsd}</strong>
-                  <span>/month</span>
-                </div>
-                <div className="pricingAnnual">
-                  <b>${plan.annualPriceUsd}/year</b>
-                  <span>Save ${savings} vs monthly</span>
-                </div>
-                <ul>
-                  <li>{plan.monthlyCredits.toLocaleString()} credits each month</li>
-                  <li>Access to available video models</li>
-                  <li>Film, drama and music-video workflows</li>
-                  <li>Dynamic reference pricing before Generate</li>
-                  <li>{plan.annualRollover ? "Annual credits roll within the annual term" : "Monthly credits reset each cycle"}</li>
-                </ul>
-                <Link className={featured ? "landingPrimary pricingCta" : "landingSecondary pricingCta"} href="/login">
-                  Choose {plan.name} <span>›</span>
-                </Link>
-              </article>
-            );
-          })}
-        </div>
-        <p className="pricingFootnote">
-          Generation cost varies by model and settings. Pixenar Studio shows the exact estimated credit cost before you generate.
-        </p>
+        <Link className="landingPrimary" href="/pricing">View pricing & credits <span>›</span></Link>
       </section>
 
       <section className="finalCta">
