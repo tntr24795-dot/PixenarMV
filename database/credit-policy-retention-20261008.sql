@@ -744,3 +744,50 @@ begin
 end $$;
 
 revoke all on function public.reserve_credits(integer,text) from public,anon,authenticated;
+
+
+create or replace function private.expire_all_due_credit_buckets()
+returns integer
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_user record;
+  v_total integer := 0;
+begin
+  for v_user in
+    select distinct user_id
+    from public.credit_buckets
+    where expires_at is not null
+      and expires_at <= now()
+      and remaining_credits > reserved_credits
+  loop
+    v_total := v_total + private.expire_due_credit_buckets(v_user.user_id,now());
+  end loop;
+  return v_total;
+end;
+$$;
+revoke all on function private.expire_all_due_credit_buckets() from public,anon,authenticated;
+
+create extension if not exists pg_cron;
+
+do $$
+declare
+  v_job_id bigint;
+begin
+  select jobid into v_job_id
+  from cron.job
+  where jobname='pixenar-expire-credits-hourly'
+  limit 1;
+
+  if v_job_id is not null then
+    perform cron.unschedule(v_job_id);
+  end if;
+
+  perform cron.schedule(
+    'pixenar-expire-credits-hourly',
+    '0 * * * *',
+    'select private.expire_all_due_credit_buckets();'
+  );
+end $$;
