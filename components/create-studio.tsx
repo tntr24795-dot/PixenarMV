@@ -169,7 +169,10 @@ export default function CreateStudio({
   function chooseModel(id: string) {
     const next = videoModels.find((m) => m.id === id)!;
     setModelId(id);
-    if (!next.resolutions?.includes(resolution)) setResolution("720p");
+    if (
+      !next.resolutions?.includes(resolution) ||
+      (id === "grok-imagine-1-5" && resolution === "1080p" && currentReferences.some((asset) => asset.kind === "reference_image"))
+    ) setResolution("720p");
     setDuration(
       next.durations.includes(duration) ? duration : next.durations[0],
     );
@@ -1013,7 +1016,7 @@ export default function CreateStudio({
           </div>
           <button
             className="generate"
-            disabled={generating || !configuredModelIds.includes(modelId)}
+            disabled={generating || estimatedSceneCredits <= 0 || !configuredModelIds.includes(modelId)}
             onClick={generateScene}
           >
             {generating ? "Queuing…" : "✦ Generate scene"}
