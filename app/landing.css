@@ -52,3 +52,7 @@
 .realReferences{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .realReferences span{height:64px;overflow:hidden;border-radius:7px;border:1px solid #263448;background:#0b1019}
 .realReferences video{width:100%;height:100%;object-fit:cover;display:block}
+
+.previewDots{display:flex;justify-content:center;gap:5px;padding-top:7px;overflow:hidden}
+.previewDots button{width:5px;height:5px;padding:0;border:0;border-radius:999px;background:#31445b;opacity:.65;cursor:pointer}
+.previewDots button.active{width:16px;background:#36b8ff;opacity:1}
