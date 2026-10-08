@@ -1,9 +1,9 @@
 .showcaseSection{padding:110px clamp(24px,5vw,76px);overflow:hidden;background:linear-gradient(180deg,#080b14 0%,#0b0f1b 45%,#080b14 100%)}
 .showcaseHead{display:flex;align-items:end;justify-content:space-between;gap:30px;max-width:1400px;margin:0 auto 32px}
 .showcaseHead h2{font-size:clamp(34px,4vw,60px);line-height:1.02;letter-spacing:-2px;margin:10px 0 14px;max-width:900px}
-.showcaseRail{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:10px max(0px,calc((100vw - 1400px)/2)) 26px;scroll-behavior:smooth}
+.showcaseRail{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:none;scrollbar-width:none;padding:10px max(0px,calc((100vw - 1400px)/2)) 26px;scroll-behavior:auto}
 .showcaseRail::-webkit-scrollbar{display:none}
-.showcaseCard{scroll-snap-align:start;flex:0 0 min(76vw,980px);border:1px solid #22293a;border-radius:22px;overflow:hidden;background:#0d121f;box-shadow:0 28px 80px #0007}
+.showcaseCard{scroll-snap-align:none;flex:0 0 min(76vw,980px);border:1px solid #22293a;border-radius:22px;overflow:hidden;background:#0d121f;box-shadow:0 28px 80px #0007}
 .showcaseMedia{position:relative;display:block;width:100%;padding:0;border:0;background:#060912;cursor:pointer;aspect-ratio:16/9;overflow:hidden}
 .showcaseMedia video,.showcaseDialogMedia video{width:100%;height:100%;object-fit:cover;display:block}
 .showcasePlaceholder{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 70% 30%,#223c68 0,#121b31 28%,#090d16 68%);overflow:hidden}
