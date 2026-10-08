@@ -34,23 +34,21 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
     const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if(reduceMotion) return;
 
-    let frame=0;
-    let last=performance.now();
-    const speed=18; // pixels per second: intentionally slow, continuous motion
-
-    const tick=(now:number)=>{
-      const elapsed=Math.min(64,now-last);
-      last=now;
-      const loopWidth=rail.scrollWidth/2;
-      rail.scrollLeft += speed*(elapsed/1000);
-      if(loopWidth>0 && rail.scrollLeft>=loopWidth){
-        rail.scrollLeft-=loopWidth;
+    let index=0;
+    const id=window.setInterval(()=>{
+      const cards=rail.querySelectorAll<HTMLElement>(".showcaseCard");
+      if(!cards.length) return;
+      index += 1;
+      if(index>=items.length){
+        index=0;
+        rail.scrollTo({left:0,behavior:"auto"});
+        return;
       }
-      frame=window.requestAnimationFrame(tick);
-    };
+      const target=cards[index];
+      rail.scrollTo({left:target.offsetLeft,behavior:"smooth"});
+    },12000);
 
-    frame=window.requestAnimationFrame(tick);
-    return ()=>window.cancelAnimationFrame(frame);
+    return ()=>window.clearInterval(id);
   },[items]);
 
   async function copyPrompt(prompt:string){
