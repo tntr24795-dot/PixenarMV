@@ -66,6 +66,8 @@ export default function ReferenceInputs({
     if(modelId==="grok-imagine-1-5" && type==="reference_image" && sameType.length>=7) { setMessage("Grok supports up to 7 image references."); return; }
     if(modelId==="grok-imagine-1-5" && type==="reference_audio" && sameType.length>=3) { setMessage("Grok supports up to 3 audio references."); return; }
     if(modelId==="seedance-2-5" && type==="reference_image" && sameType.length>=30) { setMessage("Seedance 2.5 supports up to 30 image references."); return; }
+    if(modelId==="seedance-2-5" && type==="reference_video" && sameType.length>=10) { setMessage("Seedance 2.5 supports up to 10 video references."); return; }
+    if(modelId==="seedance-2-5" && type==="reference_audio" && sameType.length>=10) { setMessage("Seedance 2.5 supports up to 10 audio references."); return; }
 
     setUploading(true); setMessage("Uploading private reference…");
     try {
@@ -74,8 +76,8 @@ export default function ReferenceInputs({
         throw new Error("Grok audio references must be 3–15 seconds.");
       const nextVideoSeconds=sceneAssets.filter(a=>a.kind==="reference_video").reduce((s,a)=>s+Number(a.duration_seconds||0),0)+(type==="reference_video" ? Number(duration||0) : 0);
       const nextAudioSeconds=sceneAssets.filter(a=>a.kind==="reference_audio").reduce((s,a)=>s+Number(a.duration_seconds||0),0)+(type==="reference_audio" ? Number(duration||0) : 0);
-      if(modelId==="seedance-2-5" && nextVideoSeconds>30) throw new Error("Seedance 2.5 video references can total at most 30 seconds.");
-      if(modelId==="seedance-2-5" && nextAudioSeconds>=30) throw new Error("Seedance 2.5 audio references must total less than 30 seconds.");
+      if(modelId==="seedance-2-5" && nextVideoSeconds+nextAudioSeconds>=30)
+        throw new Error("Seedance 2.5 video + audio references must total less than 30 seconds.");
 
       const supabase=createClient();
       const {data:{user}}=await supabase.auth.getUser();
