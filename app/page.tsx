@@ -2,6 +2,7 @@ import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
 import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
+import HeroShowcasePreview from "@/components/hero-showcase-preview";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
 
@@ -150,19 +151,7 @@ export default async function Home() {
                 </div>
               ))}
             </aside>
-            <div className="windowViewer">
-              <div className="cinemaScene realPreview">
-                {showcaseItems[0]?.videoSrc ? (
-                  <video src={showcaseItems[0].videoSrc} autoPlay muted loop playsInline preload="metadata" />
-                ) : null}
-                <b>SCENE 02 · RAINY NIGHT</b>
-              </div>
-              <div className="promptExamples" aria-label="Example scene prompt">
-                <span>🎬 Two people standing in the rain at night…</span>
-                <span>◉ Cinematic, moody lighting, neon reflections…</span>
-                <span>✦ Close-up, emotional, 35mm film look…</span>
-              </div>
-            </div>
+            <HeroShowcasePreview items={showcaseItems} />
             <div className="windowInspector">
               <small>MODEL</small>
               <b>Auto Director</b>
