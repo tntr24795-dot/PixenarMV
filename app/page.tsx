@@ -37,9 +37,10 @@ const workflow = [
 ];
 const modelNames = [
   "Veo 3.1 Fast",
-  "WAN 3.1",
+  "WAN 3.0",
   "Gemini Omni Flash",
   "Runway 4.5",
+  "Grok Imagine Video 1.5",
   "Seedance 2.0",
   "Seedance 2.5",
 ];
