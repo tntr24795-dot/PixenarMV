@@ -56,7 +56,8 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
               ) : (
                 <span className="showcasePlaceholder" aria-hidden="true">
                   <i />
-                  <b>{item.category}</b>
+                  <b>{item.title}</b>
+                  <small>{item.category} · {item.aspectRatio}</small>
                 </span>
               )}
               <span className="showcaseWatermark">Pixenar Studio</span>
@@ -64,9 +65,10 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
             </button>
             <div className="showcaseMeta">
               <div>
-                <small>{item.category}</small>
+                <small>{item.category} · {item.modelId} · {item.durationSeconds}s</small>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
+                <p className="showcasePromptPreview"><b>Prompt:</b> {item.prompt}</p>
               </div>
               <button onClick={()=>setActive(item)}>View prompt</button>
             </div>
@@ -83,7 +85,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
               {active.videoSrc ? (
                 <video src={active.videoSrc} poster={active.thumbnailSrc} controls autoPlay muted loop playsInline />
               ) : (
-                <span className="showcasePlaceholder large"><i /><b>Preview slot ready</b></span>
+                <span className="showcasePlaceholder large"><i /><b>{active.title}</b><small>Preview media has not been uploaded yet</small></span>
               )}
               <span className="showcaseWatermark large">Pixenar Studio</span>
             </div>
