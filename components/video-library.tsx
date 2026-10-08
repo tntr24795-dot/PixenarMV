@@ -19,7 +19,7 @@ function daysLeft(expiresAt: string | null) {
 export default function VideoLibrary({ items }: { items: VideoLibraryItem[] }) {
   if (!items.length) {
     return (
-      <section className="videoLibrarySection">
+      <section className="videoLibrarySection" id="videos">
         <div className="sectionHead">
           <div>
             <h2>My Videos</h2>
@@ -32,7 +32,7 @@ export default function VideoLibrary({ items }: { items: VideoLibraryItem[] }) {
   }
 
   return (
-    <section className="videoLibrarySection">
+    <section className="videoLibrarySection" id="videos">
       <div className="sectionHead">
         <div>
           <h2>My Videos</h2>
