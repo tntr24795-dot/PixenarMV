@@ -57,6 +57,7 @@ export function providerApiCost(modelId:string,duration:number,resolution='720p'
 
  if(modelId==='grok-imagine-1-5') {
    if(imageCount>7 || audioCount>3) throw new Error('Too many Grok references.');
+   if(audioCount>0 && imageCount===0) throw new Error('Grok audio references require an image reference.');
    if(imageCount>0 && resolution==='1080p') throw new Error('Grok image references are capped at 720p.');
    apiCost += .01*(imageCount+audioCount);
  }
