@@ -67,6 +67,9 @@ export default function Dashboard({
           <Link className="nav" href="/characters">
             <span>♙</span>Characters
           </Link>
+          <a className="nav" href="#videos">
+            <span>▣</span>My videos
+          </a>
           <Link className="nav" href="/renders">
             <span>◉</span>Render queue
           </Link>
