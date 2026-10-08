@@ -7,7 +7,7 @@ import type { ShowcaseTemplate } from "@/lib/showcase";
 export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
   const [active,setActive]=useState<ShowcaseTemplate|null>(null);
   const railRef=useRef<HTMLDivElement>(null);
-  const videoRefs=useRef(new Map<string,HTMLVideoElement>());
+  const renderedItems=[...items,...items];
 
   useEffect(()=>{
     const rail=railRef.current;
@@ -29,17 +29,29 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
   },[items]);
 
   useEffect(()=>{
-    const id=window.setInterval(()=>{
-      const rail=railRef.current;
-      if(!rail) return;
-      const card=rail.querySelector<HTMLElement>(".showcaseCard");
-      const step=(card?.offsetWidth ?? 360)+18;
-      const max=rail.scrollWidth-rail.clientWidth;
-      const next=rail.scrollLeft+step>=max-4 ? 0 : rail.scrollLeft+step;
-      rail.scrollTo({left:next,behavior:"smooth"});
-    },6000);
-    return ()=>window.clearInterval(id);
-  },[]);
+    const rail=railRef.current;
+    if(!rail || items.length<2) return;
+    const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduceMotion) return;
+
+    let frame=0;
+    let last=performance.now();
+    const speed=18; // pixels per second: intentionally slow, continuous motion
+
+    const tick=(now:number)=>{
+      const elapsed=Math.min(64,now-last);
+      last=now;
+      const loopWidth=rail.scrollWidth/2;
+      rail.scrollLeft += speed*(elapsed/1000);
+      if(loopWidth>0 && rail.scrollLeft>=loopWidth){
+        rail.scrollLeft-=loopWidth;
+      }
+      frame=window.requestAnimationFrame(tick);
+    };
+
+    frame=window.requestAnimationFrame(tick);
+    return ()=>window.cancelAnimationFrame(frame);
+  },[items]);
 
   async function copyPrompt(prompt:string){
     await navigator.clipboard.writeText(prompt);
@@ -48,11 +60,11 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
   return (
     <>
       <div className="showcaseRail" ref={railRef}>
-        {items.map((item)=>(
-          <article className="showcaseCard" key={item.slug}>
+        {renderedItems.map((item,index)=>(
+          <article className="showcaseCard" key={`${item.slug}-${index}`}>
             <button className="showcaseMedia" onClick={()=>setActive(item)} aria-label={`Open ${item.title}`}>
               {item.videoSrc ? (
-                <video ref={(node)=>{if(node) videoRefs.current.set(item.slug,node); else videoRefs.current.delete(item.slug)}} src={item.videoSrc} poster={item.thumbnailSrc} muted loop playsInline preload="metadata" />
+                <video src={item.videoSrc} poster={item.thumbnailSrc} muted loop playsInline preload="metadata" />
               ) : (
                 <span className={`showcasePlaceholder showcaseVisual theme-${item.category.toLowerCase().replace(/[^a-z0-9]+/g,"-")}`} aria-hidden="true">
                   <span className="visualScene" />
