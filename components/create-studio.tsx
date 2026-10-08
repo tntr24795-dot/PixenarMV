@@ -5,6 +5,7 @@ import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
 import { mainSiteUrl } from "@/lib/brand-links";
 import type { ShowcaseTemplate } from "@/lib/showcase";
+import ReferenceInputs, { type ReferenceAsset } from "@/components/reference-inputs";
 
 type Mode = "film" | "music-video";
 type InitialTemplate = Pick<ShowcaseTemplate, "slug" | "title" | "prompt" | "style" | "aspectRatio" | "modelId">;
@@ -72,6 +73,7 @@ export default function CreateStudio({
   initialMode = "film",
   initialProject,
   initialTemplate,
+  initialReferenceAssets = [],
   configuredModelIds = [],
   voiceConfigured = false,
 }: {
@@ -80,6 +82,7 @@ export default function CreateStudio({
   initialMode?: Mode;
   initialProject?: InitialProject;
   initialTemplate?: InitialTemplate;
+  initialReferenceAssets?: ReferenceAsset[];
 }) {
   const [mode, setMode] = useState<Mode>(
     initialProject
@@ -128,8 +131,25 @@ export default function CreateStudio({
   );
   const [generating, setGenerating] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [referenceAssets, setReferenceAssets] = useState<ReferenceAsset[]>(initialReferenceAssets);
   const model = videoModels.find((m) => m.id === modelId)!;
   const currentScene = scenes[selected - 1] ?? scenes[0];
+  const currentReferences = referenceAssets.filter((asset) => asset.scene_id === currentScene.id);
+  const activeReferences = currentReferences.filter((asset) =>
+    modelId === "seedance-2-5"
+      ? true
+      : modelId === "grok-imagine-1-5"
+        ? asset.kind !== "reference_video"
+        : false,
+  );
+  const referenceUsage = {
+    imageCount: activeReferences.filter((asset) => asset.kind === "reference_image").length,
+    audioCount: activeReferences.filter((asset) => asset.kind === "reference_audio").length,
+    videoSeconds: activeReferences
+      .filter((asset) => asset.kind === "reference_video")
+      .reduce((sum, asset) => sum + Number(asset.duration_seconds || 0), 0),
+  };
+  const estimatedSceneCredits = creditsFor(modelId, duration, resolution, referenceUsage);
   const total = useMemo(
     () =>
       scenes.reduce(
@@ -568,6 +588,7 @@ export default function CreateStudio({
           resolution,
           duration,
           prompt: currentScene.prompt,
+          referenceAssetIds: activeReferences.map((asset) => asset.id),
         }),
       });
       const data = await response.json();
@@ -936,13 +957,31 @@ export default function CreateStudio({
           <label>
             Resolution
             <select value={resolution} onChange={event => setResolution(event.target.value)}>
-              {(model.resolutions ?? ["720p"]).map(value => <option key={value} value={value}>{value}</option>)}
+              {(model.resolutions ?? ["720p"])
+                .filter((value) => !(modelId === "grok-imagine-1-5" && referenceUsage.imageCount > 0 && value === "1080p"))
+                .map(value => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
           <div className="modelHint">
             <b>{model.badge}</b>
             <span>{model.bestFor}</span>
           </div>
+          <ReferenceInputs
+            projectId={projectId}
+            sceneId={currentScene.id}
+            modelId={modelId}
+            assets={referenceAssets}
+            onChange={(nextAssets) => {
+              setReferenceAssets(nextAssets);
+              if (
+                modelId === "grok-imagine-1-5" &&
+                resolution === "1080p" &&
+                nextAssets.some((asset) => asset.scene_id === currentScene.id && asset.kind === "reference_image")
+              ) {
+                setResolution("720p");
+              }
+            }}
+          />
           <label>
             Character reference
             <button
@@ -970,7 +1009,7 @@ export default function CreateStudio({
           </label>
           <div className="cost">
             <span>Estimated scene cost</span>
-            <b>{creditsFor(modelId, duration, resolution)} credits</b>
+            <b>{estimatedSceneCredits} credits</b>
           </div>
           <button
             className="generate"
