@@ -34,3 +34,11 @@
 .platformSwitch a:hover{color:#fff;background:#111b29}.platformSwitch .active{color:#fff;background:#183b59;box-shadow:inset 0 0 0 1px #2c78a8}
 @media(max-width:980px){.platformSwitch{margin-left:0;margin-right:8px}.platformSwitch a,.platformSwitch span{padding:6px 8px;font-size:10px}}
 @media(max-width:760px){.platformSwitch{order:3;width:100%;justify-content:center;margin:8px 0 0}.landingNav{flex-wrap:wrap}}
+
+.realPreview{background:#070a11}
+.realPreview video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.realPreview:after{content:"";position:absolute;inset:auto 0 0;height:34%;background:linear-gradient(transparent,#08090ed9);z-index:1}
+.realPreview>b{z-index:2}
+.promptExamples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding-top:8px}
+.promptExamples span{min-width:0;padding:8px 9px;border:1px solid #286c95;border-radius:5px;background:#10243b;color:#a9d8f5;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+@media(max-width:600px){.promptExamples{grid-template-columns:1fr}.promptExamples span:nth-child(n+2){display:none}}
