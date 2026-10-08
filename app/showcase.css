@@ -41,3 +41,21 @@
 .showcasePromptPreview{margin-top:12px!important;padding-top:12px;border-top:1px solid #202a3b;color:#b8c3d4!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
 .showcasePromptPreview b{color:#79ccff}
 .showcaseCard:not(:has(video)) .showcasePlay{display:none}
+
+.showcaseVisual{background:linear-gradient(150deg,#07111d 0%,#10233b 42%,#0a0e16 100%)}
+.showcaseVisual .visualScene{position:absolute;inset:0;background:
+  linear-gradient(180deg,transparent 0 60%,#03060bcc 100%),
+  radial-gradient(circle at 72% 30%,#3b92c766 0 10%,transparent 28%),
+  radial-gradient(circle at 25% 70%,#215d8b44 0 18%,transparent 42%);
+}
+.showcaseVisual .visualScene:after{content:"";position:absolute;left:7%;right:7%;bottom:13%;height:1px;background:#ffffff24;box-shadow:0 -70px 0 #ffffff0c,0 -140px 0 #ffffff08}
+.visualSubject{position:absolute;bottom:12%;width:13%;height:42%;border-radius:48% 48% 18% 18%;background:linear-gradient(#111722 0 15%,#263e56 16% 32%,#0a1018 80%);box-shadow:0 12px 45px #000a}
+.visualSubject:before{content:"";position:absolute;left:29%;top:-14%;width:42%;aspect-ratio:1;border-radius:50%;background:#b77f72;box-shadow:0 -8px 0 #15171d}
+.visualSubject.one{left:31%}.visualSubject.two{right:27%;transform:scale(.92)}
+.theme-anime .visualSubject,.theme-3d-animation .visualSubject{background:linear-gradient(#2b3154 0 18%,#526db2 19% 44%,#151b2e 80%)}
+.theme-travel .visualScene,.theme-lifestyle .visualScene{background:
+  linear-gradient(180deg,#0a2c47aa 0 45%,#d9af6d44 46% 58%,#0b1119 59%),
+  radial-gradient(circle at 70% 22%,#ffd992bb 0 6%,transparent 18%)}
+.theme-commercial .visualScene{background:radial-gradient(circle at 50% 38%,#c6d8ef55,transparent 26%),linear-gradient(145deg,#111928,#06090f)}
+.theme-sci-fi .visualScene{background:linear-gradient(160deg,#0b0f19,#1a0f2d 45%,#052b3b);box-shadow:inset 0 0 80px #00b7ff20}
+.showcaseMediaStatus{margin-top:8px!important;color:#70bde8!important;font-size:10px!important}
