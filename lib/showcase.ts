@@ -12,6 +12,30 @@ export type ShowcaseTemplate = {
   thumbnailSrc?: string;
 };
 
+
+export const legacyBase44ShowcaseVideos = [
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/8656929e4_Anime_Warrior.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/c0e84a163_3D_Dance_City.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/afc7d2618_Floating_Castle.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/53ba661cb_Neon_Robot.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/90c4b6107_Anime_Racing.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/64910b392_Underwater_Reef.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/0ef10b8c0_Magical_Girl_Forest.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/5d1736251_Cat_Piano.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/47806f00c_Knight_Castle.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/7bd693e58_Giant_Wave.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/a96d4b44b_Enchanted_Fairy.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/958ce5543_Basketball_Dunk.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/04aed613e_Samurai_Blossoms.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/009acfce3_Robot_Garden.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/5c7a605dd_Dragon_Flight.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/e0266e408_Street_Musician.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/7729dd563_Umbrella_Rain.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/6baccec18_Space_Explorer.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/ccacc6749_Mermaid_Deep.mp4",
+  "https://media.base44.com/videos/public/6a6734c3a1182725674d57df/d22936e1e_Future_Cockpit.mp4"
+] as const;
+
 export const showcaseTemplates: ShowcaseTemplate[] = [
   {
     slug: "rainy-laundromat-love",
