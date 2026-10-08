@@ -15,7 +15,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/pixenar-studio-icon.svg",
         sizes: "any",
         type: "image/svg+xml",
-        purpose: "any maskable",
+        purpose: "any",
+      },
+      {
+        src: "/pixenar-studio-icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "maskable",
       },
     ],
   };
