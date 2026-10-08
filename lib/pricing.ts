@@ -1,5 +1,5 @@
 // Budget assumptions, not a claim about actual invoices. See pricing documentation.
-export const PRICING_VERSION = '2026-10-08-ref1';
+export const PRICING_VERSION = '2026-10-08-ref2';
 export const PAYMENT_FEE_RATE = .08;
 export const PAYMENT_FIXED_USD = .30;
 export const minimumCreditValue = 79.99 / 3500;
@@ -26,6 +26,7 @@ export const creditPacks = [{dollars:12.99,credits:500},{dollars:24.99,credits:1
 export type Resolution = '480p' | '720p' | '1080p';
 
 export const pricing = {
+ 'veo-3-1-fast':{provider:'gateway',costs:{'720p':.10}},
  'wan-3-0':{provider:'runway',costs:{'480p':.05,'720p':.10,'1080p':.20}},
  'wan-3-0-prime':{provider:'runway',costs:{'480p':.068,'720p':.14,'1080p':.28}},
  'runway-4-5':{provider:'runway',costs:{'720p':.12}},
@@ -35,6 +36,7 @@ export const pricing = {
 } as const;
 
 function durationSupported(modelId:string, duration:number) {
+ if (modelId === 'veo-3-1-fast') return [4,6,8].includes(duration);
  if (modelId === 'runway-4-5') return [6,8,10].includes(duration);
  if (modelId === 'wan-3-0' || modelId === 'wan-3-0-prime') return duration >= 2 && duration <= 30;
  if (modelId === 'grok-imagine-1-5') return duration >= 1 && duration <= 15;
