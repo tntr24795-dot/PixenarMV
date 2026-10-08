@@ -109,11 +109,22 @@ export function hasVideoProviderConfiguration(model = "runway-4-5") {
 export async function submitVideo(input: RenderInput) {
   const gatewayModelId = gatewayModels[input.model];
   if (gatewayModelId) {
-    const started = await gateway.videoModel(gatewayModelId).doStart({
+    const model = gateway.videoModel(gatewayModelId);
+    if (!model.doStart || !model.doStatus) {
+      throw new Error("AI Gateway model does not support asynchronous video generation.");
+    }
+    const started = await model.doStart({
+      n: 1,
+      fps: undefined,
+      seed: undefined,
+      image: undefined,
+      frameImages: undefined,
+      inputReferences: undefined,
+      providerOptions: {},
       prompt: input.prompt.slice(0,3500),
       duration: input.duration,
       aspectRatio: input.aspectRatio === "9:16" ? "9:16" : "16:9",
-      resolution: "1280x720",
+      resolution: input.aspectRatio === "9:16" ? "720x1280" : "1280x720",
       generateAudio: false,
     });
     const taskId = Buffer.from(JSON.stringify(started.operation)).toString("base64url");
@@ -133,14 +144,18 @@ export async function inspectVideo(taskId: string, provider = "runway"): Promise
     const gatewayModelId = gatewayModels[modelId];
     if (!gatewayModelId || !encoded) throw new Error("Invalid AI Gateway task handle.");
     const operation = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
-    const state = await gateway.videoModel(gatewayModelId).doStatus({ operation });
+    const model = gateway.videoModel(gatewayModelId);
+    if (!model.doStatus) {
+      throw new Error("AI Gateway model does not support video status polling.");
+    }
+    const state = await model.doStatus({ operation });
     if (state.status === "completed") {
       const video = state.videos?.find((item) => item.type === "url");
       return video?.url
         ? { status:"succeeded",progress:100,outputUrl:video.url,providerStatus:"COMPLETED" }
         : { status:"failed",progress:0,error:"AI Gateway completed without a downloadable video URL.",providerStatus:"COMPLETED",refundable:false };
     }
-    if (state.status === "failed") {
+    if (state.status === "error") {
       return { status:"failed",progress:0,error:"AI Gateway video generation failed.",providerStatus:"FAILED",refundable:true };
     }
     return { status:"processing",progress:20,providerStatus:String(state.status).toUpperCase() };
