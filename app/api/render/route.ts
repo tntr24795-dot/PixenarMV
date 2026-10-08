@@ -1,6 +1,7 @@
 import { PRICING_VERSION } from "@/lib/pricing";
 import { NextRequest, NextResponse } from "next/server";
 import { start } from "workflow/api";
+import { getWorld } from "workflow/runtime";
 import { videoModels } from "@/lib/models";
 import { authenticatedClient, readJson } from "@/lib/api/auth";
 import { hasAdminConfiguration } from "@/lib/supabase/admin";
@@ -90,7 +91,30 @@ export async function POST(request: NextRequest) {
       hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
     });
     const run = await Promise.race([
-      start(renderSceneWorkflow, [String(data)]),
+      start(renderSceneWorkflow, [String(data)], { world: (() => {
+        const world = getWorld();
+        function traced<T extends (...args: never[]) => unknown>(stage: string, operation: T): T {
+          return (async (...args: Parameters<T>) => {
+            const began = Date.now();
+            console.info("render.workflow.stage", { generationId: data, stage, status: "started" });
+            try {
+              const result = await operation(...args);
+              console.info("render.workflow.stage", { generationId: data, stage, status: "completed", latencyMs: Date.now() - began });
+              return result;
+            } catch (error) {
+              console.error("render.workflow.stage", { generationId: data, stage, status: "failed", error: error instanceof Error ? error.message : "Unknown failure" });
+              throw error;
+            }
+          }) as T;
+        }
+        return {
+          ...world,
+          getDeploymentId: traced("deployment", world.getDeploymentId.bind(world)),
+          ...(world.getEncryptionKeyForRun ? { getEncryptionKeyForRun: traced("encryption", world.getEncryptionKeyForRun.bind(world)) } : {}),
+          events: { ...world.events, create: traced("events.create", world.events.create.bind(world.events)) },
+          queue: traced("queue", world.queue.bind(world)),
+        };
+      })() }),
       new Promise<never>((_, reject) => {
         startupTimer = setTimeout(() => reject(new Error("Workflow startup timed out after 30 seconds.")), 30_000);
       }),
