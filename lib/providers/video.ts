@@ -2,6 +2,8 @@ import "server-only";
 import { inspectWan } from "./wan";
 import RunwayML from "@runwayml/sdk";
 
+export type RenderReference = { uri: string; type: "image" | "video" | "audio" };
+
 export type RenderInput = {
   generationId: string;
   model: string;
@@ -9,6 +11,7 @@ export type RenderInput = {
   duration: number;
   aspectRatio: string;
   resolution: string;
+  references?: RenderReference[];
 };
 
 export type ProviderState = {
@@ -44,6 +47,9 @@ function pixelRatio(aspectRatio: string, resolution: string) {
 
 function runwayParams(input: RenderInput, providerModel: string) {
   const promptText = input.prompt.slice(0, input.model === "runway-4-5" ? 1000 : 3500);
+  const images=(input.references ?? []).filter(r=>r.type==="image").map(r=>({uri:r.uri}));
+  const videos=(input.references ?? []).filter(r=>r.type==="video").map(r=>({type:"video" as const,uri:r.uri}));
+  const audio=(input.references ?? []).filter(r=>r.type==="audio").map(r=>({type:"audio" as const,uri:r.uri}));
 
   if (input.model === "grok-imagine-1-5") {
     return {
@@ -52,10 +58,24 @@ function runwayParams(input: RenderInput, providerModel: string) {
       duration: input.duration,
       ratio: input.aspectRatio === "9:16" ? "9:16" : "16:9",
       resolution: input.resolution,
+      ...(images.length ? { references: images } : {}),
+      ...(audio.length ? { referenceAudio: audio } : {}),
     };
   }
 
-  if (input.model === "seedance-2-0" || input.model === "seedance-2-5") {
+  if (input.model === "seedance-2-5") {
+    return {
+      model: providerModel,
+      promptText,
+      duration: input.duration,
+      ratio: pixelRatio(input.aspectRatio, input.resolution),
+      ...(images.length ? { references: images } : {}),
+      ...(videos.length ? { referenceVideos: videos } : {}),
+      ...(audio.length ? { referenceAudio: audio } : {}),
+    };
+  }
+
+  if (input.model === "seedance-2-0") {
     return {
       model: providerModel,
       promptText,
@@ -73,12 +93,7 @@ function runwayParams(input: RenderInput, providerModel: string) {
         ? portrait ? "1080:1920" : "1920:1080"
         : portrait ? "720:1280" : "1280:720";
 
-  return {
-    model: providerModel,
-    promptText,
-    duration: input.duration,
-    ratio,
-  };
+  return { model: providerModel, promptText, duration: input.duration, ratio };
 }
 
 export function hasVideoProviderConfiguration(model = "runway-4-5") {
@@ -98,28 +113,19 @@ export async function inspectVideo(taskId: string, provider = "runway"): Promise
   if (provider === "alibaba") return { ...await inspectWan(taskId), refundable: false };
   const task = await client().tasks.retrieve(taskId);
   if (task.status === "SUCCEEDED") {
-    return {
-      status: "succeeded",
-      progress: 100,
-      outputUrl: task.output[0],
-      providerStatus: task.status,
-    };
+    return { status:"succeeded",progress:100,outputUrl:task.output[0],providerStatus:task.status };
   }
   if (task.status === "FAILED" || task.status === "CANCELLED") {
     return {
-      status: "failed",
-      progress: 0,
+      status:"failed",progress:0,
       error: task.status === "FAILED" ? task.failure : "Provider task was cancelled.",
-      providerStatus: task.status,
+      providerStatus:task.status,
       refundable: task.status === "CANCELLED" || (typeof task.failureCode === "string" && !task.failureCode.startsWith("SAFETY.INPUT.")),
     };
   }
   return {
     status: task.status === "RUNNING" ? "processing" : "queued",
-    progress:
-      task.status === "RUNNING"
-        ? Math.max(5, Math.min(99, Math.round(task.progress * 100)))
-        : 5,
+    progress: task.status === "RUNNING" ? Math.max(5, Math.min(99, Math.round(task.progress * 100))) : 5,
     providerStatus: task.status,
   };
 }
