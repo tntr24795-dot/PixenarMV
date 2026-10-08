@@ -352,6 +352,8 @@ async function completeExport(bundle: ExportBundle, outputPath: string) {
       progress: 100,
       provider_status: "Final master ready",
       completed_at: now,
+      expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+      media_deleted_at: null,
       last_polled_at: now,
     })
     .eq("id", bundle.exportId)
