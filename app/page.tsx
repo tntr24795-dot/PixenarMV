@@ -81,6 +81,11 @@ export default async function Home() {
             Pixenar <b>Studio</b>
           </span>
         </Link>
+        <div className="platformSwitch" aria-label="Switch Pixenar platform">
+          <a href={mainSiteUrl}>PixenarAI</a>
+          <a href="https://pixenar-ai36-lyndonn.app">Idea</a>
+          <span className="active">Studio</span>
+        </div>
         <div className="landingLinks">
           <a href={mainSiteUrl}>Main website</a>
           <a href="#workflow">How it works</a>
