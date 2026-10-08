@@ -23,7 +23,7 @@ export default function PricingPage() {
         <span>Choose monthly, annual, or buy extra credits whenever you need more production capacity.</span>
       </section>
       <PricingSelector />
-      <section className="pricingHelp">
+      <section className="pricingHelp"><article><b>AI Long Drama — up to 1 hour</b><span>Explore estimated credits for 30–60 minute productions. Full-length generation is in development; no credits are charged by the estimator. <a href="/long-drama">View credit estimates</a></span></article>
         <article><b>Credits are usage-based</b><span>Video generation cost changes by model, duration, resolution and reference inputs.</span></article>
         <article><b>See the price before Generate</b><span>Pixenar Studio calculates the estimated credit cost before each generation.</span></article>
         <article><b>Top up without upgrading</b><span>Extra credit packs can be purchased without changing your subscription plan.</span></article>
