@@ -7,6 +7,18 @@ import { hasAdminConfiguration } from "@/lib/supabase/admin";
 import { hasVideoProviderConfiguration } from "@/lib/providers/video";
 import { renderSceneWorkflow } from "@/workflows/render-scene";
 
+export const maxDuration = 60;
+
+export async function GET() {
+  const { userId } = await authenticatedClient();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return NextResponse.json({
+    workflowWorld: process.env.WORKFLOW_TARGET_WORLD ?? (process.env.VERCEL_DEPLOYMENT_ID ? "vercel" : "local"),
+    hasDeploymentId: Boolean(process.env.VERCEL_DEPLOYMENT_ID),
+    hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+  });
+}
+
 export async function POST(request: NextRequest) {
   const body = await readJson(request);
   if (body?.pricingVersion !== PRICING_VERSION)
@@ -61,14 +73,30 @@ export async function POST(request: NextRequest) {
       { status: error.message.includes("insufficient") ? 402 : 400 },
     );
 
-  const { data: reserved } = await supabase
+  console.info("render.reserved", { generationId: data });
+  const { data: reserved, error: reservedError } = await supabase
     .from("generations")
     .select("credits_reserved")
     .eq("id", data)
     .single();
 
+  let startupTimer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const run = await start(renderSceneWorkflow, [String(data)]);
+    if (reservedError) throw new Error(`Unable to read reserved credits: ${reservedError.message}`);
+    console.info("render.workflow.start", {
+      generationId: data,
+      world: process.env.WORKFLOW_TARGET_WORLD ?? (process.env.VERCEL_DEPLOYMENT_ID ? "vercel" : "local"),
+      hasDeploymentId: Boolean(process.env.VERCEL_DEPLOYMENT_ID),
+      hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    });
+    const run = await Promise.race([
+      start(renderSceneWorkflow, [String(data)]),
+      new Promise<never>((_, reject) => {
+        startupTimer = setTimeout(() => reject(new Error("Workflow startup timed out after 30 seconds.")), 30_000);
+      }),
+    ]);
+    if (startupTimer) clearTimeout(startupTimer);
+    console.info("render.workflow.started", { generationId: data, runId: run.runId });
     const { error: attachError } = await supabase.rpc("attach_generation_workflow", {
       p_generation_id: data,
       p_workflow_run_id: run.runId,
@@ -86,6 +114,16 @@ export async function POST(request: NextRequest) {
       { status: 202 },
     );
   } catch (workflowError) {
+    if (startupTimer) clearTimeout(startupTimer);
+    // The RPC only cancels owned jobs still queued; processing jobs cannot be refunded here.
+    const { data: cancelled, error: cancelError } = await supabase.rpc("cancel_generation", {
+      p_generation_id: data,
+    });
+    console.error("render.workflow.start_failed", {
+      generationId: data,
+      error: workflowError instanceof Error ? workflowError.message : "Unknown workflow startup failure",
+      reservationReleased: Boolean(cancelled && !cancelError),
+    });
     return NextResponse.json(
       { error: workflowError instanceof Error ? `Unable to start the render worker: ${workflowError.message}` : "Unable to start the render worker." },
       { status: 503 },

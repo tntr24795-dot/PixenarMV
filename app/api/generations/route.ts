@@ -8,7 +8,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("generations")
     .select(
-      "id,project_id,scene_id,model,status,credits_reserved,credits_charged,error_message,created_at,completed_at,projects(title),scenes(title)",
+      "id,project_id,scene_id,model,status,credits_reserved,credits_charged,error_message,created_at,completed_at,projects(title),scenes!generations_scene_id_fkey(title)",
     )
     .order("created_at", { ascending: false })
     .limit(50);

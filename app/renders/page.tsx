@@ -10,7 +10,7 @@ export default async function RendersPage() {
     supabase
       .from("generations")
       .select(
-        "id,model,status,provider_status,progress,credits_reserved,credits_charged,error_message,output_path,created_at,projects(title),scenes(title)",
+        "id,model,status,provider_status,progress,credits_reserved,credits_charged,error_message,output_path,created_at,projects(title),scenes!generations_scene_id_fkey(title)",
       )
       .order("created_at", { ascending: false })
       .limit(50),
