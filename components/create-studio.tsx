@@ -672,12 +672,16 @@ export default function CreateStudio({
             <button
               onClick={() => setMode("film")}
               className={mode === "film" ? "active" : ""}
+              disabled={Boolean(projectId)}
+              title={projectId ? "Project type is locked after the project is created." : undefined}
             >
               Short film
             </button>
             <button
               onClick={() => setMode("music-video")}
               className={mode === "music-video" ? "active" : ""}
+              disabled={Boolean(projectId)}
+              title={projectId ? "Project type is locked after the project is created." : undefined}
             >
               Music video
             </button>
@@ -806,7 +810,14 @@ export default function CreateStudio({
                   <div className="cinemaOrb" />
                   <p>{currentScene.title}</p>
                 </div>
-                <button className="viewerPlay">▶</button>
+                <button
+                  className="viewerPlay"
+                  disabled
+                  title="Preview becomes available after this scene has a completed render."
+                  aria-label="Preview available after render"
+                >
+                  ▶
+                </button>
                 <span className="timecode">
                   00:00 / 00:
                   {String(currentScene.duration).padStart(2, "0")}
