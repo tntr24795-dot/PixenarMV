@@ -83,7 +83,7 @@ export default async function Home() {
         </Link>
         <div className="platformSwitch" aria-label="Switch Pixenar platform">
           <a href={mainSiteUrl}>PixenarAI</a>
-          <a href="https://idea.pixenar-ai.app">Idea</a>
+          <a href="https://idea.pixenar-ai.com">Idea</a>
           <span className="active">Studio</span>
         </div>
         <div className="landingLinks">
