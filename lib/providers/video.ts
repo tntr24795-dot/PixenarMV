@@ -124,7 +124,8 @@ export async function submitVideo(input: RenderInput) {
       prompt: input.prompt.slice(0,3500),
       duration: input.duration,
       aspectRatio: input.aspectRatio === "9:16" ? "9:16" : "16:9",
-      resolution: input.aspectRatio === "9:16" ? "720x1280" : "1280x720",
+      // Gateway uses a landscape resolution preset; aspectRatio controls orientation.
+      resolution: "1280x720",
       generateAudio: false,
     });
     const taskId = Buffer.from(JSON.stringify(started.operation)).toString("base64url");
