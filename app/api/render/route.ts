@@ -55,6 +55,8 @@ export async function POST(request: NextRequest) {
 
   const { data: project } = await supabase.from("projects").select("resolution,storyboard").eq("id", projectId).single();
   const isLongDrama = (project?.storyboard as {source?:string}|null)?.source === "long-drama";
+  // No long-drama render until per-shot editorial approval and billing/E2E reconciliation are implemented.
+  if (isLongDrama) return NextResponse.json({error:"Long Drama rendering is not enabled. Planning and scene review only.",code:"LONG_DRAMA_NOT_READY"},{status:409});
   if (isLongDrama) {
     const {data: prior} = await supabase.from("generations").select("id,status,workflow_run_id,credits_reserved").eq("project_id",projectId).eq("scene_id",sceneId).order("created_at",{ascending:false}).limit(1).maybeSingle();
     if(prior){
