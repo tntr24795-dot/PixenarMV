@@ -156,7 +156,7 @@ export async function inspectVideo(taskId: string, provider = "runway"): Promise
         : { status:"failed",progress:0,error:"AI Gateway completed without a downloadable video URL.",providerStatus:"COMPLETED",refundable:false };
     }
     if (state.status === "error") {
-      return { status:"failed",progress:0,error:"AI Gateway video generation failed.",providerStatus:"FAILED",refundable:true };
+      return { status:"failed",progress:0,error:state.error || "AI Gateway video generation failed.",providerStatus:"FAILED",refundable:true };
     }
     return { status:"processing",progress:20,providerStatus:String(state.status).toUpperCase() };
   }

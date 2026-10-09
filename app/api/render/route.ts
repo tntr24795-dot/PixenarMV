@@ -5,14 +5,30 @@ import { getWorld } from "workflow/runtime";
 import { videoModels } from "@/lib/models";
 import { authenticatedClient, readJson } from "@/lib/api/auth";
 import { hasAdminConfiguration } from "@/lib/supabase/admin";
-import { hasVideoProviderConfiguration } from "@/lib/providers/video";
+import { inspectVideo, hasVideoProviderConfiguration } from "@/lib/providers/video";
 import { renderSceneWorkflow } from "@/workflows/render-scene";
 
 export const maxDuration = 60;
 
-export async function GET() {
-  const { userId } = await authenticatedClient();
+export async function GET(request: NextRequest) {
+  const { supabase, userId } = await authenticatedClient();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const generationId = request.nextUrl.searchParams.get("generationId");
+  if (generationId) {
+    // Owner-scoped, read-only lookup. Never return the provider task handle.
+    const { data: generation, error } = await supabase.from("generations")
+      .select("provider,provider_task_id,status").eq("id", generationId).eq("user_id", userId).single();
+    if (error || !generation) return NextResponse.json({ error: "Generation not found." }, { status: 404 });
+    if (generation.provider !== "gateway" || generation.status !== "failed" || !generation.provider_task_id) {
+      return NextResponse.json({ error: "Provider diagnostics are available for failed Gateway jobs only." }, { status: 409 });
+    }
+    try {
+      const state = await inspectVideo(generation.provider_task_id, generation.provider);
+      return NextResponse.json({ status: state.status, providerStatus: state.providerStatus, error: state.error ?? null }, { headers: { "Cache-Control": "no-store" } });
+    } catch {
+      return NextResponse.json({ error: "Provider status lookup is temporarily unavailable." }, { status: 502 });
+    }
+  }
   return NextResponse.json({
     workflowWorld: process.env.WORKFLOW_TARGET_WORLD ?? (process.env.VERCEL_DEPLOYMENT_ID ? "vercel" : "local"),
     hasDeploymentId: Boolean(process.env.VERCEL_DEPLOYMENT_ID),
