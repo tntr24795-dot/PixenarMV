@@ -2,6 +2,7 @@ import "server-only";
 import { inspectWan } from "./wan";
 import RunwayML from "@runwayml/sdk";
 import { gateway } from "@ai-sdk/gateway";
+import { generateText } from "ai";
 
 export type RenderReference = { uri: string; type: "image" | "video" | "audio" };
 
@@ -28,6 +29,9 @@ export type ProviderState = {
 
 const gatewayModels: Record<string,string> = {
   "veo-3-1-fast": "google/veo-3.1-fast-generate-001",
+};
+const gatewayLanguageModels: Record<string,string> = {
+  "gemini-omni-flash": "google/gemini-omni-flash-preview",
 };
 
 const providerModels: Record<string, string> = {
@@ -104,8 +108,38 @@ function runwayParams(input: RenderInput, providerModel: string) {
 }
 
 export function hasVideoProviderConfiguration(model = "runway-4-5") {
-  if (gatewayModels[model]) return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
+  if (gatewayModels[model] || gatewayLanguageModels[model]) {
+    return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
+  }
   return Boolean(providerModels[model] && process.env.RUNWAYML_API_SECRET);
+}
+
+export async function generateGeminiOmniVideo(input: RenderInput): Promise<ProviderState> {
+  const modelId = gatewayLanguageModels[input.model];
+  if (!modelId) throw new Error("Unsupported Gemini Omni model.");
+  if (input.resolution !== "720p") throw new Error("Gemini Omni phase one supports 720p only.");
+  if (input.duration < 3 || input.duration > 10) throw new Error("Gemini Omni duration must be 3 to 10 seconds.");
+  if ((input.references ?? []).length) throw new Error("Gemini Omni references are not enabled in phase one.");
+
+  const result = await generateText({
+    model: modelId,
+    prompt:
+      `Generate a ${input.duration}-second 720p ${input.aspectRatio === "9:16" ? "9:16 vertical" : "16:9 landscape"} video. ` +
+      `Return the finished video file. Scene: ${input.prompt.slice(0, 3500)}`,
+    maxRetries: 1,
+    timeout: 240000,
+  });
+  const file = result.files.find((item) => item.mediaType?.startsWith("video/"));
+  if (!file) {
+    return {status:"failed",progress:0,error:"Gemini Omni completed without a video file.",providerStatus:"NO_VIDEO_FILE",refundable:true};
+  }
+  return {
+    status:"succeeded",
+    progress:100,
+    providerStatus:"COMPLETED",
+    outputBase64:file.base64,
+    outputMediaType:file.mediaType || "video/mp4",
+  };
 }
 
 export async function submitVideo(input: RenderInput) {
