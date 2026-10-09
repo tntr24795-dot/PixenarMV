@@ -1,7 +1,7 @@
 import { sleep } from "workflow";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { persistProviderOutput } from "@/lib/providers/output";
-import { inspectVideo, submitVideo } from "@/lib/providers/video";
+import { generateGeminiOmniVideo, inspectVideo, submitVideo } from "@/lib/providers/video";
 
 type GenerationRecord = {
   id: string;
@@ -69,6 +69,43 @@ async function submitGeneration(generation: GenerationRecord) {
 }
 submitGeneration.maxRetries = 0;
 
+async function renderGeminiOmniGeneration(generation: GenerationRecord) {
+  "use step";
+  if (generation.provider_task_id) throw new Error("Gemini Omni generation already submitted.");
+  const admin=createAdminClient();
+  const {data:claimed,error:claimError}=await admin.rpc("claim_generation_submission",{p_generation_id:generation.id});
+  if(claimError || !claimed) throw new Error("Generation cannot be submitted twice.");
+
+  const payload=generation.request_payload ?? {};
+  const { error: markError } = await admin.rpc("mark_generation_processing", {
+    p_generation_id:generation.id,
+    p_provider_task_id:`gemini-omni:${generation.id}`,
+    p_provider_status:"RUNNING",
+  });
+  if(markError) throw new Error(markError.message);
+
+  const state=await generateGeminiOmniVideo({
+    generationId:generation.id,
+    model:generation.model,
+    prompt:String(payload.prompt ?? ""),
+    duration:Number(payload.duration ?? 8),
+    aspectRatio:payload.aspectRatio ?? generation.projects?.aspect_ratio ?? "16:9",
+    resolution:payload.resolution ?? generation.projects?.resolution ?? "720p",
+    references:[],
+  });
+  if(state.status==="failed") throw new Error(state.error ?? "Gemini Omni generation failed.");
+
+  const output=await persistProviderOutput(generation.user_id,generation.id,state);
+  const {data:completed,error}=await admin.rpc("complete_generation",{
+    p_generation_id:generation.id,
+    p_output_path:output.path,
+    p_output_mime_type:output.mimeType,
+  });
+  if(error || !completed) throw new Error(error?.message || "Unable to finalize Gemini Omni generation.");
+  return output.path;
+}
+renderGeminiOmniGeneration.maxRetries = 0;
+
 async function pollGeneration(generation: GenerationRecord, taskId: string) {
   "use step";
   const state = await inspectVideo(taskId, generation.provider);
@@ -106,6 +143,10 @@ export async function renderSceneWorkflow(generationId: string) {
   "use workflow";
   try {
     const generation = await loadGeneration(generationId);
+    if (generation.model === "gemini-omni-flash") {
+      const outputPath = await renderGeminiOmniGeneration(generation);
+      return { status: "succeeded" as const, outputPath };
+    }
     const taskId = await submitGeneration(generation);
     for (let attempt = 0; attempt < 180; attempt += 1) {
       await sleep("10s");
