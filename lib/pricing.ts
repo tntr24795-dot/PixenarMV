@@ -1,5 +1,5 @@
 // Budget assumptions, not a claim about actual invoices. See pricing documentation.
-export const PRICING_VERSION = '2026-10-09-ref3';
+export const PRICING_VERSION = '2026-10-09-ref4';
 export const PAYMENT_FEE_RATE = .08;
 export const PAYMENT_FIXED_USD = .30;
 export const minimumCreditValue = 79.99 / 3500;
@@ -27,7 +27,7 @@ export type Resolution = '480p' | '720p' | '1080p';
 
 export const pricing = {
  'veo-3-1-fast':{provider:'gateway',costs:{'720p':.10}},
- 'gemini-omni-flash':{provider:'gateway',costs:{'720p':.52728}},
+ 'gemini-omni-flash':{provider:'gateway',costs:{'720p':.10}},
  'wan-3-0':{provider:'runway',costs:{'480p':.05,'720p':.10,'1080p':.20}},
  'wan-3-0-prime':{provider:'runway',costs:{'480p':.068,'720p':.14,'1080p':.28}},
  'runway-4-5':{provider:'runway',costs:{'720p':.12}},
@@ -55,8 +55,6 @@ export function providerApiCost(modelId:string,duration:number,resolution='720p'
    const audioCount=Math.max(0,Math.floor(refs.audioCount ?? 0));
    const videoSeconds=Math.max(0,Number(refs.videoSeconds ?? 0));
    if(imageCount>0 || audioCount>0 || videoSeconds>0) throw new Error('Gemini Omni references are not enabled in phase one.');
-   // Conservative ceiling: 57,920 output tokens at $9/M + 4,000 input tokens at $1.50/M.
-   return .52728;
  }
  const model=pricing[modelId as keyof typeof pricing];
  if(!model) throw new Error('Verified provider pricing unavailable.');
