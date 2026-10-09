@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import RecoverGeneration from "@/components/recover-generation";
 import CancelGeneration from "@/components/cancel-generation";
 
 export type RenderJob = {
@@ -51,6 +52,7 @@ export default function RenderQueue({ jobs }: { jobs: RenderJob[] }) {
         {["queued", "processing"].includes(job.status) ? <strong>{job.progress}%</strong> : null}
         <span>{job.credits_charged || job.credits_reserved} credits</span>
         {job.status === "queued" ? <CancelGeneration id={job.id} /> : null}
+        {job.status === "failed" && job.credits_charged > 0 && job.error_message === "AI Gateway completed without a downloadable video URL." ? <RecoverGeneration id={job.id} /> : null}
         {job.signed_url ? <a className="downloadRender" href={job.signed_url} download>Download scene</a> : null}
       </div>
     </article>

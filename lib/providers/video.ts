@@ -19,6 +19,8 @@ export type ProviderState = {
   status: "queued" | "processing" | "succeeded" | "failed";
   progress: number;
   outputUrl?: string;
+  outputBase64?: string;
+  outputMediaType?: string;
   error?: string;
   providerStatus: string;
   refundable?: boolean;
@@ -151,9 +153,9 @@ export async function inspectVideo(taskId: string, provider = "runway"): Promise
     }
     const state = await model.doStatus({ operation });
     if (state.status === "completed") {
-      const video = state.videos?.find((item) => item.type === "url");
-      return video?.url
-        ? { status:"succeeded",progress:100,outputUrl:video.url,providerStatus:"COMPLETED" }
+      const video = state.videos?.find((item) => item.type === "url" || item.type === "base64");
+      return video
+        ? { status:"succeeded",progress:100,providerStatus:"COMPLETED",...(video.type === "url" ? {outputUrl:video.url} : {outputBase64:video.data,outputMediaType:video.mediaType}) }
         : { status:"failed",progress:0,error:"AI Gateway completed without a downloadable video URL.",providerStatus:"COMPLETED",refundable:false };
     }
     if (state.status === "error") {
