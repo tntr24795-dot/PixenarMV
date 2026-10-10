@@ -17,3 +17,17 @@
 .sidebar .brand > span:last-child { color: #f8fafc; }
 .sidebar .brand > span:last-child > span { color: #38bdf8; }
 .sidebar .brandMark { color: #ffffff; text-decoration: none; }
+
+/* Explicit brand word colors, including link and mobile states. */
+.brand .brand-studio-word,
+.brand:link .brand-studio-word,
+.brand:visited .brand-studio-word,
+.brand:hover .brand-studio-word,
+.brand:active .brand-studio-word,
+.sidebar .brand .brand-studio-word,
+.landing .brand .brand-studio-word {
+  color: #38bdf8 !important;
+  -webkit-text-fill-color: #38bdf8;
+  text-decoration: none;
+}
+.brand .brand-pixenar-word { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc; }
