@@ -9,6 +9,7 @@ export default function AuthForm() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const emailConfirmed = params.get("confirmed") === "1";
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -28,7 +29,7 @@ export default function AuthForm() {
         : await supabase.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: `${location.origin}${safeNext}` },
+            options: { emailRedirectTo: "https://studio.pixenar-ai.com/login?confirmed=1" },
           });
     if (result.error) {
       setMessage(result.error.message);
@@ -78,6 +79,7 @@ export default function AuthForm() {
             }
           />
         </label>
+        {emailConfirmed && mode === "login" && <p className="authMessage">Your email confirmation link was opened. Please sign in to access your Studio account.</p>}
         {message && <p className="authMessage">{message}</p>}
         <button className="primary" disabled={busy}>
           {busy
