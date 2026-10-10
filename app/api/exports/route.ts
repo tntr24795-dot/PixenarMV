@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       { status: 409 },
     );
   }
-  const incomplete = scenes.filter((scene) => scene.status !== "completed");
+  const incomplete = scenes.filter((scene) => scene.status !== "succeeded");
   if (incomplete.length) {
     return NextResponse.json(
       {

@@ -97,6 +97,7 @@ export async function POST(request: NextRequest) {
     .eq("id", data)
     .single();
 
+  let startedRun: Awaited<ReturnType<typeof start>> | undefined;
   let startupTimer: ReturnType<typeof setTimeout> | undefined;
   try {
     if (reservedError) throw new Error(`Unable to read reserved credits: ${reservedError.message}`);
@@ -135,6 +136,7 @@ export async function POST(request: NextRequest) {
         startupTimer = setTimeout(() => reject(new Error("Workflow startup timed out after 30 seconds.")), 30_000);
       }),
     ]);
+    startedRun = run;
     if (startupTimer) clearTimeout(startupTimer);
     console.info("render.workflow.started", { generationId: data, runId: run.runId });
     const { error: attachError } = await supabase.rpc("attach_generation_workflow", {
@@ -159,6 +161,10 @@ export async function POST(request: NextRequest) {
     const { data: cancelled, error: cancelError } = await supabase.rpc("cancel_generation", {
       p_generation_id: data,
     });
+    if (cancelled && !cancelError && startedRun) {
+      try { await startedRun.cancel(); }
+      catch (error) { console.error("render.workflow.cancel_failed", { generationId: data, error: error instanceof Error ? error.message : "Unknown cancellation failure" }); }
+    }
     console.error("render.workflow.start_failed", {
       generationId: data,
       error: workflowError instanceof Error ? workflowError.message : "Unknown workflow startup failure",
