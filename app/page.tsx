@@ -302,7 +302,7 @@ export default async function Home() {
           {modelNames.map((name, n) => (
             <span key={name} className={n === 5 ? "featured" : ""}>
               {name}
-              {n === 5 ? <small>UP TO 30S</small> : null}
+              {n === 5 ? <small>UP TO 15S</small> : n === 6 ? <small>UP TO 30S</small> : null}
             </span>
           ))}
         </div>
