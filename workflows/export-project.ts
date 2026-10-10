@@ -11,6 +11,8 @@ type ExportBundle = {
   projectId: string;
   userId: string;
   audioPath: string | null;
+  width: number;
+  height: number;
   durationSeconds: number;
   dialogueAudio: {
     storagePath: string;
@@ -59,7 +61,7 @@ async function loadExport(exportId: string): Promise<ExportBundle> {
     await Promise.all([
       admin
         .from("projects")
-        .select("id,user_id,kind,audio_path,duration_seconds")
+        .select("id,user_id,kind,audio_path,duration_seconds,aspect_ratio,resolution")
         .eq("id", exportJob.project_id)
         .eq("user_id", exportJob.user_id)
         .single(),
@@ -124,6 +126,8 @@ async function loadExport(exportId: string): Promise<ExportBundle> {
     projectId: exportJob.project_id,
     userId: exportJob.user_id,
     audioPath: project.audio_path,
+    width: project.aspect_ratio === "9:16" ? 720 : 1280,
+    height: project.aspect_ratio === "9:16" ? 1280 : 720,
     dialogueAudio,
     durationSeconds:
       Number(project.duration_seconds) ||
@@ -220,10 +224,32 @@ async function composeExport(bundle: ExportBundle) {
       })),
     );
 
+    // Normalize each provider clip before concat: duration directives alone do
+    // not trim clips or reconcile different source time bases and frame rates.
+    const normalizedFiles: string[] = [];
+    for (let index = 0; index < sceneUrls.length; index += 1) {
+      const duration = Math.max(bundle.scenes[index].durationSeconds, 0.1);
+      const clip = join(workDir, `scene-${index}.mp4`);
+      await runFfmpeg(ffmpegPath, [
+        "-y", "-i", sceneUrls[index],
+        "-vf", `setpts=PTS-STARTPTS,fps=30,scale=${bundle.width}:${bundle.height}:force_original_aspect_ratio=decrease,pad=${bundle.width}:${bundle.height}:(ow-iw)/2:(oh-ih)/2,setsar=1,tpad=stop_mode=clone:stop_duration=${duration}`,
+        "-t", String(duration), "-map", "0:v:0",
+        "-map", "0:a:0?", "-c:a", "aac", "-ar", "48000",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+        "-pix_fmt", "yuv420p", "-video_track_timescale", "90000",
+        "-progress", "pipe:1", clip,
+      ], async () => {});
+      normalizedFiles.push(clip);
+      await updateExport(bundle.exportId, {
+        progress: 15 + Math.round(((index + 1) / sceneUrls.length) * 30),
+        provider_status: `Aligning scene ${index + 1} of ${sceneUrls.length} to the timeline`,
+      });
+    }
+
     const concatFile = join(workDir, "timeline.ffconcat");
     await writeFile(
       concatFile,
-      `ffconcat version 1.0\n${sceneUrls
+      `ffconcat version 1.0\n${normalizedFiles
         .map(
           (url, index) =>
             `file ${ffconcatPath(url)}\nduration ${Math.max(bundle.scenes[index].durationSeconds, 0.1)}`,
@@ -277,7 +303,7 @@ async function composeExport(bundle: ExportBundle) {
     } else if (audioUrl) {
       outputArgs = [
         ...commonVideoArgs, "-map", "1:a:0", "-c:a", "aac", "-b:a", "192k",
-        "-shortest", "-movflags", "+faststart",
+        "-af", "apad", "-t", String(Math.max(bundle.durationSeconds, 0.1)), "-movflags", "+faststart",
       ];
     } else {
       outputArgs = [
@@ -285,9 +311,9 @@ async function composeExport(bundle: ExportBundle) {
         "-movflags", "+faststart",
       ];
     }
-    let lastProgress = 14;
+    let lastProgress = 44;
     await updateExport(bundle.exportId, {
-      progress: 15,
+      progress: 45,
       provider_status: "Composing timeline and mastering audio",
     });
     await runFfmpeg(
@@ -296,7 +322,7 @@ async function composeExport(bundle: ExportBundle) {
       async (seconds) => {
         const nextProgress = Math.min(
           90,
-          15 + Math.round((seconds / Math.max(bundle.durationSeconds, 1)) * 75),
+          45 + Math.round((seconds / Math.max(bundle.durationSeconds, 1)) * 45),
         );
         if (nextProgress >= lastProgress + 4) {
           lastProgress = nextProgress;
