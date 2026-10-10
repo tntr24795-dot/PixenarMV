@@ -31,3 +31,8 @@
   text-decoration: none;
 }
 .brand .brand-pixenar-word { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc; }
+
+/* Member sign-out action in Studio dashboard sidebar */
+.dashboardSignOut { margin: 10px 0 12px; }
+.dashboardSignOut button { width:100%; text-align:center; cursor:pointer; border:1px solid #345879; background:#102136; color:#e7f2ff; padding:10px 12px; border-radius:9px; font-weight:700; }
+.dashboardSignOut button:hover,.dashboardSignOut button:focus-visible { border-color:#38bdf8; background:#14314a; color:#fff; }
