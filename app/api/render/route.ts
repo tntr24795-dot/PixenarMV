@@ -69,9 +69,20 @@ export async function POST(request: NextRequest) {
   const { supabase, userId } = await authenticatedClient();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: project } = await supabase.from("projects").select("resolution").eq("id", projectId).single();
+  const { data: project } = await supabase.from("projects").select("resolution,storyboard").eq("id", projectId).single();
+  const isLongDrama = (project?.storyboard as {source?:string}|null)?.source === "long-drama";
+  // No long-drama render until per-shot editorial approval and billing/E2E reconciliation are implemented.
+  if (isLongDrama) return NextResponse.json({error:"Long Drama rendering is not enabled. Planning and scene review only.",code:"LONG_DRAMA_NOT_READY"},{status:409});
+  if (isLongDrama) {
+    const {data: prior} = await supabase.from("generations").select("id,status,workflow_run_id,credits_reserved").eq("project_id",projectId).eq("scene_id",sceneId).order("created_at",{ascending:false}).limit(1).maybeSingle();
+    if(prior){
+      return NextResponse.json({jobId:prior.id,status:prior.status,workflowRunId:prior.workflow_run_id,credits:prior.credits_reserved,reused:true},{status:202});
+    }
+  }
   const resolution = String(body?.resolution ?? project?.resolution ?? "720p");
-  const requestId = crypto.randomUUID();
+  // For long-drama the scene UUID is the stable reservation idempotency key.
+  // It is deliberately not regenerated on retry. Failed shots require explicit reconciliation.
+  const requestId = isLongDrama ? sceneId : crypto.randomUUID();
 
   const { data, error } = await supabase.rpc("enqueue_generation", {
     p_project_id: projectId,
@@ -84,6 +95,10 @@ export async function POST(request: NextRequest) {
     p_reference_asset_ids: referenceAssetIds,
   });
 
+  if(error && isLongDrama && (error.code === "23505" || error.message.includes("duplicate key"))) {
+    const {data: existing}=await supabase.from("generations").select("id,status,workflow_run_id,credits_reserved").eq("client_request_id",requestId).eq("scene_id",sceneId).eq("project_id",projectId).maybeSingle();
+    if(existing) return NextResponse.json({jobId:existing.id,status:existing.status,workflowRunId:existing.workflow_run_id,credits:existing.credits_reserved,reused:true},{status:202});
+  }
   if (error)
     return NextResponse.json(
       { error: error.message.includes("insufficient") ? "Insufficient credits. Add credits before generating this scene." : error.message },
