@@ -4,3 +4,16 @@
 .homeLink{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid #2b5273;border-radius:8px;color:#a9dcff;text-decoration:none;font-size:12px;font-weight:700}
 .homeLink:hover{border-color:#42b8f5;color:#fff;background:#10253a}
 @media(max-width:760px){.studioBody .inspector{display:block;border-left:0;border-top:1px solid var(--line);padding-bottom:70px}.authCopyright{position:static;margin-top:20px}.authPage{align-content:center}}
+
+/* Keep Studio branding readable and consistent in every dashboard viewport. */
+.sidebar a.brand,
+.sidebar a.brand:link,
+.sidebar a.brand:visited,
+.sidebar a.brand:hover,
+.sidebar a.brand:active {
+  color: #f8fafc;
+  text-decoration: none;
+}
+.sidebar .brand > span:last-child { color: #f8fafc; }
+.sidebar .brand > span:last-child > span { color: #38bdf8; }
+.sidebar .brandMark { color: #ffffff; text-decoration: none; }
