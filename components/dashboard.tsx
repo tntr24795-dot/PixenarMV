@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
 import VideoLibrary, { type VideoLibraryItem } from "@/components/video-library";
+import SignOutButton from "@/components/sign-out-button";
 type SavedProject = {
   id: string;
   title: string;
@@ -83,6 +84,7 @@ export default function Dashboard({
           <a className="nav mainSiteLink" href={mainSiteUrl}>
             <span>⌂</span>Main website
           </a>
+          <div className="dashboardSignOut"><SignOutButton /></div>
           <div className="creditCard">
             <small>AVAILABLE CREDITS</small>
             <strong>{credits.toLocaleString()}</strong>
