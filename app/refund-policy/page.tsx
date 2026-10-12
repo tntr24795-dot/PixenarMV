@@ -7,7 +7,7 @@ export default function RefundPolicyPage() {
     <Link href="/pricing" style={{color:'#67e8f9'}}>← Back to pricing</Link>
     <h1 style={{fontSize:36,fontWeight:800,marginTop:30}}>Refund & Subscription Cancellation Policy</h1>
     <p>PixenarAI · Pixenar Studio · PixenarMV — Operated by Pensrikris36 LLC</p>
-    <p><strong>Policy status:</strong> Draft pending legal review. This page does not change the terms of previous purchases.</p>
+    <p><strong>Effective date:</strong> October 12, 2026. Applies prospectively to purchases after disclosure and acceptance. Earlier purchases retain their applicable terms.</p>
     <h2>Subscription cancellation</h2>
     <p>You may cancel future subscription renewals through account controls or support. Cancellation does not automatically refund the current billing period. Access and remaining credits follow the terms disclosed at purchase and applicable law.</p>
     <h2>AI generation credits</h2>
@@ -20,6 +20,6 @@ export default function RefundPolicyPage() {
     <p>Contact the support channel listed in your account or payment receipt, including your account email, transaction details and a description of the issue. We aim to acknowledge requests within two business days and provide an initial decision within five business days, without limiting legal deadlines.</p>
     <h2>Approved refunds and disputes</h2>
     <p>Approved refunds are returned to the original payment method where supported. Unused credits attributable to refunded purchases may be revoked. Nothing in this policy limits lawful payment disputes or non-waivable consumer rights.</p>
-    <p>Any revised terms apply prospectively only when properly disclosed and accepted. This draft should be reviewed by legal counsel before being adopted as binding checkout terms.</p>
+    <p>Any revised terms apply prospectively only when properly disclosed and accepted. Nothing limits non-waivable consumer rights.</p>
   </main>;
 }
