@@ -18,6 +18,8 @@ export default function PricingSelector() {
         <button className={tab==="credits"?"active":""} onClick={()=>setTab("credits")}>Buy Credits</button>
       </div>
 
+      <p className="billingNote">Subscriptions renew until canceled. Successfully delivered AI generations are generally not refundable solely because of subjective dissatisfaction. Review the <Link href="/refund-policy">Refund &amp; Cancellation Policy</Link> before purchase. Statutory rights remain unaffected.</p>
+
       {tab!=="credits" ? (
         <>
           <div className="billingNote">
