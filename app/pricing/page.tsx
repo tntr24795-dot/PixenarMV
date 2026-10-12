@@ -22,7 +22,7 @@ export default function PricingPage() {
         <h1>Simple plans. Clear credits.</h1>
         <span>Choose monthly, annual, or buy extra credits whenever you need more production capacity.</span>
       </section>
-      <p style={{textAlign:"center",padding:"12px 20px"}}>Please review our <Link href="/refund-policy" style={{textDecoration:"underline"}}>Refund &amp; Cancellation Policy (draft)</Link> before purchasing.</p>\n      <PricingSelector />
+      <p style={{textAlign:"center",padding:"12px 20px"}}>Please review our <Link href="/refund-policy" style={{textDecoration:"underline"}}>Refund &amp; Cancellation Policy</Link> before purchasing.</p>\n      <PricingSelector />
       <section className="pricingHelp">
         <article><b>Credits are usage-based</b><span>Video generation cost changes by model, duration, resolution and reference inputs.</span></article>
         <article><b>See the price before Generate</b><span>Pixenar Studio calculates the estimated credit cost before each generation.</span></article>
