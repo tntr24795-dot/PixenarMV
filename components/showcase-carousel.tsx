@@ -62,7 +62,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
           <article className="showcaseCard" key={`${item.slug}-${index}`}>
             <button className="showcaseMedia" onClick={()=>setActive(item)} aria-label={`Open ${item.title}`}>
               {item.videoSrc ? (
-                <video src={item.videoSrc} poster={item.thumbnailSrc} muted loop playsInline preload="metadata" />
+                <video src={item.videoSrc} muted loop playsInline preload="auto" />
               ) : (
                 <span className={`showcasePlaceholder showcaseVisual theme-${item.category.toLowerCase().replace(/[^a-z0-9]+/g,"-")}`} aria-hidden="true">
                   <span className="visualScene" />
@@ -97,7 +97,7 @@ export default function ShowcaseCarousel({items}:{items:ShowcaseTemplate[]}) {
             <button className="showcaseClose" onClick={()=>setActive(null)}>×</button>
             <div className="showcaseDialogMedia">
               {active.videoSrc ? (
-                <video src={active.videoSrc} poster={active.thumbnailSrc} controls autoPlay muted loop playsInline />
+                <video src={active.videoSrc} controls autoPlay muted loop playsInline preload="auto" />
               ) : (
                 <span className="showcasePlaceholder large"><i /><b>{active.title}</b><small>Preview media has not been uploaded yet</small></span>
               )}
