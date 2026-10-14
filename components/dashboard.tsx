@@ -2,6 +2,7 @@ import Link from "next/link";
 import { mainSiteUrl } from "@/lib/brand-links";
 import VideoLibrary, { type VideoLibraryItem } from "@/components/video-library";
 import SignOutButton from "@/components/sign-out-button";
+import MemberShowcaseGrid from "@/components/member-showcase-grid";
 type SavedProject = {
   id: string;
   title: string;
@@ -41,11 +42,13 @@ export default function Dashboard({
   credits = 0,
   role = "user",
   videos = [],
+  showcaseItems = [],
 }: {
   savedProjects?: SavedProject[];
   credits?: number;
   role?: "user" | "admin";
   videos?: VideoLibraryItem[];
+  showcaseItems?: Array<{slug:string;title:string;category:string;modelId:string;durationSeconds:number;videoSrc?:string;description?:string;prompt?:string}>;
 }) {
   const empty = savedProjects.length === 0;
   const projects = empty ? samples : savedProjects;
@@ -98,7 +101,8 @@ export default function Dashboard({
       </aside>
 
       <section className="memberContent" id="projects">
-        <header className="memberContentHead">
+        <MemberShowcaseGrid items={showcaseItems} />
+        <header className="memberContentHead memberProjectsHead">
           <div>
             <h1>Your Studio {role === "admin" ? <span className="adminBadge">Admin</span> : null}</h1>
             <p>Manage projects, generated videos and your creative workflow.</p>
