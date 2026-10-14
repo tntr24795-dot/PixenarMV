@@ -6,7 +6,7 @@ export default async function StudioPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: projects }, { data: wallet }, { data: profile }, { data: generations }, { data: exports }] =
+  const [{ data: projects }, { data: wallet }, { data: profile }, { data: generations }, { data: exports }, { data: showcaseRows }] =
     await Promise.all([
       supabase.from("projects").select("id,title,kind,status,updated_at,duration_seconds").order("updated_at",{ascending:false}).limit(12),
       supabase.from("credit_wallets").select("balance").maybeSingle(),
@@ -23,6 +23,12 @@ export default async function StudioPage() {
         .eq("status","succeeded")
         .order("completed_at",{ascending:false})
         .limit(12),
+      supabase
+        .from("showcase_videos")
+        .select("slug,title,category,description,prompt,duration_seconds,model_id,video_path")
+        .eq("published",true)
+        .order("featured_order",{ascending:true})
+        .limit(20),
     ]);
 
   const sceneVideos: VideoLibraryItem[] = await Promise.all(
@@ -73,12 +79,24 @@ export default async function StudioPage() {
     .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 30);
 
+  const showcaseItems=(showcaseRows ?? []).map((item:any)=>({
+    slug:item.slug,
+    title:item.title,
+    category:item.category,
+    description:item.description,
+    prompt:item.prompt,
+    durationSeconds:item.duration_seconds,
+    modelId:item.model_id,
+    videoSrc:item.video_path ? `https://okvydjnyhtgrdhbdmvjy.supabase.co/storage/v1/object/public/showcase-media/${item.video_path.split("/").map(encodeURIComponent).join("/")}` : undefined,
+  }));
+
   return (
     <Dashboard
       savedProjects={projects ?? []}
       credits={wallet?.balance ?? 0}
       role={profile?.role === "admin" ? "admin" : "user"}
       videos={videos}
+      showcaseItems={showcaseItems}
     />
   );
 }
