@@ -62,7 +62,7 @@ export default function Dashboard({
         <nav className="memberTopnav" aria-label="Studio sections">
           <Link className="active" href="/create">Create</Link>
           <Link href="/#examples">Showcase</Link>
-          <a href="#videos">My Videos</a>
+          <Link href="/my-videos">My Videos</Link>
           <Link href="/characters">Characters</Link>
         </nav>
         <div className="memberTopActions">
@@ -78,7 +78,7 @@ export default function Dashboard({
           <Link className="memberSide active" href="/#examples"><span>▣</span>Showcase</Link>
           <Link className="memberSide" href="/create"><span>＋</span>Create</Link>
           <Link className="memberSide" href="/characters"><span>♙</span>Characters</Link>
-          <a className="memberSide" href="#videos"><span>▤</span>My Videos</a>
+          <Link className="memberSide" href="/my-videos"><span>▤</span>My Videos</Link>
         </nav>
 
         <div className="memberSideGroup">
@@ -93,7 +93,7 @@ export default function Dashboard({
         <div className="memberSideGroup">
           <small>LIBRARY</small>
           <Link className="memberSide" href="/#examples"><span>▧</span>Templates</Link>
-          <a className="memberSide" href="#videos"><span>▱</span>Assets</a>
+          <Link className="memberSide" href="/my-videos"><span>▱</span>Assets</Link>
           <Link className="memberSide" href="/characters"><span>♩</span>Voices</Link>
         </div>
 
@@ -143,8 +143,6 @@ export default function Dashboard({
             );
           })}
         </div>
-
-        <div id="videos"><VideoLibrary items={videos} /></div>
 
         <div className="startRow">
           <article className="startCard"><span className="icon">🎬</span><div><h3>Start a short film</h3><p>Turn one idea into a script, consistent cast and editable scenes.</p></div><Link href="/create?mode=film">Create film →</Link></article>
