@@ -50,187 +50,107 @@ export default function Dashboard({
   const empty = savedProjects.length === 0;
   const projects = empty ? samples : savedProjects;
   return (
-    <main className="shell">
-      <aside className="sidebar">
-        <Link className="brand" href="/">
-          <span className="brandMark">P</span>
-          <span>
-            <span className="brand-pixenar-word">PIXENAR</span> <span className="brand-studio-word">STUDIO</span>
-          </span>
+    <main className="memberDash">
+      <header className="memberTopbar">
+        <Link className="memberBrand" href="/">
+          <span className="memberBrandMark">P</span>
+          <span>PIXENAR <b>STUDIO</b></span>
         </Link>
-        <nav aria-label="Main navigation">
-          <a className="nav active" href="#projects">
-            <span>◫</span>Projects
-          </a>
-          <Link className="nav" href="/create">
-            <span>✦</span>Create
-          </Link>
-          <Link className="nav" href="/characters">
-            <span>♙</span>Characters
-          </Link>
-          <a className="nav" href="#videos">
-            <span>▣</span>My videos
-          </a>
-          <Link className="nav" href="/renders">
-            <span>◉</span>Render queue
-          </Link>
-          {role === "admin" ? (
-            <Link className="nav" href="/admin/showcase">
-              <span>▤</span>Showcase admin
-            </Link>
-          ) : null}
+        <nav className="memberTopnav" aria-label="Studio sections">
+          <Link className="active" href="/create">Create</Link>
+          <Link href="/#examples">Showcase</Link>
+          <a href="#videos">My Videos</a>
+          <Link href="/characters">Characters</Link>
         </nav>
-        <div className="sideBottom">
-          <a className="nav mainSiteLink" href={mainSiteUrl}>
-            <span>⌂</span>Main website
-          </a>
-          <div className="dashboardSignOut"><SignOutButton /></div>
-          <div className="creditCard">
-            <small>AVAILABLE CREDITS</small>
-            <strong>{credits.toLocaleString()}</strong>
-            <span>Secure account wallet</span>
-            <button disabled title="Billing portal will be enabled with Stripe configuration">Billing setup pending</button>
-          </div>
+        <div className="memberTopActions">
+          <span className="memberCredits">◉ <b>{credits.toLocaleString()}</b> credits</span>
+          <button type="button" aria-label="Help">?</button>
+          <button type="button" aria-label="Notifications">♢</button>
+          <span className="memberAvatar">D</span>
         </div>
+      </header>
+
+      <aside className="memberSidebar">
+        <nav>
+          <Link className="memberSide active" href="/#examples"><span>▣</span>Showcase</Link>
+          <Link className="memberSide" href="/create"><span>＋</span>Create</Link>
+          <Link className="memberSide" href="/characters"><span>♙</span>Characters</Link>
+          <a className="memberSide" href="#videos"><span>▤</span>My Videos</a>
+        </nav>
+
+        <div className="memberSideGroup">
+          <small>AI TOOLS</small>
+          <Link className="memberSide" href="/create?mode=film"><span>▧</span>Image to Video</Link>
+          <Link className="memberSide" href="/create?mode=film"><span>▧</span>Video to Video</Link>
+          <Link className="memberSide" href="/create?mode=film"><span>▦</span>AI Short Drama</Link>
+          <Link className="memberSide" href="/create?mode=film"><span>▦</span>AI Long Drama</Link>
+          <Link className="memberSide" href="/create?mode=music-video"><span>♫</span>Music Video</Link>
+        </div>
+
+        <div className="memberSideGroup">
+          <small>LIBRARY</small>
+          <Link className="memberSide" href="/#examples"><span>▧</span>Templates</Link>
+          <a className="memberSide" href="#videos"><span>▱</span>Assets</a>
+          <Link className="memberSide" href="/characters"><span>♩</span>Voices</Link>
+        </div>
+
+        {role === "admin" ? <Link className="memberSide memberAdmin" href="/admin/showcase"><span>▤</span>Admin</Link> : null}
       </aside>
-      <section className="content" id="projects">
-        <header>
+
+      <section className="memberContent" id="projects">
+        <header className="memberContentHead">
           <div>
-            <p className="eyebrow">PIXENAR CREATIVE CLOUD</p>
-            <h1>
-              Your studio {role === "admin" ? <span className="adminBadge">Admin</span> : null}
-            </h1>
-            <p>
-              Build stories scene by scene. Keep every character, shot and sound
-              in one place.
-            </p>
+            <h1>Your Studio {role === "admin" ? <span className="adminBadge">Admin</span> : null}</h1>
+            <p>Manage projects, generated videos and your creative workflow.</p>
           </div>
-          <Link className="primary" href="/create">
-            <span>＋</span>New project
-          </Link>
+          <Link className="memberNewButton" href="/create"><span>＋</span>New project</Link>
         </header>
+
         <div className="stats">
-          <article>
-            <span>Active projects</span>
-            <strong>
-              {savedProjects.filter((p) => p.status !== "completed").length}
-            </strong>
-            <em>Across film and music</em>
-          </article>
-          <article>
-            <span>Projects saved</span>
-            <strong>{savedProjects.length}</strong>
-            <em>Private to your account</em>
-          </article>
-          <article>
-            <span>Render queue</span>
-            <strong>
-              {
-                savedProjects.filter((p) =>
-                  ["generating", "rendering"].includes(p.status),
-                ).length
-              }
-            </strong>
-            <em className="live">● Live status</em>
-          </article>
+          <article><span>Active projects</span><strong>{savedProjects.filter((p)=>p.status!=="completed").length}</strong><em>Across film and music</em></article>
+          <article><span>Projects saved</span><strong>{savedProjects.length}</strong><em>Private to your account</em></article>
+          <article><span>Render queue</span><strong>{savedProjects.filter((p)=>["generating","rendering"].includes(p.status)).length}</strong><em className="live">● Live status</em></article>
         </div>
+
         <div className="sectionHead">
-          <div>
-            <h2>Recent projects</h2>
-            <p>
-              {empty
-                ? "Create your first project — samples shown below"
-                : "Continue where you left off"}
-            </p>
-          </div>
+          <div><h2>Recent projects</h2><p>{empty ? "Create your first project — samples shown below" : "Continue where you left off"}</p></div>
           <span className="sectionCount">{savedProjects.length} saved</span>
         </div>
+
         <div className="projectGrid">
-          {projects.map((project, index) => {
-            const progress = progressByStatus[project.status] ?? 10;
-            const type =
-              project.kind === "music_video" ? "Music video" : "Short film";
+          {projects.map((project,index)=>{
+            const progress=progressByStatus[project.status]??10;
+            const type=project.kind==="music_video"?"Music video":"Short film";
             return (
               <article className="project" key={project.id}>
-                <div className={`poster ${index % 2 ? "blue" : "violet"}`}>
+                <div className={`poster ${index%2?"blue":"violet"}`}>
                   <div className="frameLines" />
-                  <span className="projectType">
-                    {type}
-                    {empty ? " · SAMPLE" : ""}
-                  </span>
-                  <Link
-                    aria-label={`Open ${project.title}`}
-                    className="play"
-                    href={
-                      empty
-                        ? `/create?mode=${project.kind === "music_video" ? "music-video" : "film"}`
-                        : `/create?project=${project.id}`
-                    }
-                  >
-                    ▶
-                  </Link>
+                  <span className="projectType">{type}{empty?" · SAMPLE":""}</span>
+                  <Link aria-label={`Open ${project.title}`} className="play" href={empty?`/create?mode=${project.kind==="music_video"?"music-video":"film"}`:`/create?project=${project.id}`}>▶</Link>
                 </div>
                 <div className="projectInfo">
-                  <div className="projectTop">
-                    <div>
-                      <h3>{project.title}</h3>
-                      <p>
-                        {project.status.replaceAll("_", " ")} ·{" "}
-                        {new Date(project.updated_at).toLocaleDateString("en", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-                    <Link className="dots" aria-label={`Open ${project.title}`} href={empty ? "/create" : `/create?project=${project.id}`}>
-                      Open
-                    </Link>
+                  <div className="projectTop"><div><h3>{project.title}</h3><p>{project.status.replaceAll("_"," ")} · {new Date(project.updated_at).toLocaleDateString("en",{month:"short",day:"numeric"})}</p></div>
+                    <Link className="dots" aria-label={`Open ${project.title}`} href={empty?"/create":`/create?project=${project.id}`}>Open</Link>
                   </div>
-                  <div className="progressMeta">
-                    <span>
-                      {progress === 100
-                        ? "Ready to export"
-                        : "Production progress"}
-                    </span>
-                    <b>{progress}%</b>
-                  </div>
-                  <div className="progress">
-                    <i style={{ width: `${progress}%` }} />
-                  </div>
+                  <div className="progressMeta"><span>{progress===100?"Ready to export":"Production progress"}</span><b>{progress}%</b></div>
+                  <div className="progress"><i style={{width:`${progress}%`}} /></div>
                 </div>
               </article>
             );
           })}
         </div>
-        <VideoLibrary items={videos} />
+
+        <div id="videos"><VideoLibrary items={videos} /></div>
+
         <div className="startRow">
-          <article className="startCard">
-            <span className="icon">🎬</span>
-            <div>
-              <h3>Start a short film</h3>
-              <p>
-                Turn one idea into a script, consistent cast and editable
-                scenes.
-              </p>
-            </div>
-            <Link href="/create?mode=film">Create film →</Link>
-          </article>
-          <article className="startCard">
-            <span className="icon">♫</span>
-            <div>
-              <h3>Build a music video</h3>
-              <p>
-                Upload your song, map its structure and direct every visual
-                beat.
-              </p>
-            </div>
-            <Link href="/create?mode=music-video">Upload song →</Link>
-          </article>
+          <article className="startCard"><span className="icon">🎬</span><div><h3>Start a short film</h3><p>Turn one idea into a script, consistent cast and editable scenes.</p></div><Link href="/create?mode=film">Create film →</Link></article>
+          <article className="startCard"><span className="icon">♫</span><div><h3>Build a music video</h3><p>Upload your song, map its structure and direct every visual beat.</p></div><Link href="/create?mode=music-video">Upload song →</Link></article>
         </div>
-        <footer className="appCopyright">
-          © 2026 Pixenar Studio. All rights reserved.
-        </footer>
+
+        <div className="memberFooterActions">
+          <a href={mainSiteUrl}>Main website</a>
+          <SignOutButton />
+        </div>
       </section>
     </main>
-  );
-}
+  );}
