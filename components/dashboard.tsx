@@ -63,7 +63,7 @@ export default function Dashboard({
           <Link className="active" href="/create">Create</Link>
           <Link href="/#examples">Showcase</Link>
           <Link href="/my-videos">My Videos</Link>
-          <Link href="/characters">Characters</Link>
+          <Link href="/characters">Characters</Link><Link href="/account">Account</Link>
         </nav>
         <div className="memberTopActions">
           <span className="memberCredits">◉ <b>{credits.toLocaleString()}</b> credits</span>
@@ -78,7 +78,7 @@ export default function Dashboard({
           <Link className="memberSide active" href="/#examples"><span>▣</span>Showcase</Link>
           <Link className="memberSide" href="/create"><span>＋</span>Create</Link>
           <Link className="memberSide" href="/characters"><span>♙</span>Characters</Link>
-          <Link className="memberSide" href="/my-videos"><span>▤</span>My Videos</Link>
+          <Link className="memberSide" href="/my-videos"><span>▤</span>My Videos</Link><Link className="memberSide" href="/account"><span>◉</span>Account</Link>
         </nav>
 
         <div className="memberSideGroup">
@@ -94,7 +94,7 @@ export default function Dashboard({
           <small>LIBRARY</small>
           <Link className="memberSide" href="/#examples"><span>▧</span>Templates</Link>
           <Link className="memberSide" href="/my-videos"><span>▱</span>Assets</Link>
-          <Link className="memberSide" href="/characters"><span>♩</span>Voices</Link>
+          <Link className="memberSide" href="/characters"><span>♩</span>Voices</Link><Link className="memberSide" href="/account"><span>◉</span>Account</Link>
         </div>
 
         {role === "admin" ? <Link className="memberSide memberAdmin" href="/admin/showcase"><span>▤</span>Admin</Link> : null}
