@@ -26,11 +26,11 @@ export default async function MyVideosPage(){
     <main className="memberDash">
       <header className="memberTopbar">
         <Link className="memberBrand" href="/studio"><span className="memberBrandMark">P</span><span>PIXENAR <b>STUDIO</b></span></Link>
-        <nav className="memberTopnav"><Link href="/create">Create</Link><Link href="/studio">Showcase</Link><Link className="active" href="/my-videos">My Videos</Link><Link href="/characters">Characters</Link></nav>
+        <nav className="memberTopnav"><Link href="/create">Create</Link><Link href="/studio">Showcase</Link><Link className="active" href="/my-videos">My Videos</Link><Link href="/characters">Characters</Link><Link href="/account">Account</Link></nav>
         <div className="memberTopActions"><span className="memberCredits">◉ <b>{(wallet?.balance??0).toLocaleString()}</b> credits</span><button>?</button><button>♢</button><span className="memberAvatar">D</span></div>
       </header>
       <aside className="memberSidebar">
-        <nav><Link className="memberSide" href="/studio"><span>▣</span>Showcase</Link><Link className="memberSide" href="/create"><span>＋</span>Create</Link><Link className="memberSide" href="/characters"><span>♙</span>Characters</Link><Link className="memberSide active" href="/my-videos"><span>▤</span>My Videos</Link></nav>
+        <nav><Link className="memberSide" href="/studio"><span>▣</span>Showcase</Link><Link className="memberSide" href="/create"><span>＋</span>Create</Link><Link className="memberSide" href="/characters"><span>♙</span>Characters</Link><Link className="memberSide active" href="/my-videos"><span>▤</span>My Videos</Link><Link className="memberSide" href="/account"><span>◉</span>Account</Link></nav>
         <div className="memberSideGroup"><small>AI TOOLS</small><Link className="memberSide" href="/create?mode=film"><span>▧</span>Image to Video</Link><Link className="memberSide" href="/create?mode=film"><span>▧</span>Video to Video</Link><Link className="memberSide" href="/create?mode=film"><span>▦</span>AI Short Drama</Link><Link className="memberSide" href="/create?mode=film"><span>▦</span>AI Long Drama</Link><Link className="memberSide" href="/create?mode=music-video"><span>♫</span>Music Video</Link></div>
         <div className="memberSideGroup"><small>LIBRARY</small><Link className="memberSide" href="/studio"><span>▧</span>Templates</Link><Link className="memberSide active" href="/my-videos"><span>▱</span>Assets</Link><Link className="memberSide" href="/characters"><span>♩</span>Voices</Link></div>
       </aside>
