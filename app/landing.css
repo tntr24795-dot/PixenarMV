@@ -56,3 +56,23 @@
 .previewDots{display:flex;justify-content:center;gap:5px;padding-top:7px;overflow:hidden}
 .previewDots button{width:5px;height:5px;padding:0;border:0;border-radius:999px;background:#31445b;opacity:.65;cursor:pointer}
 .previewDots button.active{width:16px;background:#36b8ff;opacity:1}
+
+
+/* SkyProduction-inspired creative tools section */
+.creativeTools{max-width:1440px;margin:0 auto;padding:100px clamp(24px,7vw,110px)}
+.creativeToolsHead{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:34px}
+.creativeToolsHead h2{max-width:780px}
+.creativeToolsHead .sectionCopy{max-width:650px;margin:18px 0 0}
+.creativeToolsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.creativeToolCard{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;min-height:260px;padding:28px;border:1px solid #29384d;border-radius:18px;background:linear-gradient(145deg,#101b2a,#0b111c);text-decoration:none;color:#eef4ff;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.creativeToolCard:hover{transform:translateY(-3px);border-color:#398cc1;background:linear-gradient(145deg,#12263a,#0b111c)}
+.creativeToolFeatured{background:linear-gradient(125deg,#102944,#0c1420 72%);border-color:#28618b}
+.creativeToolFeatured:after{content:"";position:absolute;z-index:-1;right:-70px;top:-100px;width:260px;height:260px;border-radius:50%;background:#168bdb28;filter:blur(24px)}
+.creativeToolIcon{display:grid;place-items:center;width:44px;height:44px;border:1px solid #285577;border-radius:12px;background:#0c2a42;color:#8edcff;font-size:22px;margin-bottom:24px}
+.creativeToolLabel{color:#72c9f5;font-size:9px;font-weight:900;letter-spacing:1.4px}
+.creativeToolCard h3{position:relative;font-size:25px;letter-spacing:-.7px;margin:8px 0}
+.creativeToolCard p{position:relative;max-width:490px;margin:0 0 26px;color:#9eacc0;font-size:14px;line-height:1.7}
+.creativeToolAction{position:relative;display:flex;align-items:center;gap:18px;margin-top:auto;color:#d7efff;font-size:12px;font-weight:800}
+.creativeToolAction b{color:#64c8ff;font-size:16px}
+.creativeToolOrb{position:absolute;right:-25px;bottom:-95px;width:220px;height:220px;border:1px solid #5bbdfb20;border-radius:50%;box-shadow:0 0 0 22px #5bbdfb08,0 0 0 44px #5bbdfb05;pointer-events:none}
+@media(max-width:760px){.creativeTools{padding:70px 22px}.creativeToolsHead{display:grid;gap:16px}.creativeToolsGrid{grid-template-columns:1fr}.creativeToolCard{min-height:235px;padding:24px}.creativeToolCard h3{font-size:23px}}

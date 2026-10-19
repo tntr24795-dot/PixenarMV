@@ -177,6 +177,49 @@ export default async function Home() {
         </div>
         <ShowcaseCarousel items={showcaseItems} />
       </section>
+      <section className="creativeTools" id="creative-tools">
+        <div className="creativeToolsHead">
+          <div>
+            <p className="landingKicker">A SMARTER CREATIVE WORKSPACE</p>
+            <h2>One connected canvas. Every step of production.</h2>
+            <p className="sectionCopy">
+              Move from an idea to a production-ready plan with focused AI tools for stories, music videos and scene-by-scene filmmaking.
+            </p>
+          </div>
+          <Link className="landingSecondary inline" href="/create?mode=film">Open the workspace <span>↗</span></Link>
+        </div>
+        <div className="creativeToolsGrid">
+          <Link href="/create?mode=film" className="creativeToolCard creativeToolFeatured">
+            <span className="creativeToolIcon">✦</span>
+            <span className="creativeToolLabel">01 / STORY DEVELOPMENT</span>
+            <h3>Idea to storyboard</h3>
+            <p>Shape a premise into a script, cast, shot list and a visual plan you can refine before rendering.</p>
+            <span className="creativeToolAction">Build a film plan <b>↗</b></span>
+            <span className="creativeToolOrb" aria-hidden="true" />
+          </Link>
+          <Link href="/create?mode=music-video" className="creativeToolCard">
+            <span className="creativeToolIcon">♫</span>
+            <span className="creativeToolLabel">02 / MUSIC VIDEO</span>
+            <h3>Let the song lead</h3>
+            <p>Start with your track and develop a visual direction that follows its mood and structure.</p>
+            <span className="creativeToolAction">Create a music video <b>↗</b></span>
+          </Link>
+          <Link href="/characters" className="creativeToolCard">
+            <span className="creativeToolIcon">◈</span>
+            <span className="creativeToolLabel">03 / CONTINUITY</span>
+            <h3>Keep characters consistent</h3>
+            <p>Organize reusable character references and keep your creative world coherent across scenes.</p>
+            <span className="creativeToolAction">Manage characters <b>↗</b></span>
+          </Link>
+          <Link href="/studio" className="creativeToolCard">
+            <span className="creativeToolIcon">▤</span>
+            <span className="creativeToolLabel">04 / PRODUCTION</span>
+            <h3>Review every scene</h3>
+            <p>Return to your production workspace to review shots and continue an existing project.</p>
+            <span className="creativeToolAction">Open studio <b>↗</b></span>
+          </Link>
+        </div>
+      </section>
       <section className="choice">
         <p className="landingKicker">MULTIPLE WAYS TO CREATE</p>
         <h2>One studio for stories, music and visual production.</h2>
