@@ -91,6 +91,7 @@ export default function CreateStudio({
         : "film"
       : initialMode,
   );
+  const [experienceMode, setExperienceMode] = useState<"simple" | "pro">("simple");
   const [modelId, setModelId] = useState(initialTemplate?.modelId ?? "runway-4-5");
   const [duration, setDuration] = useState(8);
   const [resolution, setResolution] = useState("720p");
@@ -657,6 +658,11 @@ export default function CreateStudio({
             {exporting ? "Preparing…" : "Export"}
           </button>
         </div>
+      </div>
+      <div role="group" aria-label="Creation experience" style={{display:"flex",alignItems:"center",gap:12,padding:"10px 18px",background:"#0c1627",borderBottom:"1px solid #24364d",flexWrap:"wrap"}}>
+        <button type="button" aria-pressed={experienceMode === "simple"} onClick={() => setExperienceMode("simple")} className={experienceMode === "simple" ? "primary" : "ghost"}>Simple Mode</button>
+        <button type="button" aria-pressed={experienceMode === "pro"} onClick={() => setExperienceMode("pro")} className={experienceMode === "pro" ? "primary" : "ghost"}>Pro Mode</button>
+        <span style={{fontSize:12,color:"#a7bdd4"}}>{experienceMode === "simple" ? "Start with your story, review scenes, then generate. Advanced scene controls remain available below." : "Direct each scene with model, duration, resolution and reference controls."}</span>
       </div>
       <div className="studioBody">
         <aside className="sceneRail">
