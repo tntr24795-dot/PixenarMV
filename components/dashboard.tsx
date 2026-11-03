@@ -11,24 +11,6 @@ type SavedProject = {
   updated_at: string;
   duration_seconds: number | null;
 };
-const samples: SavedProject[] = [
-  {
-    id: "sample-1",
-    title: "Cold as the Rain",
-    kind: "music_video",
-    status: "storyboarding",
-    updated_at: new Date().toISOString(),
-    duration_seconds: null,
-  },
-  {
-    id: "sample-2",
-    title: "Neon After Midnight",
-    kind: "short_film",
-    status: "draft",
-    updated_at: new Date().toISOString(),
-    duration_seconds: null,
-  },
-];
 const progressByStatus: Record<string, number> = {
   draft: 12,
   storyboarding: 38,
@@ -51,7 +33,7 @@ export default function Dashboard({
   showcaseItems?: Array<{slug:string;title:string;category:string;modelId:string;durationSeconds:number;videoSrc?:string;description?:string;prompt?:string}>;
 }) {
   const empty = savedProjects.length === 0;
-  const projects = empty ? samples : savedProjects;
+  const projects = savedProjects;
   return (
     <main className="memberDash">
       <header className="memberTopbar">
@@ -67,8 +49,7 @@ export default function Dashboard({
         </nav>
         <div className="memberTopActions">
           <span className="memberCredits">◉ <b>{credits.toLocaleString()}</b> credits</span>
-          <button type="button" aria-label="Help">?</button>
-          <button type="button" aria-label="Notifications">♢</button>
+          <Link href="/account" aria-label="Account settings">Account</Link>
           <span className="memberAvatar">D</span>
         </div>
       </header>
@@ -117,10 +98,11 @@ export default function Dashboard({
         </div>
 
         <div className="sectionHead">
-          <div><h2>Recent projects</h2><p>{empty ? "Create your first project — samples shown below" : "Continue where you left off"}</p></div>
+          <div><h2>Recent projects</h2><p>{empty ? "No projects yet — start with a film or music video" : "Continue where you left off"}</p></div>
           <span className="sectionCount">{savedProjects.length} saved</span>
         </div>
 
+        {empty ? <div className="studioEmptyProjects"><h3>Your first production starts here</h3><p>No projects saved yet. Create a short film or upload a song to begin your music video.</p><Link href="/create">Create a project</Link></div> : null}
         <div className="projectGrid">
           {projects.map((project,index)=>{
             const progress=progressByStatus[project.status]??10;
@@ -129,12 +111,12 @@ export default function Dashboard({
               <article className="project" key={project.id}>
                 <div className={`poster ${index%2?"blue":"violet"}`}>
                   <div className="frameLines" />
-                  <span className="projectType">{type}{empty?" · SAMPLE":""}</span>
-                  <Link aria-label={`Open ${project.title}`} className="play" href={empty?`/create?mode=${project.kind==="music_video"?"music-video":"film"}`:`/create?project=${project.id}`}>▶</Link>
+                  <span className="projectType">{type}</span>
+                  <Link aria-label={`Open ${project.title}`} className="play" href={`/create?project=${project.id}`}>▶</Link>
                 </div>
                 <div className="projectInfo">
                   <div className="projectTop"><div><h3>{project.title}</h3><p>{project.status.replaceAll("_"," ")} · {new Date(project.updated_at).toLocaleDateString("en",{month:"short",day:"numeric"})}</p></div>
-                    <Link className="dots" aria-label={`Open ${project.title}`} href={empty?"/create":`/create?project=${project.id}`}>Open</Link>
+                    <Link className="dots" aria-label={`Open ${project.title}`} href={`/create?project=${project.id}`}>Open</Link>
                   </div>
                   <div className="progressMeta"><span>{progress===100?"Ready to export":"Production progress"}</span><b>{progress}%</b></div>
                   <div className="progress"><i style={{width:`${progress}%`}} /></div>
