@@ -48,8 +48,9 @@ export async function POST(request: NextRequest) {
   if (!model.durations.includes(Number(body?.duration)))
     return NextResponse.json({ error: "Unsupported duration for this model." }, { status: 400 });
 
-  if (!String(body?.prompt || "").trim())
-    return NextResponse.json({ error: "A scene prompt is required." }, { status: 400 });
+  const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
+  if (prompt.length < 3 || prompt.length > 4000)
+    return NextResponse.json({ error: "Scene prompt must contain 3 to 4,000 characters." }, { status: 400 });
 
   const projectId = String(body?.projectId ?? "");
   const sceneId = String(body?.sceneId ?? "");
@@ -61,6 +62,9 @@ export async function POST(request: NextRequest) {
       { error: "Rendering is not configured yet. Add the server-side Supabase and video provider secrets in Vercel.", code: "PROVIDER_NOT_CONFIGURED" },
       { status: 503 },
     );
+
+  if (Array.isArray(body?.referenceAssetIds) && body.referenceAssetIds.length > 40)
+    return NextResponse.json({ error: "A maximum of 40 reference assets is allowed." }, { status: 400 });
 
   const referenceAssetIds = Array.isArray(body?.referenceAssetIds)
     ? body.referenceAssetIds.filter((value: unknown): value is string => typeof value === "string").slice(0,40)
@@ -79,7 +83,7 @@ export async function POST(request: NextRequest) {
     p_scene_id: sceneId,
     p_model: model.id,
     p_duration: Number(body?.duration),
-    p_prompt: String(body?.prompt),
+    p_prompt: prompt,
     p_request_id: requestId,
     p_resolution: resolution,
     p_reference_asset_ids: referenceAssetIds,
