@@ -93,7 +93,7 @@ export default function CreateStudio({
   );
   const [experienceMode, setExperienceMode] = useState<"simple" | "pro">("simple");
   const [modelId, setModelId] = useState(() => {
-    const requested = initialProject?.scenes?.[0]?.modelId ?? initialTemplate?.modelId;
+    const requested = initialProject?.scenes?.[0]?.model ?? initialTemplate?.modelId;
     const configured = videoModels.filter((item) => item.available && configuredModelIds.includes(item.id));
     if (requested && configured.some((item) => item.id === requested)) return requested;
     return configured[0]?.id ?? "runway-4-5";
