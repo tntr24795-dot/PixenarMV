@@ -83,13 +83,13 @@ export default async function Home() {
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
           <span>
-            <span className="brand-pixenar-word">Pixenar</span> <b className="brand-studio-word">Studio</b>
+            <span className="brand-pixenar-word">PIXENAR</span> <b className="brand-studio-word">STUDIO</b>
           </span>
         </Link>
         <div className="platformSwitch" aria-label="Switch Pixenar platform">
-          <a href={mainSiteUrl}>PixenarAI</a>
-          <a href="https://idea.pixenar-ai.com">Idea</a>
-          <span className="active">Studio</span>
+          <a href={mainSiteUrl}>PIXENAR AI</a>
+          <a href="https://idea.pixenar-ai.com">iDEA</a>
+          <span className="active" aria-current="page">STUDIO</span>
         </div>
         <div className="landingLinks">
           <a href={mainSiteUrl}>Main website</a>
@@ -380,7 +380,7 @@ export default async function Home() {
         <a href={mainSiteUrl} className="brand">
           <span className="brandMark">P</span>
           <span>
-            <span className="brand-pixenar-word">Pixenar</span> <b className="brand-studio-word">Studio</b>
+            <span className="brand-pixenar-word">PIXENAR</span> <b className="brand-studio-word">STUDIO</b>
           </span>
         </a>
         <p>AI creation for filmmakers, musicians, storytellers and brands.</p>
