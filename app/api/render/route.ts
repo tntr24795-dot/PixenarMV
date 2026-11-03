@@ -75,6 +75,18 @@ export async function POST(request: NextRequest) {
 
   const { data: project } = await supabase.from("projects").select("resolution").eq("id", projectId).eq("user_id", userId).single();
   if (!project) return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  const { data: activeGenerations, error: activeLookupError } = await supabase
+    .from("generations")
+    .select("id,status")
+    .eq("user_id", userId)
+    .eq("project_id", projectId)
+    .eq("scene_id", sceneId)
+    .in("status", ["queued", "processing"])
+    .limit(1);
+  if (activeLookupError)
+    return NextResponse.json({ error: "Unable to verify active renders. Please retry later." }, { status: 503 });
+  if (activeGenerations?.length)
+    return NextResponse.json({ error: "This scene already has an active render. Check Render History before submitting again.", code: "SCENE_RENDER_ACTIVE", generationId: activeGenerations[0].id }, { status: 409 });
   const resolution = String(body?.resolution ?? project.resolution ?? "720p");
   const requestId = crypto.randomUUID();
 
