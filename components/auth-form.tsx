@@ -19,10 +19,16 @@ export default function AuthForm() {
     const password = String(form.get("password"));
     const supabase = createClient();
     const requestedNext = params.get("next");
-    const safeNext =
-      requestedNext?.startsWith("/") && !requestedNext.startsWith("//")
-        ? requestedNext
-        : "/studio";
+    const safeNext = (() => {
+      if (!requestedNext || !requestedNext.startsWith("/") || requestedNext.startsWith("//")) return "/studio";
+      if (requestedNext.includes("\\") || /[\u0000-\u001f\u007f]/.test(requestedNext)) return "/studio";
+      try {
+        const target = new URL(requestedNext, window.location.origin);
+        return target.origin === window.location.origin ? target.pathname + target.search + target.hash : "/studio";
+      } catch {
+        return "/studio";
+      }
+    })();
     const result =
       mode === "login"
         ? await supabase.auth.signInWithPassword({ email, password })
