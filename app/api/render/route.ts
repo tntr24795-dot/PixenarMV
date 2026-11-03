@@ -69,8 +69,9 @@ export async function POST(request: NextRequest) {
   const { supabase, userId } = await authenticatedClient();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: project } = await supabase.from("projects").select("resolution").eq("id", projectId).single();
-  const resolution = String(body?.resolution ?? project?.resolution ?? "720p");
+  const { data: project } = await supabase.from("projects").select("resolution").eq("id", projectId).eq("user_id", userId).single();
+  if (!project) return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  const resolution = String(body?.resolution ?? project.resolution ?? "720p");
   const requestId = crypto.randomUUID();
 
   const { data, error } = await supabase.rpc("enqueue_generation", {
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
     .from("generations")
     .select("credits_reserved")
     .eq("id", data)
+    .eq("user_id", userId)
     .single();
 
   let startedRun: Awaited<ReturnType<typeof start>> | undefined;
