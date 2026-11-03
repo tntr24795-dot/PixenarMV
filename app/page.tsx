@@ -132,7 +132,7 @@ export default async function Home() {
             <i />
             <i />
             <i />
-            <span>42 / 48 ready</span>
+            <span>STORYBOARD PREVIEW</span>
           </div>
           <div className="windowBody">
             <aside>
@@ -157,7 +157,7 @@ export default async function Home() {
               <b>Auto Director</b>
               <small>CHARACTER LOCK</small>
               <b>2 references</b>
-              <button>Generate scene</button>
+              <Link href="/create?mode=film" className="landingPrimary">Create your scene</Link>
             </div>
           </div>
         </div>
