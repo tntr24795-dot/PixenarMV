@@ -13,6 +13,7 @@ export async function GET() {
     .select(
       "id,project_id,scene_id,model,status,credits_reserved,credits_charged,error_message,created_at,completed_at,projects(title),scenes!generations_scene_id_fkey(title)",
     )
+    .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
   return error
