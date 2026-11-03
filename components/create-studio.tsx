@@ -662,7 +662,7 @@ export default function CreateStudio({
       <div role="group" aria-label="Creation experience" style={{display:"flex",alignItems:"center",gap:12,padding:"10px 18px",background:"#0c1627",borderBottom:"1px solid #24364d",flexWrap:"wrap"}}>
         <button type="button" aria-pressed={experienceMode === "simple"} onClick={() => setExperienceMode("simple")} className={experienceMode === "simple" ? "primary" : "ghost"}>Simple Mode</button>
         <button type="button" aria-pressed={experienceMode === "pro"} onClick={() => setExperienceMode("pro")} className={experienceMode === "pro" ? "primary" : "ghost"}>Pro Mode</button>
-        <span style={{fontSize:12,color:"#a7bdd4"}}>{experienceMode === "simple" ? "Start with your story, review scenes, then generate. Advanced scene controls remain available below." : "Direct each scene with model, duration, resolution and reference controls."}</span>
+        <span style={{fontSize:12,color:"#a7bdd4"}}>{experienceMode === "simple" ? "Start with your story, review scenes, then generate. Switch to Pro Mode to customize models, references and camera settings." : "Direct each scene with model, duration, resolution and reference controls."}</span>
       </div>
       <div className="studioBody">
         <aside className="sceneRail">
@@ -934,6 +934,8 @@ export default function CreateStudio({
               onBlur={saveScenePrompt}
             />
           </label>
+          {experienceMode === "pro" ? (
+            <>
           <div className="labelRow">
             <label>
               Video model
@@ -1016,6 +1018,15 @@ export default function CreateStudio({
               <option value="Wide orbit">Wide orbit</option>
             </select>
           </label>
+            </>
+          ) : (
+            <div className="simpleSceneSummary" role="status">
+              <strong>Ready to create</strong>
+              <p>Model: {model.name} · {duration}s · {resolution}</p>
+              <p>Advanced settings, references and camera controls are available in Pro Mode.</p>
+              <button type="button" className="ghost" onClick={() => setExperienceMode("pro")}>Customize in Pro Mode</button>
+            </div>
+          )}
           <div className="cost">
             <span>Estimated scene cost</span>
             <b>{estimatedSceneCredits} credits</b>
@@ -1040,7 +1051,7 @@ export default function CreateStudio({
         </aside>
       </div>
       <footer className="studioCopyright">
-        © 2026 Pixenar Studio. All rights reserved.
+        © 2026 PIXENAR STUDIO. All rights reserved.
       </footer>
     </div>
   );
