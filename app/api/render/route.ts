@@ -171,7 +171,13 @@ export async function POST(request: NextRequest) {
       reservationReleased: Boolean(cancelled && !cancelError),
     });
     return NextResponse.json(
-      { error: workflowError instanceof Error ? `Unable to start the render worker: ${workflowError.message}` : "Unable to start the render worker." },
+      {
+        error: cancelled && !cancelError
+          ? "Unable to start the render worker. Reserved credits were released."
+          : "Unable to confirm render startup or credit release. Check your render history before trying again.",
+        code: cancelled && !cancelError ? "WORKFLOW_START_FAILED_REFUNDED" : "WORKFLOW_START_UNCERTAIN",
+        reservationReleased: Boolean(cancelled && !cancelError),
+      },
       { status: 503 },
     );
   }
