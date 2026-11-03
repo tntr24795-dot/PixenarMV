@@ -86,7 +86,7 @@ export default async function Home() {
             <span className="brand-pixenar-word">PIXENAR</span> <b className="brand-studio-word">STUDIO</b>
           </span>
         </Link>
-        <div className="platformSwitch" aria-label="Switch Pixenar platform">
+        <div className="platformSwitch" aria-label="Switch between PIXENAR platforms">
           <a href={mainSiteUrl}>PIXENAR AI</a>
           <a href="https://idea.pixenar-ai.com">iDEA</a>
           <span className="active" aria-current="page">STUDIO</span>
@@ -384,7 +384,7 @@ export default async function Home() {
           </span>
         </a>
         <p>AI creation for filmmakers, musicians, storytellers and brands.</p>
-        <span>© 2026 Pixenar Studio. All rights reserved.</span>
+        <span>© 2026 PIXENAR STUDIO. All rights reserved.</span>
       </footer>
     </main>
   );
