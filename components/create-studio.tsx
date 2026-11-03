@@ -1,6 +1,6 @@
 "use client";
 import { PRICING_VERSION } from "@/lib/pricing";
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { creditsFor, videoModels } from "@/lib/models";
 import { createClient } from "@/lib/supabase/client";
 import { mainSiteUrl } from "@/lib/brand-links";
@@ -92,6 +92,7 @@ export default function CreateStudio({
       : initialMode,
   );
   const [experienceMode, setExperienceMode] = useState<"simple" | "pro">("simple");
+  const renderSubmissionInFlight = useRef(false);
   const [modelId, setModelId] = useState(() => {
     const requested = initialProject?.scenes?.[0]?.model ?? initialTemplate?.modelId;
     const configured = videoModels.filter((item) => item.available && configuredModelIds.includes(item.id));
@@ -553,6 +554,8 @@ export default function CreateStudio({
       .eq("id", projectId);
   }
   async function generateScene() {
+    if (renderSubmissionInFlight.current) return;
+    renderSubmissionInFlight.current = true;
     setGenerating(true);
     setNotice("");
     try {
@@ -610,6 +613,7 @@ export default function CreateStudio({
         error instanceof Error ? error.message : "Unable to queue scene.",
       );
     } finally {
+      renderSubmissionInFlight.current = false;
       setGenerating(false);
     }
   }
