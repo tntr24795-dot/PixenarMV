@@ -92,7 +92,12 @@ export default function CreateStudio({
       : initialMode,
   );
   const [experienceMode, setExperienceMode] = useState<"simple" | "pro">("simple");
-  const [modelId, setModelId] = useState(initialTemplate?.modelId ?? "runway-4-5");
+  const [modelId, setModelId] = useState(() => {
+    const requested = initialProject?.scenes?.[0]?.modelId ?? initialTemplate?.modelId;
+    const configured = videoModels.filter((item) => item.available && configuredModelIds.includes(item.id));
+    if (requested && configured.some((item) => item.id === requested)) return requested;
+    return configured[0]?.id ?? "runway-4-5";
+  });
   const [duration, setDuration] = useState(8);
   const [resolution, setResolution] = useState("720p");
   const [selected, setSelected] = useState(1);
@@ -1027,6 +1032,9 @@ export default function CreateStudio({
               <button type="button" className="ghost" onClick={() => setExperienceMode("pro")}>Customize in Pro Mode</button>
             </div>
           )}
+          {!configuredModelIds.includes(modelId) ? (
+            <p role="alert" className="uploadNotice">No configured video model is available for this scene. Generation is disabled until a provider is configured.</p>
+          ) : null}
           <div className="cost">
             <span>Estimated scene cost</span>
             <b>{estimatedSceneCredits} credits</b>
