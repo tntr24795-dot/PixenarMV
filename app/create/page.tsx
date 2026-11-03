@@ -14,7 +14,7 @@ export default async function CreatePage({
   const { mode, project, template } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(`/login?next=${encodeURIComponent("/create")}`);
   const initialTemplate = getShowcaseTemplate(template);
   let initialProject;
   let initialReferenceAssets: {
