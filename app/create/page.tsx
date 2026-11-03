@@ -14,7 +14,14 @@ export default async function CreatePage({
   const { mode, project, template } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/login?next=${encodeURIComponent("/create")}`);
+  if (!user) {
+    const destination = new URLSearchParams();
+    if (mode === "music-video") destination.set("mode", "music-video");
+    if (project) destination.set("project", project);
+    if (template) destination.set("template", template);
+    const target = "/create" + (destination.size ? "?" + destination.toString() : "");
+    redirect("/login?next=" + encodeURIComponent(target));
+  }
   const initialTemplate = getShowcaseTemplate(template);
   let initialProject;
   let initialReferenceAssets: {
