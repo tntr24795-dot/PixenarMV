@@ -101,11 +101,22 @@ export async function POST(request: NextRequest) {
     p_reference_asset_ids: referenceAssetIds,
   });
 
-  if (error)
-    return NextResponse.json(
-      { error: error.message.includes("insufficient") ? "Insufficient credits. Add credits before generating this scene." : error.message },
-      { status: error.message.includes("insufficient") ? 402 : 400 },
-    );
+  if (error) {
+    // A database unique constraint closes the race between simultaneous requests.
+    // Never expose internal constraint names or SQL details to customers.
+    if (error.code === "23505")
+      return NextResponse.json(
+        { error: "This scene already has an active render. Check Render History before submitting again.", code: "SCENE_RENDER_ACTIVE" },
+        { status: 409 },
+      );
+    if (error.message.toLowerCase().includes("insufficient"))
+      return NextResponse.json(
+        { error: "Insufficient credits. Add credits before generating this scene.", code: "INSUFFICIENT_CREDITS" },
+        { status: 402 },
+      );
+    console.error("render.reservation.failed", { code: error.code, message: error.message });
+    return NextResponse.json({ error: "Unable to reserve credits for this render. Please check your scene and try again.", code: "RENDER_RESERVATION_FAILED" }, { status: 400 });
+  }
 
   console.info("render.reserved", { generationId: data });
   const { data: reserved, error: reservedError } = await supabase
