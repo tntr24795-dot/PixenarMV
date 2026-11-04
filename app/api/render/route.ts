@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
   if (activeGenerations?.length)
     return NextResponse.json({ error: "This scene already has an active render. Check Render History before submitting again.", code: "SCENE_RENDER_ACTIVE", generationId: activeGenerations[0].id }, { status: 409 });
   const resolution = String(body?.resolution ?? project.resolution ?? "720p");
+  if (!model.resolutions?.includes(resolution))
+    return NextResponse.json({ error: "Unsupported resolution for this model.", code: "UNSUPPORTED_RESOLUTION" }, { status: 400 });
   const requestId = crypto.randomUUID();
 
   const { data, error } = await supabase.rpc("enqueue_generation", {
