@@ -43,3 +43,34 @@
   .landing .productWindow, .landing .choiceGrid article, .landing .workflowGrid article,
   .landing .modelCloud > span, .landing .pricingCard, .landing .characterCard { transition: none !important; transform: none !important; }
 }
+
+/* Visible dimensional hero: layered light, floating panels and strong perspective. */
+.landing .hero { isolation: isolate; }
+.landing .hero::before {
+  content: ""; position: absolute; z-index: -1; width: min(76vw, 1000px);
+  height: 500px; left: 50%; top: 240px; transform: translateX(-50%) rotateX(64deg);
+  border-radius: 50%; background: radial-gradient(ellipse, #168cff45 0%, #0c529c1b 42%, transparent 72%);
+  filter: blur(15px); pointer-events: none;
+}
+.landing .productWindow {
+  border: 1px solid #58b8f399;
+  background: linear-gradient(145deg, #182d4c 0%, #0b101e 58%);
+  box-shadow: 0 20px 0 -9px #102846, 0 42px 0 -20px #071426, 0 60px 105px #000b, 0 0 80px #1888f42b;
+}
+.landing .hero h1 { text-shadow: 0 7px 26px #0009; }
+.landing .hero h1 span { filter: drop-shadow(0 8px 15px #149aff55); }
+.landing .choiceGrid article, .landing .workflowGrid article, .landing .pricingCard {
+  background: linear-gradient(145deg,#1b2c44 0%,#101b2c 18%,#0b101b 76%);
+  border-color: #375777;
+  box-shadow: 0 9px 0 -3px #13253b, 0 25px 44px #0009, inset 0 1px #ffffff19;
+}
+.landing .choiceIcon, .landing .stepIcon {
+  box-shadow: 0 7px 0 -2px #071d31, 0 16px 25px #0007, inset 0 1px #ffffff25;
+  background: linear-gradient(145deg,#1766a1,#0a294a);
+}
+@media (min-width: 901px) {
+  .landing .productWindow { transform: perspective(1400px) rotateX(9deg) rotateY(-7deg) translateY(-4px); }
+}
+@media (max-width: 900px) {
+  .landing .productWindow { box-shadow: 0 12px 0 -6px #102846, 0 35px 65px #000a, 0 0 55px #1688f42b; }
+}
