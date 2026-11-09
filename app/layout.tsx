@@ -9,6 +9,7 @@ import "./studio-phase-two.css";
 import "./final-tweaks.css";
 import "./showcase.css";
 import "./showcase-admin.css";
+import "./sitewide-3d.css";
 
 export const metadata: Metadata = {
   title:"PIXENAR STUDIO — AI Film, Drama, Music & Video Creation Studio",
