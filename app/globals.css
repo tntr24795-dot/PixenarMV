@@ -20,3 +20,8 @@
 /* Global Studio typography normalization */
 html,body,*{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
 .safeFrame p,.timecode{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+
+/* Studio translucent panels: keep controls, media and editor separators intact. */
+:where(.shell,.studio,.memberDash) :is(.creditCard,.stats article,.project,.startCard,.sceneRail,.inspector,.memberShowcaseCard,.memberCredits,.memberFilters button:not(.active),.videoLibraryCard),
+:where(body) :is(.memberShowcaseCard,.creditCard,.stats article,.project,.startCard,.videoLibraryCard){background:rgba(12,24,39,.55)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.sidebar,.memberSidebar,.memberTopbar,.studioBar{background:rgba(8,16,28,.75)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
