@@ -1,11 +1,13 @@
 import MemberNavigation from "@/components/member-navigation";
-import Link from "next/link";
 import CharacterManager, { Character } from "@/components/character-manager";
-import SignOutButton from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
-import { mainSiteUrl } from "@/lib/brand-links";
 export default async function CharactersPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: wallet }, { data: profile }] = await Promise.all([
+    supabase.from("credit_wallets").select("balance").maybeSingle(),
+    user ? supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
   const { data } = await supabase
     .from("characters")
     .select("id,name,role,description,identity_lock,wardrobe_lock,thumbnail_path,created_at")
@@ -26,7 +28,7 @@ export default async function CharactersPage() {
 
   return (
     <main className="memberDash charactersMemberPage">
-      <MemberNavigation active="characters" />
+      <MemberNavigation active="characters" credits={wallet?.balance ?? 0} role={profile?.role === "admin" ? "admin" : "user"} />
       <div className="memberContent">
       <div className="phaseContent">
         <p className="eyebrow">CHARACTER CONTINUITY</p>
