@@ -9,7 +9,7 @@ export default function PricingPage() {
       <nav className="pricingNav">
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
-          <span>Pixenar <b>Studio</b></span>
+          <span>PIXENAR <b>STUDIO</b></span>
         </Link>
         <div>
           <Link href="/">Home</Link>
@@ -25,7 +25,7 @@ export default function PricingPage() {
       <p style={{textAlign:"center",padding:"12px 20px"}}>Please review our <Link href="/refund-policy" style={{textDecoration:"underline"}}>Refund &amp; Cancellation Policy</Link> before purchasing.</p>\n      <PricingSelector />
       <section className="pricingHelp">
         <article><b>Credits are usage-based</b><span>Video generation cost changes by model, duration, resolution and reference inputs.</span></article>
-        <article><b>See the price before Generate</b><span>Pixenar Studio calculates the estimated credit cost before each generation.</span></article>
+        <article><b>See the price before Generate</b><span>PIXENAR STUDIO calculates the estimated credit cost before each generation.</span></article>
         <article><b>Top up without upgrading</b><span>Extra credit packs can be purchased without changing your subscription plan.</span></article>
       </section>
     </main>
