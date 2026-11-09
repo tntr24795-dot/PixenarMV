@@ -47,5 +47,5 @@
 
 /* Stronger but restrained divider between member navigation and workspace. */
 @media (min-width: 761px) {
-  .memberDash .memberSidebar { border-right: 3px solid #284b68; }
+  .memberSidebar { border-right: 4px solid #315b79 !important; }
 }
