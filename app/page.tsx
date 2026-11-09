@@ -3,7 +3,7 @@ import { mainSiteUrl } from "@/lib/brand-links";
 import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
 import HeroShowcasePreview from "@/components/hero-showcase-preview";
-import Studio3DScene from "@/components/studio-3d-scene";
+
 import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
 
@@ -105,7 +105,7 @@ export default async function Home() {
       </nav>
       <section className="hero">
         <div className="heroGlow" />
-        <Studio3DScene />
+
         <p className="landingKicker">AI FILM · DRAMA · MUSIC · VIDEO CREATION STUDIO</p>
         <h1>
           Turn every story
@@ -162,6 +162,30 @@ export default async function Home() {
               <button>Generate scene</button>
             </div>
           </div>
+        </div>
+      </section>
+      <section className="cinematicScroll" aria-label="Discover the Pixenar creative workflow">
+        <div className="cinematicScrollMedia" aria-hidden="true">
+          {showcaseItems[0]?.videoSrc ? (
+            <video src={showcaseItems[0].videoSrc} autoPlay muted loop playsInline preload="metadata" />
+          ) : <div className="cinematicScrollFallback" />}
+          <div className="cinematicScrollShade" />
+        </div>
+        <div className="cinematicScrollBeat">
+          <p className="landingKicker">PIXENAR STUDIO</p>
+          <h2>Your imagination.<br/><em>In motion.</em></h2>
+          <p>Move from a single idea to a cinematic world.</p>
+        </div>
+        <div className="cinematicScrollBeat">
+          <p className="landingKicker">DIRECT THE STORY</p>
+          <h2>Every frame<br/><em>tells a story.</em></h2>
+          <p>Build scenes, shape characters and refine the visual direction.</p>
+        </div>
+        <div className="cinematicScrollBeat">
+          <p className="landingKicker">CREATE WITHOUT LIMITS</p>
+          <h2>Make it<br/><em>unforgettable.</em></h2>
+          <p>Bring your vision together in PIXENAR STUDIO.</p>
+          <Link href="/create" className="landingPrimary">Start creating <span>›</span></Link>
         </div>
       </section>
       <section className="showcaseSection" id="examples">
