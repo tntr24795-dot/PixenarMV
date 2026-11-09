@@ -41,7 +41,7 @@ const shades = [
 function matrix(rx:number,ry:number,scale:number,offsetX:number,offsetY:number,aspect:number): Float32Array {
   const cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry);
   const out=new Float32Array(16);
-  const depth=4.9, focal=2.4;
+  const depth=2.8, focal=2.8;
   // Projection times Y/X rotation, plus position. Column-major.
   out[0]=cy*scale*focal/aspect; out[1]=sx*sy*scale*focal; out[2]=cx*sy*scale; out[3]=sy*scale;
   out[4]=0; out[5]=cx*scale*focal; out[6]=-sx*scale; out[7]=0;
