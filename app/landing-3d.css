@@ -1,0 +1,45 @@
+/* 3D landing presentation. No application or billing logic changes. */
+@media (min-width: 901px) {
+  .landing .hero { perspective: 1600px; }
+  .landing .productWindow {
+    transform: rotateX(5deg) rotateY(-4deg) translateZ(0);
+    transform-style: preserve-3d;
+    box-shadow: 0 48px 95px #000b, 22px 28px 75px #087ec72a, inset 0 1px #b9e7ff38;
+    border-color: #4382aa70;
+    transition: transform .45s cubic-bezier(.2,.75,.2,1), box-shadow .45s ease;
+  }
+  .landing .productWindow:hover {
+    transform: rotateX(1deg) rotateY(0deg) translateY(-8px);
+    box-shadow: 0 60px 110px #000c, 0 24px 95px #087ec73a;
+  }
+  .landing .choiceGrid, .landing .workflowGrid, .landing .modelCloud, .landing .pricingGrid { perspective: 1200px; }
+  .landing .choiceGrid article, .landing .workflowGrid article, .landing .modelCloud > span, .landing .pricingCard {
+    transform: translateZ(0);
+    transform-style: preserve-3d;
+    box-shadow: 0 16px 34px #0005, inset 0 1px #ffffff0c;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  }
+  .landing .choiceGrid article:hover, .landing .workflowGrid article:hover, .landing .pricingCard:hover {
+    transform: translateY(-9px) rotateX(3deg) rotateY(-2deg);
+    box-shadow: 12px 28px 55px #0009, -8px 5px 35px #1688f81a;
+    border-color: #328ec0;
+  }
+  .landing .modelCloud > span:hover {
+    transform: translateY(-5px) rotateY(-5deg);
+    box-shadow: 10px 18px 35px #0009;
+    border-color: #328ec0;
+  }
+  .landing .characterCard {
+    box-shadow: 22px 32px 70px #0009, inset 0 1px #ffffff19;
+    transform: perspective(1000px) rotateY(-7deg) rotateX(3deg);
+    transition: transform .35s ease;
+  }
+  .landing .characterCard:hover { transform: perspective(1000px) rotateY(0) rotateX(0) translateY(-6px); }
+}
+.landing .landingPrimary { box-shadow: 0 9px 0 #07528d, 0 22px 42px #087fd43d; }
+.landing .landingPrimary:active { transform: translateY(4px); box-shadow: 0 4px 0 #07528d, 0 10px 24px #087fd43d; }
+.landing .productWindow { background: linear-gradient(145deg,#172338,#090d18 65%); }
+@media (prefers-reduced-motion: reduce) {
+  .landing .productWindow, .landing .choiceGrid article, .landing .workflowGrid article,
+  .landing .modelCloud > span, .landing .pricingCard, .landing .characterCard { transition: none !important; transform: none !important; }
+}
