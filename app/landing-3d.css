@@ -107,3 +107,31 @@
 @media(prefers-reduced-motion:reduce) {
  .landingWith3dBackground > .studio3dScene {opacity:.2;}
 }
+
+/* Remove opaque section layers that hide the persistent rotating background.
+   Keep video/example cards readable and above the canvas. */
+.landingWith3dBackground > section:not(.hero) {
+  background:transparent !important;
+  backdrop-filter:none !important;
+}
+.landingWith3dBackground .showcaseSection {
+  background:transparent !important;
+  position:relative;
+}
+.landingWith3dBackground .showcaseHead {
+  position:relative; z-index:2;
+  background:linear-gradient(90deg,rgba(5,9,19,.84),rgba(5,9,19,.36) 85%,transparent);
+  border-radius:18px;
+}
+.landingWith3dBackground .showcaseSection .showcaseCarousel,
+.landingWith3dBackground .showcaseSection [class*="showcaseTrack"] {
+  position:relative;z-index:2;
+}
+.landingWith3dBackground .showcaseSection [class*="showcaseCard"] {
+  background:#0b1120;
+  box-shadow:0 15px 40px #0009;
+}
+.landingWith3dBackground > section:not(.hero) > h2,
+.landingWith3dBackground > section:not(.hero) > .sectionCopy {
+  text-shadow:0 3px 18px #000;
+}
