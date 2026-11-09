@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PwaRegister from "@/components/pwa-register";
 import "./globals.css";
 import "./landing.css";
+import "./landing-3d.css";
 import "./auth.css";
 import "./phase-two.css";
 import "./studio-phase-two.css";

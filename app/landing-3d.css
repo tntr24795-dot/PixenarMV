@@ -1,0 +1,85 @@
+/* 3D landing presentation. No application or billing logic changes. */
+@media (min-width: 901px) {
+  .landing .hero { perspective: 1600px; }
+  .landing .productWindow {
+    transform: rotateX(5deg) rotateY(-4deg) translateZ(0);
+    transform-style: preserve-3d;
+    box-shadow: 0 48px 95px #000b, 22px 28px 75px #087ec72a, inset 0 1px #b9e7ff38;
+    border-color: #4382aa70;
+    transition: transform .45s cubic-bezier(.2,.75,.2,1), box-shadow .45s ease;
+  }
+  .landing .productWindow:hover {
+    transform: rotateX(1deg) rotateY(0deg) translateY(-8px);
+    box-shadow: 0 60px 110px #000c, 0 24px 95px #087ec73a;
+  }
+  .landing .choiceGrid, .landing .workflowGrid, .landing .modelCloud, .landing .pricingGrid { perspective: 1200px; }
+  .landing .choiceGrid article, .landing .workflowGrid article, .landing .modelCloud > span, .landing .pricingCard {
+    transform: translateZ(0);
+    transform-style: preserve-3d;
+    box-shadow: 0 16px 34px #0005, inset 0 1px #ffffff0c;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  }
+  .landing .choiceGrid article:hover, .landing .workflowGrid article:hover, .landing .pricingCard:hover {
+    transform: translateY(-9px) rotateX(3deg) rotateY(-2deg);
+    box-shadow: 12px 28px 55px #0009, -8px 5px 35px #1688f81a;
+    border-color: #328ec0;
+  }
+  .landing .modelCloud > span:hover {
+    transform: translateY(-5px) rotateY(-5deg);
+    box-shadow: 10px 18px 35px #0009;
+    border-color: #328ec0;
+  }
+  .landing .characterCard {
+    box-shadow: 22px 32px 70px #0009, inset 0 1px #ffffff19;
+    transform: perspective(1000px) rotateY(-7deg) rotateX(3deg);
+    transition: transform .35s ease;
+  }
+  .landing .characterCard:hover { transform: perspective(1000px) rotateY(0) rotateX(0) translateY(-6px); }
+}
+.landing .landingPrimary { box-shadow: 0 9px 0 #07528d, 0 22px 42px #087fd43d; }
+.landing .landingPrimary:active { transform: translateY(4px); box-shadow: 0 4px 0 #07528d, 0 10px 24px #087fd43d; }
+.landing .productWindow { background: linear-gradient(145deg,#172338,#090d18 65%); }
+@media (prefers-reduced-motion: reduce) {
+  .landing .productWindow, .landing .choiceGrid article, .landing .workflowGrid article,
+  .landing .modelCloud > span, .landing .pricingCard, .landing .characterCard { transition: none !important; transform: none !important; }
+}
+
+/* Visible dimensional hero: layered light, floating panels and strong perspective. */
+.landing .hero { isolation: isolate; }
+.landing .hero::before {
+  content: ""; position: absolute; z-index: -1; width: min(76vw, 1000px);
+  height: 500px; left: 50%; top: 240px; transform: translateX(-50%) rotateX(64deg);
+  border-radius: 50%; background: radial-gradient(ellipse, #168cff45 0%, #0c529c1b 42%, transparent 72%);
+  filter: blur(15px); pointer-events: none;
+}
+.landing .productWindow {
+  border: 1px solid #58b8f399;
+  background: linear-gradient(145deg, #182d4c 0%, #0b101e 58%);
+  box-shadow: 0 20px 0 -9px #102846, 0 42px 0 -20px #071426, 0 60px 105px #000b, 0 0 80px #1888f42b;
+}
+.landing .hero h1 { text-shadow: 0 7px 26px #0009; }
+.landing .hero h1 span { filter: drop-shadow(0 8px 15px #149aff55); }
+.landing .choiceGrid article, .landing .workflowGrid article, .landing .pricingCard {
+  background: linear-gradient(145deg,#1b2c44 0%,#101b2c 18%,#0b101b 76%);
+  border-color: #375777;
+  box-shadow: 0 9px 0 -3px #13253b, 0 25px 44px #0009, inset 0 1px #ffffff19;
+}
+.landing .choiceIcon, .landing .stepIcon {
+  box-shadow: 0 7px 0 -2px #071d31, 0 16px 25px #0007, inset 0 1px #ffffff25;
+  background: linear-gradient(145deg,#1766a1,#0a294a);
+}
+@media (min-width: 901px) {
+  .landing .productWindow { transform: perspective(1400px) rotateX(9deg) rotateY(-7deg) translateY(-4px); }
+}
+@media (max-width: 900px) {
+  .landing .productWindow { box-shadow: 0 12px 0 -6px #102846, 0 35px 65px #000a, 0 0 55px #1688f42b; }
+}
+
+/* Interactive WebGL objects, behind hero content and above atmospheric background. */
+.landing .hero { isolation: isolate; }
+.landing .studio3dScene { position:absolute; inset:0 0 auto; height:700px; z-index:0; pointer-events:none; overflow:hidden; }
+.landing .studio3dScene canvas { display:block; width:100%; height:100%; pointer-events:auto; }
+.landing .hero > :not(.heroGlow):not(.studio3dScene) { position:relative; z-index:1; }
+.landing .hero .productWindow { z-index:2; }
+@media(max-width:900px) { .landing .studio3dScene { height:560px; opacity:.55; } }
+@media(max-width:600px) { .landing .studio3dScene { height:440px; opacity:.35; } }
