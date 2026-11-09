@@ -118,11 +118,7 @@
   background:transparent !important;
   position:relative;
 }
-.landingWith3dBackground .showcaseHead {
-  position:relative; z-index:2;
-  background:linear-gradient(90deg,rgba(5,9,19,.84),rgba(5,9,19,.36) 85%,transparent);
-  border-radius:18px;
-}
+ .landingWith3dBackground .showcaseHead { position:relative; z-index:2; background:transparent; border-radius:0; }
 .landingWith3dBackground .showcaseSection .showcaseCarousel,
 .landingWith3dBackground .showcaseSection [class*="showcaseTrack"] {
   position:relative;z-index:2;
@@ -171,3 +167,17 @@
 .landing.landingWith3dBackground .pricingPreview .sectionCopy {
   text-shadow: 0 2px 12px rgba(0,0,0,.7);
 }
+
+/* Final targeted overrides: actual markup uses showcaseHead div and pricingPreview section. */
+.landing.landingWith3dBackground section.showcaseSection > .showcaseHead,
+.landing.landingWith3dBackground section.pricingPreview {
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+.landing.landingWith3dBackground > section {border-block:0 !important;}
+.landing.landingWith3dBackground > section + section {border-top:0 !important;}
