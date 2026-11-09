@@ -83,3 +83,55 @@
 .landing .hero .productWindow { z-index:2; }
 @media(max-width:900px) { .landing .studio3dScene { height:560px; opacity:.55; } }
 @media(max-width:600px) { .landing .studio3dScene { height:440px; opacity:.35; } }
+
+/* Keep the same rotating blue WebGL geometry behind ALL landing sections while scrolling. */
+.landingWith3dBackground { position:relative; isolation:isolate; background:transparent; }
+.landingWith3dBackground > .studio3dScene {
+  position:fixed !important; inset:0 !important; width:100vw !important;
+  height:100dvh !important; z-index:0 !important;
+  overflow:hidden; opacity:.48; pointer-events:none !important;
+}
+.landingWith3dBackground > .studio3dScene canvas {width:100%;height:100%;pointer-events:none !important;}
+.landingWith3dBackground > section,.landingWith3dBackground > nav,.landingWith3dBackground > footer {
+  position:relative; z-index:1;
+}
+.landingWith3dBackground > section:not(.hero) {
+  background-color:rgba(5,9,19,.72);
+  backdrop-filter:blur(2px);
+}
+.landingWith3dBackground > .hero { background:transparent; }
+.landingWith3dBackground > .hero .heroGlow { pointer-events:none; }
+@media(max-width:900px) {
+ .landingWith3dBackground > .studio3dScene {height:100dvh !important;opacity:.38;}
+}
+@media(prefers-reduced-motion:reduce) {
+ .landingWith3dBackground > .studio3dScene {opacity:.2;}
+}
+
+/* Remove opaque section layers that hide the persistent rotating background.
+   Keep video/example cards readable and above the canvas. */
+.landingWith3dBackground > section:not(.hero) {
+  background:transparent !important;
+  backdrop-filter:none !important;
+}
+.landingWith3dBackground .showcaseSection {
+  background:transparent !important;
+  position:relative;
+}
+.landingWith3dBackground .showcaseHead {
+  position:relative; z-index:2;
+  background:linear-gradient(90deg,rgba(5,9,19,.84),rgba(5,9,19,.36) 85%,transparent);
+  border-radius:18px;
+}
+.landingWith3dBackground .showcaseSection .showcaseCarousel,
+.landingWith3dBackground .showcaseSection [class*="showcaseTrack"] {
+  position:relative;z-index:2;
+}
+.landingWith3dBackground .showcaseSection [class*="showcaseCard"] {
+  background:#0b1120;
+  box-shadow:0 15px 40px #0009;
+}
+.landingWith3dBackground > section:not(.hero) > h2,
+.landingWith3dBackground > section:not(.hero) > .sectionCopy {
+  text-shadow:0 3px 18px #000;
+}

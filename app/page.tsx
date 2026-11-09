@@ -79,7 +79,8 @@ export default async function Home() {
   }));
   const showcaseItems = liveShowcase.length ? liveShowcase : showcaseTemplates;
   return (
-    <main className="landing">
+    <main className="landing landingWith3dBackground">
+      <Studio3DScene />
       <nav className="landingNav">
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
@@ -105,7 +106,6 @@ export default async function Home() {
       </nav>
       <section className="hero">
         <div className="heroGlow" />
-        <Studio3DScene />
         <p className="landingKicker">AI FILM · DRAMA · MUSIC · VIDEO CREATION STUDIO</p>
         <h1>
           Turn every story
