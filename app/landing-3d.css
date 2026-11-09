@@ -135,3 +135,39 @@
 .landingWith3dBackground > section:not(.hero) > .sectionCopy {
   text-shadow:0 3px 18px #000;
 }
+
+/* Continuous WebGL backdrop: remove only section-level opaque surfaces.
+   Cards and controls retain their own readable backgrounds. */
+.landing.landingWith3dBackground > section {
+  background: transparent !important;
+  background-image: none !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none;
+  backdrop-filter: none !important;
+}
+.landing.landingWith3dBackground .showcaseHead,
+.landing.landingWith3dBackground .pricingPreview {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+.landing.landingWith3dBackground .showcaseHead::before,
+.landing.landingWith3dBackground .showcaseHead::after,
+.landing.landingWith3dBackground .pricingPreview::before,
+.landing.landingWith3dBackground .pricingPreview::after,
+.landing.landingWith3dBackground .finalCta::before,
+.landing.landingWith3dBackground .finalCta::after {
+  content: none !important;
+}
+.landing.landingWith3dBackground .showcaseHead h2,
+.landing.landingWith3dBackground .pricingPreview h2,
+.landing.landingWith3dBackground .finalCta h2 {
+  text-shadow: 0 4px 24px rgba(0,0,0,.78);
+}
+.landing.landingWith3dBackground .showcaseHead .sectionCopy,
+.landing.landingWith3dBackground .pricingPreview .sectionCopy {
+  text-shadow: 0 2px 12px rgba(0,0,0,.7);
+}
