@@ -123,3 +123,10 @@
   .studioBody.studioBodyResizable { grid-template-columns: 1fr !important; }
   .paneDragHandle { display: none; }
 }
+
+/* Stronger editor splitters requested: visible 3px rails with a wider grab target. */
+@media (min-width:1101px) {
+ .studioBody.studioBodyResizable .paneDragHandle::before { left:calc(50% - 1.5px);width:3px;background:rgba(90,148,192,.55); }
+ .studioBody.studioBodyResizable .paneDragHandle span { width:9px;height:60px;border-color:#537998; }
+ .studioBody.studioBodyResizable .paneDragHandle:hover::before {background:#38bdf8;box-shadow:0 0 10px rgba(56,189,248,.28);}
+}
