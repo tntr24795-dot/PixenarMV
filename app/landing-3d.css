@@ -135,3 +135,46 @@
 .landingWith3dBackground > section:not(.hero) > .sectionCopy {
   text-shadow:0 3px 18px #000;
 }
+
+/* Seamless 3D backdrop: eliminate dark section masks and divider lines.
+   Do not remove backgrounds/borders from actionable cards, controls or previews. */
+.landingWith3dBackground > section,
+.landingWith3dBackground > section:not(.hero),
+.landingWith3dBackground > .finalCta {
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border-top:0 !important;
+  border-bottom:0 !important;
+  box-shadow:none;
+  backdrop-filter:none !important;
+}
+.landingWith3dBackground .showcaseHead {
+  background:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+.landingWith3dBackground .pricingPreview {
+  background:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+.landingWith3dBackground .pricingPreview h2,
+.landingWith3dBackground .showcaseHead h2,
+.landingWith3dBackground .finalCta h2 {
+  text-shadow:0 4px 24px rgba(0,0,0,.88);
+}
+.landingWith3dBackground .pricingPreview .sectionCopy,
+.landingWith3dBackground .showcaseHead .sectionCopy {
+  text-shadow:0 2px 12px rgba(0,0,0,.85);
+}
+.landingWith3dBackground .showcaseSection::before,
+.landingWith3dBackground .showcaseSection::after,
+.landingWith3dBackground .pricingPreview::before,
+.landingWith3dBackground .pricingPreview::after,
+.landingWith3dBackground .finalCta::before,
+.landingWith3dBackground .finalCta::after { display:none !important; }
