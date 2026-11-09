@@ -11,12 +11,12 @@ import "./showcase.css";
 import "./showcase-admin.css";
 
 export const metadata: Metadata = {
-  title:"Pixenar Studio — AI Film, Drama, Music & Video Creation Studio",
+  title:"PIXENAR STUDIO — AI Film, Drama, Music & Video Creation Studio",
   description:"Create films, dramas, music videos, animation and cinematic stories with AI, scene by scene.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Pixenar Studio",
+    title: "PIXENAR STUDIO",
     statusBarStyle: "black-translucent",
   },
 };
