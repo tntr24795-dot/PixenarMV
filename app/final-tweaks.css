@@ -66,3 +66,13 @@
     color: #66caff; pointer-events: none; font-size: 20px;
   }
 }
+
+/* Explicit interactive splitters override legacy fixed editor grid. */
+@media(min-width:1101px){
+ .studioBody.studioBodyResizable {display:grid;grid-template-columns:248px 10px minmax(0,1fr) 10px 310px;min-width:0}
+ .studioBody.studioBodyResizable > .sceneRail,.studioBody.studioBodyResizable > .inspector {width:auto;min-width:0;max-width:none;resize:none}
+ .paneDragHandle {display:flex;align-items:center;justify-content:center;cursor:col-resize;touch-action:none;background:#102033;border-inline:1px solid #2c5b7c;color:#7dd3fc;user-select:none;z-index:3}
+ .paneDragHandle:hover,.paneDragHandle:focus-visible {background:#12649a;outline:2px solid #64caff;outline-offset:-2px}
+ .paneDragHandle span {border-radius:8px;background:#173c58;padding:14px 0;font-size:21px;line-height:1}
+}
+@media(max-width:1100px){.studioBody.studioBodyResizable{grid-template-columns:1fr!important}.paneDragHandle{display:none}}
