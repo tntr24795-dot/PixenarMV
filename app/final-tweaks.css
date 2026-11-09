@@ -45,34 +45,81 @@
 .landingNav .platformSwitch a:focus-visible, .landingNav .navCta:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
 @media (max-width: 760px) { .landingNav .platformSwitch { max-width: 100%; overflow-x: auto; } }
 
-/* Desktop editor: draggable native resize handles, like a multi-pane workspace. */
+/* Premium, low-contrast resizable workspace separators. */
 @media (min-width: 1101px) {
-  .studioBody { grid-template-columns: auto minmax(360px, 1fr) auto; }
-  .studioBody > .sceneRail {
-    width: 248px; min-width: 190px; max-width: min(38vw, 520px);
-    resize: horizontal; overflow: auto;
-    border-right: 2px solid #24445e;
+  .studioBody.studioBodyResizable {
+    display: grid;
+    min-width: 0;
+    gap: 0;
   }
-  .studioBody > .inspector {
-    width: 310px; min-width: 230px; max-width: min(38vw, 540px);
-    resize: horizontal; overflow: auto;
-    border-left: 2px solid #24445e;
+  .studioBody.studioBodyResizable > .sceneRail,
+  .studioBody.studioBodyResizable > .inspector {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    resize: none;
+    border-inline: 0;
   }
-  .studioBody > .sceneRail:hover, .studioBody > .inspector:hover {
-    border-color: #35b8ff;
+  .paneDragHandle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+    background: transparent;
+    border: 0;
+    color: #8ca6be;
+    z-index: 5;
+    transition: background .2s ease, color .2s ease;
   }
-  .studioBody > .sceneRail::after, .studioBody > .inspector::after {
-    content: "⋮"; position: sticky; bottom: 0; float: right;
-    color: #66caff; pointer-events: none; font-size: 20px;
+  .paneDragHandle::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - .5px);
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(117,151,179,.23) 8%, rgba(117,151,179,.23) 92%, transparent);
+    transition: background .2s ease, box-shadow .2s ease;
   }
+  .paneDragHandle span {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 8px;
+    height: 52px;
+    border-radius: 8px;
+    background: #132335;
+    border: 1px solid #35506b;
+    box-shadow: 0 3px 14px rgba(0,0,0,.3);
+    font-size: 0;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .paneDragHandle span::after {
+    content: "";
+    width: 2px;
+    height: 18px;
+    border-left: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    opacity: .75;
+  }
+  .paneDragHandle:hover span,
+  .paneDragHandle:focus-visible span {
+    background: #193a54;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56,189,248,.10), 0 3px 14px rgba(0,0,0,.3);
+  }
+  .paneDragHandle:hover::before,
+  .paneDragHandle:focus-visible::before {
+    background: rgba(56,189,248,.5);
+    box-shadow: 0 0 8px rgba(56,189,248,.15);
+  }
+  .paneDragHandle:focus-visible { outline: none; }
 }
-
-/* Explicit interactive splitters override legacy fixed editor grid. */
-@media(min-width:1101px){
- .studioBody.studioBodyResizable {display:grid;grid-template-columns:248px 10px minmax(0,1fr) 10px 310px;min-width:0}
- .studioBody.studioBodyResizable > .sceneRail,.studioBody.studioBodyResizable > .inspector {width:auto;min-width:0;max-width:none;resize:none}
- .paneDragHandle {display:flex;align-items:center;justify-content:center;cursor:col-resize;touch-action:none;background:#102033;border-inline:1px solid #2c5b7c;color:#7dd3fc;user-select:none;z-index:3}
- .paneDragHandle:hover,.paneDragHandle:focus-visible {background:#12649a;outline:2px solid #64caff;outline-offset:-2px}
- .paneDragHandle span {border-radius:8px;background:#173c58;padding:14px 0;font-size:21px;line-height:1}
+@media (max-width: 1100px) {
+  .studioBody.studioBodyResizable { grid-template-columns: 1fr !important; }
+  .paneDragHandle { display: none; }
 }
-@media(max-width:1100px){.studioBody.studioBodyResizable{grid-template-columns:1fr!important}.paneDragHandle{display:none}}
