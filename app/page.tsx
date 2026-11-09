@@ -3,6 +3,7 @@ import { mainSiteUrl } from "@/lib/brand-links";
 import { showcaseTemplates } from "@/lib/showcase";
 import ShowcaseCarousel from "@/components/showcase-carousel";
 import HeroShowcasePreview from "@/components/hero-showcase-preview";
+import Studio3DScene from "@/components/studio-3d-scene";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseUrl } from "@/lib/supabase/config";
 
@@ -104,6 +105,7 @@ export default async function Home() {
       </nav>
       <section className="hero">
         <div className="heroGlow" />
+        <Studio3DScene />
         <p className="landingKicker">AI FILM · DRAMA · MUSIC · VIDEO CREATION STUDIO</p>
         <h1>
           Turn every story
