@@ -9,7 +9,7 @@ export default function PricingPage() {
       <nav className="pricingNav">
         <Link href="/" className="brand">
           <span className="brandMark">P</span>
-          <span>PIXENAR <b>STUDIO</b></span>
+          <span><span className="brand-pixenar-word">PIXENAR</span> <b className="brand-studio-word">STUDIO</b></span>
         </Link>
         <div>
           <Link href="/">Home</Link>
