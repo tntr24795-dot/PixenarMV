@@ -74,3 +74,12 @@
 @media (max-width: 900px) {
   .landing .productWindow { box-shadow: 0 12px 0 -6px #102846, 0 35px 65px #000a, 0 0 55px #1688f42b; }
 }
+
+/* Interactive WebGL objects, behind hero content and above atmospheric background. */
+.landing .hero { isolation: isolate; }
+.landing .studio3dScene { position:absolute; inset:0 0 auto; height:700px; z-index:0; pointer-events:none; overflow:hidden; }
+.landing .studio3dScene canvas { display:block; width:100%; height:100%; pointer-events:auto; }
+.landing .hero > :not(.heroGlow):not(.studio3dScene) { position:relative; z-index:1; }
+.landing .hero .productWindow { z-index:2; }
+@media(max-width:900px) { .landing .studio3dScene { height:560px; opacity:.55; } }
+@media(max-width:600px) { .landing .studio3dScene { height:440px; opacity:.35; } }
