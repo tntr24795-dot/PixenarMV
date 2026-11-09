@@ -181,3 +181,21 @@
 }
 .landing.landingWith3dBackground > section {border-block:0 !important;}
 .landing.landingWith3dBackground > section + section {border-top:0 !important;}
+
+/* STUDIO: translucent actual landing cards; earlier generic selectors missed these. */
+.landing.landingWith3dBackground .choiceGrid article,
+.landing.landingWith3dBackground .workflowGrid article,
+.landing.landingWith3dBackground .pricingCard,
+.landing.landingWith3dBackground .characterCard,
+.landing.landingWith3dBackground .modelCloud > *,
+.landing.landingWith3dBackground .productWindow,
+.landing.landingWith3dBackground .heroPriceCard,
+.landing.landingWith3dBackground .showcaseSection [class*="showcaseCard"]{
+  background:rgba(9,20,34,.36)!important;
+  background-image:none!important;
+  backdrop-filter:blur(9px);
+  -webkit-backdrop-filter:blur(9px);
+}
+.landing.landingWith3dBackground .choiceGrid article:hover,
+.landing.landingWith3dBackground .workflowGrid article:hover,
+.landing.landingWith3dBackground .pricingCard:hover{background:rgba(13,31,48,.50)!important}
