@@ -627,6 +627,28 @@ export default function CreateStudio({
       setExporting(false);
     }
   }
+  const [railWidth, setRailWidth] = useState(248);
+  const [inspectorWidth, setInspectorWidth] = useState(310);
+  const startResize = (side: "rail" | "inspector", event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const initial = side === "rail" ? railWidth : inspectorWidth;
+    const move = (e: PointerEvent) => {
+      const delta = e.clientX - startX;
+      const next = Math.max(side === "rail" ? 190 : 230, Math.min(520, initial + (side === "rail" ? delta : -delta)));
+      if (side === "rail") setRailWidth(next); else setInspectorWidth(next);
+    };
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop, { once: true });
+  };
   return (
     <div className="studio">
       <div className="studioBar">
@@ -658,7 +680,7 @@ export default function CreateStudio({
           </button>
         </div>
       </div>
-      <div className="studioBody">
+      <div className="studioBody studioBodyResizable" style={{ gridTemplateColumns: `${railWidth}px 10px minmax(0, 1fr) 10px ${inspectorWidth}px` }}>
         <aside className="sceneRail">
           <div className="railHead">
             <div>
@@ -691,6 +713,7 @@ export default function CreateStudio({
           ))}
           <button className="addScene" onClick={addScene}>＋ Add scene</button>
         </aside>
+        <div className="paneDragHandle" role="separator" aria-label="Resize storyboard panel" aria-orientation="vertical" tabIndex={0} onPointerDown={(e) => startResize("rail", e)} onKeyDown={(e) => { if(e.key === "ArrowRight") setRailWidth(v => Math.min(520, v+20)); if(e.key === "ArrowLeft") setRailWidth(v => Math.max(190, v-20)); }}><span>⋮</span></div>
         <section className="canvasArea">
           <div className="modeTabs" role="tablist">
             <button
@@ -897,6 +920,7 @@ export default function CreateStudio({
             </div>
           )}
         </section>
+        <div className="paneDragHandle" role="separator" aria-label="Resize settings panel" aria-orientation="vertical" tabIndex={0} onPointerDown={(e) => startResize("inspector", e)} onKeyDown={(e) => { if(e.key === "ArrowLeft") setInspectorWidth(v => Math.min(520, v+20)); if(e.key === "ArrowRight") setInspectorWidth(v => Math.max(230, v-20)); }}><span>⋮</span></div>
         <aside
           className={`inspector ${
             mode === "film" && !dramaReady ? "storyInspectorHidden" : ""
