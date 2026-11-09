@@ -1,10 +1,13 @@
-import Link from "next/link";
+import MemberNavigation from "@/components/member-navigation";
 import CharacterManager, { Character } from "@/components/character-manager";
-import SignOutButton from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
-import { mainSiteUrl } from "@/lib/brand-links";
 export default async function CharactersPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: wallet }, { data: profile }] = await Promise.all([
+    supabase.from("credit_wallets").select("balance").maybeSingle(),
+    user ? supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
   const { data } = await supabase
     .from("characters")
     .select("id,name,role,description,identity_lock,wardrobe_lock,thumbnail_path,created_at")
@@ -24,24 +27,9 @@ export default async function CharactersPage() {
   );
 
   return (
-    <main className="phasePage">
-      <header className="phaseTop">
-        <Link className="brand" href="/studio">
-          <span className="brandMark">P</span>
-          <span>
-            PIXENAR <span>STUDIO</span>
-          </span>
-        </Link>
-        <nav>
-          <a href={mainSiteUrl}>Main website</a>
-          <Link href="/studio">Projects</Link>
-          <Link className="active" href="/characters">
-            Characters
-          </Link>
-          <Link href="/renders">Render queue</Link>
-        </nav>
-        <SignOutButton />
-      </header>
+    <main className="memberDash charactersMemberPage">
+      <MemberNavigation active="characters" credits={wallet?.balance ?? 0} role={profile?.role === "admin" ? "admin" : "user"} />
+      <div className="memberContent">
       <div className="phaseContent">
         <p className="eyebrow">CHARACTER CONTINUITY</p>
         <h1>Keep every character recognizable.</h1>
@@ -50,6 +38,7 @@ export default async function CharactersPage() {
           and visual notes throughout your film or music video.
         </p>
         <CharacterManager initialCharacters={characters as Character[]} />
+      </div>
       </div>
       <footer className="appCopyright">
         © 2026 Pixenar Studio. All rights reserved.
