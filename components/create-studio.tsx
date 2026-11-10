@@ -900,14 +900,18 @@ export default function CreateStudio({
               <div className="tracks">
                 <div className="trackLabel">VIDEO</div>
                 {scenes.map((s) => (
-                  <div
+                  <button
+                    type="button"
                     key={s.n}
-                    className={`clip c${s.n}`}
-                    style={{ flex: s.duration }}
+                    className={`clip c${s.n}${selected === s.n ? " selected" : ""}`}
+                    style={{ flex: s.duration, minWidth: 0, cursor: "pointer", textAlign: "left" }}
+                    onClick={() => selectScene(s)}
+                    aria-label={`Select scene ${s.n}: ${s.title}`}
+                    aria-pressed={selected === s.n}
                   >
                     <b>{s.n}. {s.title}</b>
                     <small>{s.duration}s</small>
-                  </div>
+                  </button>
                 ))}
               </div>
               <div className="tracks audio">
