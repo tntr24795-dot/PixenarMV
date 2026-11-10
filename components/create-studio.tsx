@@ -908,9 +908,19 @@ export default function CreateStudio({
                     onClick={() => selectScene(s)}
                     aria-label={`Select scene ${s.n}: ${s.title}`}
                     aria-pressed={selected === s.n}
+                    onKeyDown={(event) => {
+                      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                      event.preventDefault();
+                      const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? scenes.length - 1 : Math.max(0, Math.min(scenes.length - 1, s.n - 1 + (event.key === "ArrowRight" ? 1 : -1)));
+                      const next = scenes[nextIndex];
+                      if (next) {
+                        selectScene(next);
+                        event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("button.clip")[nextIndex]?.focus();
+                      }
+                    }}
                   >
                     <b>{s.n}. {s.title}</b>
-                    <small>{s.duration}s</small>
+                    <small>{Math.floor(scenes.slice(0, s.n - 1).reduce((sum, scene) => sum + scene.duration, 0) / 60).toString().padStart(2, "0")}:{(scenes.slice(0, s.n - 1).reduce((sum, scene) => sum + scene.duration, 0) % 60).toString().padStart(2, "0")} · {s.duration}s</small>
                   </button>
                 ))}
               </div>
